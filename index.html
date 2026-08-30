@@ -28,11 +28,11 @@
             50% { box-shadow: 0 0 18px rgba(124, 58, 237, 0.8), 0 0 25px rgba(168, 85, 247, 0.6); }
             100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
         }
-        button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card {
+        button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card, .info-btn {
             position: relative; overflow: hidden; transition: transform 0.15s ease, filter 0.2s ease; cursor: pointer;
         }
-        button:hover, .btn-purple:hover, .action-btn-custom:hover { animation: vfxGlowPulse 1.4s infinite; }
-        button:active, .btn-purple:active { transform: scale(0.95); }
+        button:hover, .btn-purple:hover, .action-btn-custom:hover, .info-btn:hover { animation: vfxGlowPulse 1.4s infinite; }
+        button:active, .btn-purple:active, .info-btn:active { transform: scale(0.95); }
         .vfx-sticker {
             position: absolute; top: 14px; right: 16px; background: rgba(0, 255, 102, 0.15); backdrop-filter: blur(6px);
             border: 1px solid rgba(0, 255, 102, 0.6); border-radius: 30px; padding: 5px 12px; font-size: 11px; font-weight: 800; color: #00ff66; z-index: 10;
@@ -43,9 +43,10 @@
         .room-badge { background: #ede9fe; color: #7c3aed; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
         .back-btn { background: none; border: none; font-size: 18px; color: #7c3aed; cursor: pointer; }
         .subtitle { font-size: 12px; color: #6b7280; margin-top: -10px; margin-bottom: 15px; }
-        .status-pills { display: flex; gap: 6px; }
+        .status-pills { display: flex; gap: 6px; align-items: center; }
         .pill { background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px; }
         .pill.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+        .info-btn { background: #ede9fe; color: #7c3aed; border: 1px solid #c4b5fd; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
         .card { background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; padding: 16px; margin-bottom: 14px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05); }
         .card-header-sm { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
         .dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px; }
@@ -92,6 +93,22 @@
         .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
         .code-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none; }
         .btn-purple { background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        
+        #infoOverlayModal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+            padding: 20px; box-sizing: border-box;
+        }
+        #infoOverlayModal.active { opacity: 1; pointer-events: auto; }
+        .info-card-box {
+            background: #ffffff; border-radius: 20px; width: 100%; max-width: 380px;
+            padding: 20px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .info-section-title { font-size: 14px; font-weight: 800; color: #4c1d95; margin: 12px 0 6px 0; }
+        .info-item-text { font-size: 12px; color: #4b5563; line-height: 1.5; margin-bottom: 8px; }
+
         #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
@@ -99,6 +116,23 @@
 </head>
 <body>
     <canvas id="topParticleCanvas"></canvas>
+
+    <div id="infoOverlayModal">
+        <div class="info-card-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="font-size: 17px; font-weight: 900; color: #7c3aed;">💡 How SyncBeat Works</div>
+                <button onclick="toggleInfoModal(false)" style="background: none; border: none; font-size: 18px; color: #6b7280; cursor: pointer; font-weight: 800;">✕</button>
+            </div>
+            <div class="info-section-title">🔮 Hosting a Session</div>
+            <div class="info-item-text">Tap <b>Generate Code & Host Room</b> to start a private sync channel. Copy the generated code or share it with friends.</div>
+            <div class="info-section-title">⚡ Joining as Member</div>
+            <div class="info-item-text">Enter the room code shared by the host to connect and mirror music playback in real time.</div>
+            <div class="info-section-title">⏳ Render Server Boot</div>
+            <div class="info-item-text">Render free instances sleep after 15 minutes of inactivity. When launching the app, allow 30–45 seconds for the server to wake up automatically.</div>
+            <button class="btn-purple" style="margin-top: 15px; padding: 10px;" onclick="toggleInfoModal(false)">Got It!</button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Landing View -->
         <div id="mainLandingView">
@@ -108,7 +142,8 @@
                     <span class="room-badge">Cloud Sync</span>
                 </div>
                 <div class="status-pills">
-                    <div class="pill active" id="serverStatePill">⚡ Connecting...</div>
+                    <button class="info-btn" onclick="toggleInfoModal(true)">ℹ️ Info</button>
+                    <div class="pill" id="serverStatePill">⏳ Checking Server...</div>
                 </div>
             </div>
             <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
@@ -247,8 +282,10 @@
     <div id="toastModal">Notification</div>
 
     <script>
-        // REPLACE THIS with your exact Render service URL (e.g. wss://syncbeat-backend-xxxx.onrender.com)
-        const BACKEND_WS = 'wss://syncbeat-server.onrender.com';
+        // Set this to your exact Render hostname
+        const RENDER_DOMAIN = 'syncbeat-server.onrender.com';
+        const BACKEND_HTTP = `https://${RENDER_DOMAIN}`;
+        const BACKEND_WS = `wss://${RENDER_DOMAIN}`;
         
         let ws = null;
         let isHosting = false;
@@ -259,9 +296,7 @@
         let ytPlayer = null;
         let scannerStream = null;
         let scannerInterval = null;
-        let isConnecting = false;
-        let retryTimeout = null;
-        let pendingCallback = null;
+        let isWakingUp = false;
         let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
 
         const topCanvas = document.getElementById('topParticleCanvas');
@@ -302,13 +337,19 @@
         window.addEventListener('DOMContentLoaded', () => { 
             initTopCanvas(); 
             renderPlaylist(); 
-            connectWebSocket(); // Pre-warm server connection on page load
+            wakeUpAndConnect();
         });
+
+        function toggleInfoModal(show) {
+            const modal = document.getElementById('infoOverlayModal');
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
+        }
 
         document.addEventListener("visibilitychange", () => {
             if (!document.hidden && currentRoomCode) {
                 if (!ws || ws.readyState !== WebSocket.OPEN) {
-                    connectWebSocket(() => {
+                    wakeUpAndConnect(() => {
                         const type = isHosting ? 'HOST_ROOM' : 'JOIN_ROOM';
                         ws.send(JSON.stringify({ type: type, code: currentRoomCode, name: currentUserName }));
                     });
@@ -414,43 +455,40 @@
             document.getElementById('scannerToggleBtn').textContent = "🛸 OPEN CAMERA SCANNER";
         }
 
-        function connectWebSocket(onSuccess) {
-            if (onSuccess) pendingCallback = onSuccess;
-
+        // Issue HTTP ping to wake up free Render instance before opening WebSocket
+        async function wakeUpAndConnect(onSuccess) {
             if (ws && ws.readyState === WebSocket.OPEN) {
-                if (pendingCallback) {
-                    const cb = pendingCallback;
-                    pendingCallback = null;
-                    cb();
-                }
+                if (onSuccess) onSuccess();
                 return;
             }
 
-            if (isConnecting) return;
-            isConnecting = true;
-
             const pill = document.getElementById('serverStatePill');
-            if (pill) pill.textContent = "⏳ Waking up...";
+            if (pill) { pill.textContent = "⏳ Waking Render..."; pill.style.background = "#f59e0b"; }
+
+            try {
+                // Fetch triggers the sleep spin-up
+                await fetch(BACKEND_HTTP, { mode: 'cors' }).catch(() => {});
+            } catch (e) {}
+
+            initWebSocket(onSuccess);
+        }
+
+        function initWebSocket(onSuccess) {
+            const pill = document.getElementById('serverStatePill');
 
             try {
                 ws = new WebSocket(BACKEND_WS);
 
                 ws.onopen = () => {
-                    isConnecting = false;
-                    clearTimeout(retryTimeout);
-                    if (pill) { pill.textContent = "⚡ Node Live"; pill.style.background = "#10b981"; }
-                    showToast("Server connected!");
+                    if (pill) { pill.textContent = "⚡ Node Live"; pill.style.background = "#10b981"; pill.style.color = "#fff"; }
+                    showToast("Connected to server!");
                     
                     clearInterval(heartbeatInterval);
                     heartbeatInterval = setInterval(() => {
                         if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
                     }, 20000);
 
-                    if (pendingCallback) {
-                        const cb = pendingCallback;
-                        pendingCallback = null;
-                        cb();
-                    }
+                    if (onSuccess) onSuccess();
                 };
 
                 ws.onmessage = (event) => {
@@ -485,26 +523,22 @@
                 };
 
                 ws.onerror = () => {
-                    isConnecting = false;
-                    if (pill) { pill.textContent = "⏳ Retrying..."; pill.style.background = "#f59e0b"; }
-                    showToast("Waking up Render server... Retrying in 4s");
-                    clearTimeout(retryTimeout);
-                    retryTimeout = setTimeout(() => connectWebSocket(), 4000);
+                    if (pill) { pill.textContent = "⏳ Retrying..."; pill.style.background = "#ef4444"; }
+                    setTimeout(() => wakeUpAndConnect(onSuccess), 4000);
                 };
 
                 ws.onclose = () => {
-                    isConnecting = false;
                     clearInterval(heartbeatInterval);
                 };
             } catch (e) {
-                isConnecting = false;
+                setTimeout(() => wakeUpAndConnect(onSuccess), 4000);
             }
         }
 
         function startHostingSession() {
             currentUserName = getUserInputName();
             currentRoomCode = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-            connectWebSocket(() => {
+            wakeUpAndConnect(() => {
                 isHosting = true;
                 ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
                 document.getElementById('displayRoomCode').textContent = currentRoomCode;
@@ -524,7 +558,7 @@
             const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             if (code.length < 4) { showToast("Enter a valid room code."); return; }
             currentRoomCode = code;
-            connectWebSocket(() => {
+            wakeUpAndConnect(() => {
                 ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName }));
             });
         }
