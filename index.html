@@ -397,7 +397,7 @@
     <div id="toastModal">Notification</div>
 
     <script>
-        const BACKEND_WS = 'wss://syncbeat-backend-zksz.onrender.com';[span_0](start_span)[span_0](end_span)
+        const BACKEND_WS = 'wss://syncbeat-backend-zksz.onrender.com';
         let ws = null;
         let isHosting = false;
         let currentRoomCode = "";
@@ -562,7 +562,7 @@
             fetch('https://syncbeat-backend-zksz.onrender.com/')
                 .catch(() => {})
                 .finally(() => {
-                    ws = new WebSocket(BACKEND_WS);[span_1](start_span)[span_1](end_span)
+                    ws = new WebSocket(BACKEND_WS);
 
                     ws.onopen = () => {
                         retryCount = 0;

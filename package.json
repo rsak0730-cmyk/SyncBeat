@@ -1,7 +1,7 @@
 {
-  "name": "syncbeat",
+  "name": "syncbeat-backend",
   "version": "1.0.0",
-  "description": "Multi-Device Real-Time Room Synchronization",
+  "description": "SyncBeat Backend Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
