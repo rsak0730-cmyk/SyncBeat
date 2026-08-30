@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncBeat - Multi-Device Real-Time Room Synchronization</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7c3aed">
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
     <style>
@@ -20,156 +21,49 @@
             align-items: center;
             overflow-x: hidden;
         }
-        .container {
-            width: 100%;
-            max-width: 420px;
-        }
-        #topParticleCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-        }
+        .container { width: 100%; max-width: 420px; }
+        #topParticleCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
         @keyframes vfxGlowPulse {
             0% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
             50% { box-shadow: 0 0 18px rgba(124, 58, 237, 0.8), 0 0 25px rgba(168, 85, 247, 0.6); }
             100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
         }
         button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s ease, filter 0.2s ease;
-            cursor: pointer;
+            position: relative; overflow: hidden; transition: transform 0.15s ease, filter 0.2s ease; cursor: pointer;
         }
-        button:hover, .btn-purple:hover, .action-btn-custom:hover {
-            animation: vfxGlowPulse 1.4s infinite;
-        }
-        button:active, .btn-purple:active {
-            transform: scale(0.95);
-        }
+        button:hover, .btn-purple:hover, .action-btn-custom:hover { animation: vfxGlowPulse 1.4s infinite; }
+        button:active, .btn-purple:active { transform: scale(0.95); }
         .vfx-sticker {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            background: rgba(0, 255, 102, 0.15);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(0, 255, 102, 0.6);
-            border-radius: 30px;
-            padding: 5px 12px;
-            font-size: 11px;
-            font-weight: 800;
-            color: #00ff66;
-            z-index: 10;
+            position: absolute; top: 14px; right: 16px; background: rgba(0, 255, 102, 0.15); backdrop-filter: blur(6px);
+            border: 1px solid rgba(0, 255, 102, 0.6); border-radius: 30px; padding: 5px 12px; font-size: 11px; font-weight: 800; color: #00ff66; z-index: 10;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .logo-area h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 800;
-            color: #7c3aed;
-        }
-        .room-badge {
-            background: #ede9fe;
-            color: #7c3aed;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
-        }
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #7c3aed;
-            cursor: pointer;
-        }
-        .subtitle {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-        .status-pills {
-            display: flex;
-            gap: 6px;
-        }
-        .pill {
-            background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 8px; }
+        .logo-area h1 { margin: 0; font-size: 22px; font-weight: 800; color: #7c3aed; }
+        .room-badge { background: #ede9fe; color: #7c3aed; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+        .back-btn { background: none; border: none; font-size: 18px; color: #7c3aed; cursor: pointer; }
+        .subtitle { font-size: 12px; color: #6b7280; margin-top: -10px; margin-bottom: 15px; }
+        .status-pills { display: flex; gap: 6px; }
+        .pill { background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px; }
         .pill.active { background: #7c3aed; color: white; border-color: #7c3aed; }
-        .card {
-            background: #ffffff;
-            border: 1px solid #ede9fe;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05);
-        }
-        .card-header-sm {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #7c3aed;
-            margin-bottom: 8px;
-        }
-        .dot {
-            height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px;
-        }
-        .banner-card {
-            background: linear-gradient(135deg, #f3e8ff, #ede9fe);
-            border: 1px solid #d8b4fe;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .banner-icon {
-            background: #7c3aed; color: white; width: 45px; height: 45px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-        }
+        .card { background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; padding: 16px; margin-bottom: 14px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05); }
+        .card-header-sm { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
+        .dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .banner-card { background: linear-gradient(135deg, #f3e8ff, #ede9fe); border: 1px solid #d8b4fe; display: flex; align-items: center; justify-content: space-between; }
+        .banner-icon { background: #7c3aed; color: white; width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .banner-content { flex: 1; margin-left: 15px; }
         .banner-title { font-weight: 700; font-size: 15px; color: #4c1d95; }
         .banner-desc { font-size: 11px; color: #6d28d9; }
-        .banner-arrow {
-            background: #7c3aed; color: white; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .banner-arrow { background: #7c3aed; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .hosting-banner { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe; }
         .hosting-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .hosting-active-tag { display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #10b981; }
-        .code-box {
-            background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px;
-            text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px;
-        }
+        .code-box { background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px; text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px; }
         .code-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .code-action-btn {
-            background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px;
-            padding: 10px 4px; border-radius: 12px; text-align: center;
-        }
-        .close-session-btn {
-            background: #ef4444; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;
-        }
+        .code-action-btn { background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px; padding: 10px 4px; border-radius: 12px; text-align: center; }
+        .close-session-btn { background: #ef4444; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
         .player-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-        .album-art {
-            width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 22px; color: #7c3aed;
-        }
+        .album-art { width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #7c3aed; }
         .track-title { font-size: 13px; font-weight: 800; color: #1e1b4b; margin-bottom: 2px; word-break: break-all; }
         .track-artist { font-size: 11px; color: #6b7280; }
         .progress-track { background: #f3e8ff; height: 5px; border-radius: 3px; cursor: pointer; margin-bottom: 4px; }
@@ -177,51 +71,28 @@
         .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-bottom: 12px; }
         .player-controls { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 15px; }
         .control-btn { background: none; border: none; font-size: 18px; color: #4c1d95; cursor: pointer; }
-        .play-pause-lg {
-            background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer;
-        }
+        .play-pause-lg { background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer; }
         .inline-volume { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 10px 14px; border-radius: 16px; border: 1px solid #ede9fe; margin-bottom: 14px; }
         .inline-volume input[type="range"] { flex: 1; accent-color: #7c3aed; cursor: pointer; }
         .volume-pct { font-size: 11px; font-weight: 700; color: #7c3aed; width: 30px; text-align: right; }
-        .queue-item {
-            display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff;
-        }
+        .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
         .queue-item:last-child { border-bottom: none; }
         .action-icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px; color: #7c3aed; }
-        .search-input {
-            width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 10px 12px; border-radius: 12px;
-            font-size: 13px; box-sizing: border-box; outline: none;
-        }
+        .search-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 10px 12px; border-radius: 12px; font-size: 13px; box-sizing: border-box; outline: none; }
         .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
         .reactions-grid { display: flex; justify-content: space-around; background: #faf8ff; padding: 10px; border-radius: 14px; }
         .reaction-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
-        .floating-reaction {
-            position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-360px); opacity: 0; }
-        }
+        .floating-reaction { position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-360px); opacity: 0; } }
         .peer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
         .peer-info { display: flex; align-items: center; gap: 10px; }
         .peer-icon { width: 32px; height: 32px; background: #ede9fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         .peer-name { font-size: 13px; font-weight: 700; color: #1e1b4b; }
         .peer-meta { font-size: 10px; color: #6b7280; }
         .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-        .code-input {
-            width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px;
-            font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none;
-        }
-        .btn-purple {
-            background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-        }
-        #toastModal {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px;
-            font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
-        }
+        .code-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none; }
+        .btn-purple { background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
     </style>
@@ -237,8 +108,8 @@
                     <span class="room-badge">Cloud Sync</span>
                 </div>
                 <div class="status-pills">
-                    <div class="pill active" id="wifiPill">📶 Wi-Fi</div>
-                    <div class="pill active" id="btPill">⚡ Cloud</div>
+                    <div class="pill active">📶 Wi-Fi</div>
+                    <div class="pill active">⚡ Node</div>
                 </div>
             </div>
             <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
@@ -258,7 +129,7 @@
                 </div>
             </div>
 
-            <div class="card banner-card" id="generateHostCard" onclick="startHostingSession()">
+            <div class="card banner-card" onclick="startHostingSession()">
                 <div class="banner-icon">🔮</div>
                 <div class="banner-content">
                     <div class="banner-title">Generate Code & Host Room</div>
@@ -267,12 +138,12 @@
                 <div class="banner-arrow">→</div>
             </div>
 
-            <div class="card" id="connectMemberCard">
+            <div class="card">
                 <div class="card-header-sm"><span>Connect to Host</span></div>
                 <div style="margin: 10px 0;">
                     <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g. SYNC-4B9X)" maxlength="10">
                 </div>
-                <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
+                <button class="btn-purple" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
             </div>
         </div>
 
@@ -282,26 +153,24 @@
                 <button class="back-btn" onclick="exitHostSession()">←</button>
                 <div>
                     <div style="font-size: 15px; font-weight: 800;" id="sessionHeaderTitle">Room Session</div>
-                    <div style="font-size: 10px; color: #6b7280;" id="sessionSubtitle">Connected to Cloud</div>
+                    <div style="font-size: 10px; color: #6b7280;" id="sessionSubtitle">Connected to Server</div>
                 </div>
             </div>
 
             <div class="card hosting-banner">
                 <div class="hosting-top-row">
-                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">ACTIVE</span></div>
+                    <div class="hosting-active-tag"><span class="dot"></span> <span>ACTIVE</span></div>
                     <div style="font-size: 11px; font-weight: 700; color: #7c3aed;" id="roleIndicatorBadge">Role: Host</div>
                 </div>
                 
-                <div class="code-box">
-                    <span id="displayRoomCode">SYNC-0000</span>
-                </div>
+                <div class="code-box"><span id="displayRoomCode">SYNC-0000</span></div>
 
                 <div class="code-actions">
                     <button class="code-action-btn" onclick="copyCode()">📋 Copy Code</button>
                     <button class="code-action-btn" onclick="shareCode()">📡 Share</button>
                 </div>
 
-                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ LEAVE ROOM</button>
+                <button class="close-session-btn" onclick="closeRoomAndReturnHome()">⚡ LEAVE ROOM</button>
             </div>
 
             <div class="inline-volume">
@@ -314,20 +183,15 @@
                 <div id="vfxMusicSticker" class="vfx-sticker hidden">🎶 LIVE PLAY 🎵</div>
                 <div class="card-header-sm"><span>● Direct Media Player</span></div>
                 <div class="player-info">
-                    <div class="album-art" id="sessionArt">🎧</div>
+                    <div class="album-art">🎧</div>
                     <div style="overflow: hidden; flex: 1;">
                         <div class="track-title" id="sessionTitle">No Track Playing</div>
                         <div class="track-artist" id="sessionArtist">Waiting for Host...</div>
                     </div>
                 </div>
 
-                <div class="progress-track" onclick="seekTrack(event)">
-                    <div class="progress-fill" id="sessionFill"></div>
-                </div>
-                <div class="time-info">
-                    <span id="sessionCurrentTime">0:00</span>
-                    <span id="sessionTotalDuration">0:00</span>
-                </div>
+                <div class="progress-track" onclick="seekTrack(event)"><div class="progress-fill" id="sessionFill"></div></div>
+                <div class="time-info"><span id="sessionCurrentTime">0:00</span><span id="sessionTotalDuration">0:00</span></div>
 
                 <div class="player-controls" id="hostPlayerControls">
                     <button class="control-btn" onclick="rewindTrack(10)">⏪</button>
@@ -337,26 +201,13 @@
             </div>
 
             <div class="card">
-                <div class="card-header-sm">
-                    <span>⭐ Saved Playlist <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="playlistCount">0</span></span>
-                </div>
-                <div id="playlistContainer">
-                    <div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs yet.</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header-sm">
-                    <span>Upcoming Queue <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="queueCount">0</span></span>
-                </div>
-                <div id="queueList"></div>
+                <div class="card-header-sm"><span>⭐ Saved Playlist <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="playlistCount">0</span></span></div>
+                <div id="playlistContainer"><div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs yet.</div></div>
             </div>
 
             <div class="card" id="hostUrlControls">
                 <div class="card-header-sm"><span>YouTube Controller</span></div>
-                <div style="margin-bottom: 8px;">
-                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
-                </div>
+                <div style="margin-bottom: 8px;"><input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL"></div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="action-btn-custom" onclick="handleUrlAction('play')">💫 Play Song</button>
                     <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save Playlist</button>
@@ -397,18 +248,18 @@
     <div id="toastModal">Notification</div>
 
     <script>
-        const BACKEND_WS = 'wss://syncbeat-backend-zksz.onrender.com';
+        // Make sure this matches your deployed Render URL exactly
+        const BACKEND_WS = 'wss://syncbeat-server.onrender.com';
+        
         let ws = null;
         let isHosting = false;
         let currentRoomCode = "";
         let currentUserName = "User";
         let isSessionPlaying = false;
-        let progressInterval = null;
         let heartbeatInterval = null;
         let ytPlayer = null;
         let scannerStream = null;
         let scannerInterval = null;
-        let socketRetries = 0;
         let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
 
         const topCanvas = document.getElementById('topParticleCanvas');
@@ -421,21 +272,15 @@
             topParticles = [];
             for (let i = 0; i < 40; i++) {
                 topParticles.push({
-                    x: Math.random() * topCanvas.width,
-                    y: Math.random() * topCanvas.height,
-                    size: 1.5 + Math.random() * 2.5,
-                    speed: 0.2 + Math.random() * 0.3,
-                    colorHue: Math.random() * 360,
-                    alpha: Math.random()
+                    x: Math.random() * topCanvas.width, y: Math.random() * topCanvas.height,
+                    size: 1.5 + Math.random() * 2.5, speed: 0.2 + Math.random() * 0.3,
+                    colorHue: Math.random() * 360, alpha: Math.random()
                 });
             }
         }
 
         function renderTopParticles() {
-            if (!isSessionPlaying) {
-                tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-                return;
-            }
+            if (!isSessionPlaying) { tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height); return; }
             tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
             topParticles.forEach(p => {
                 p.y += p.speed;
@@ -452,7 +297,24 @@
         }
 
         window.addEventListener('resize', initTopCanvas);
-        window.addEventListener('DOMContentLoaded', () => { initTopCanvas(); renderPlaylist(); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            initTopCanvas(); 
+            renderPlaylist(); 
+        });
+
+        // Mobile Wakeup & Reconnection handler
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && currentRoomCode) {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    connectWebSocket(() => {
+                        const type = isHosting ? 'HOST_ROOM' : 'JOIN_ROOM';
+                        ws.send(JSON.stringify({ type: type, code: currentRoomCode, name: currentUserName }));
+                    });
+                } else {
+                    ws.send(JSON.stringify({ type: 'PING' }));
+                }
+            }
+        });
 
         function showToast(msg) {
             const toast = document.getElementById('toastModal');
@@ -550,33 +412,29 @@
             document.getElementById('scannerToggleBtn').textContent = "🛸 OPEN CAMERA SCANNER";
         }
 
-        function connectWebSocket(onSuccess, onError) {
+        function connectWebSocket(onSuccess) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 if (onSuccess) onSuccess();
                 return;
             }
 
-            showToast("Waking up Render server...");
+            showToast("Connecting to server...");
+            ws = new WebSocket(BACKEND_WS);
 
-            fetch('https://syncbeat-backend-zksz.onrender.com/', { mode: 'no-cors' }).catch(() => {});
+            ws.onopen = () => {
+                showToast("Connected to Server!");
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
+                }, 20000);
+                if (onSuccess) onSuccess();
+            };
 
-            setTimeout(() => {
-                ws = new WebSocket(BACKEND_WS);
-
-                ws.onopen = () => {
-                    socketRetries = 0;
-                    showToast("Connected successfully!");
-                    clearInterval(heartbeatInterval);
-                    heartbeatInterval = setInterval(() => {
-                        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
-                    }, 20000);
-                    if (onSuccess) onSuccess();
-                };
-
-                ws.onmessage = (event) => {
+            ws.onmessage = (event) => {
+                try {
                     const data = JSON.parse(event.data);
                     if (data.type === 'ROOM_HOSTED_SUCCESS') {
-                        showToast("Room hosted successfully!");
+                        showToast("Room is active!");
                     } else if (data.type === 'ROOM_JOIN_SUCCESS') {
                         isHosting = false;
                         currentRoomCode = data.code;
@@ -591,8 +449,8 @@
                         document.getElementById('hostSessionView').classList.remove('hidden');
                         showToast("Joined room: " + data.code);
                     } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                        showToast(data.message || "Room not found or control restricted to host.");
-                    } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
+                        showToast(data.message || "Room not found.");
+                    } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME', 'REACTION', 'ROOM_CLOSED'].includes(data.type)) {
                         handleIncomingControl(data);
                     } else if (data.type === 'REACTION') {
                         showFloatingReaction(data.emoji, data.name || 'Peer');
@@ -600,30 +458,16 @@
                         exitHostSession();
                         showToast("Host closed the room session.");
                     }
-                };
+                } catch (e) {}
+            };
 
-                ws.onerror = () => {
-                    if (socketRetries < 10) {
-                        socketRetries++;
-                        showToast(`Server waking up... (${socketRetries}/10)`);
-                        setTimeout(() => connectWebSocket(onSuccess, onError), 3000);
-                    } else {
-                        showToast("Connection failed. Check server status.");
-                        socketRetries = 0;
-                        if (onError) onError();
-                    }
-                };
-
-                ws.onclose = () => { 
-                    clearInterval(heartbeatInterval); 
-                };
-            }, 2000);
+            ws.onerror = () => { showToast("Connection error. Reconnecting..."); };
+            ws.onclose = () => { clearInterval(heartbeatInterval); };
         }
 
         function startHostingSession() {
             currentUserName = getUserInputName();
             currentRoomCode = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-            
             connectWebSocket(() => {
                 isHosting = true;
                 ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
@@ -643,7 +487,7 @@
             currentUserName = getUserInputName();
             const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             if (code.length < 4) { showToast("Enter a valid room code."); return; }
-
+            currentRoomCode = code;
             connectWebSocket(() => {
                 ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName }));
             });
@@ -668,12 +512,7 @@
             const val = input.value.trim();
             const ytId = extractYouTubeId(val);
             if (!ytId) { showToast("Enter a valid YouTube URL."); return; }
-
-            if (type === 'save') {
-                saveSongToPlaylist(val, val);
-            } else {
-                playYouTubeStream(val, ytId);
-            }
+            if (type === 'save') { saveSongToPlaylist(val, val); } else { playYouTubeStream(val, ytId); }
             input.value = "";
         }
 
@@ -684,26 +523,20 @@
             document.getElementById('vfxMusicSticker').classList.remove('hidden');
             document.getElementById('sessionPlayBtn').textContent = "⏸";
             renderTopParticles();
-
             loadYouTubePlayer(ytId);
-
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'PLAY_TRACK', title: title, artist: 'Host' }));
             }
         }
 
         function loadYouTubePlayer(ytId) {
-            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+            if (window.YT && window.YT.Player && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
                 ytPlayer.loadVideoById(ytId);
-            } else {
+            } else if (window.YT && window.YT.Player) {
                 ytPlayer = new YT.Player('ytPlayerDiv', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: ytId,
+                    height: '100%', width: '100%', videoId: ytId,
                     playerVars: { 'autoplay': 1, 'controls': 1 },
-                    events: {
-                        'onReady': (e) => { e.target.playVideo(); }
-                    }
+                    events: { 'onReady': (e) => { e.target.playVideo(); } }
                 });
             }
         }
@@ -782,6 +615,7 @@
         function exitHostSession() {
             if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
             if (ws) { ws.close(); ws = null; }
+            currentRoomCode = "";
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
         }

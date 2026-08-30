@@ -1,23 +1,22 @@
 {
   "name": "SyncBeat",
   "short_name": "SyncBeat",
-  "description": "Multi-Device Real-Time Room Synchronization and Music Controller app",
+  "description": "Multi-Device Real-Time Cloud Room Synchronization",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f5f3ff",
   "theme_color": "#7c3aed",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
