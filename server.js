@@ -6,19 +6,33 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const rooms = new Map(); // code -> { host: ws, members: Set }
+// Keep Render awake and prevent socket timeouts
+app.get('/', (req, res) => res.send('SyncBeat Server is Active'));
+
+const rooms = new Map();
 
 wss.on('connection', (ws) => {
     let currentRoomCode = null;
+    ws.isAlive = true;
+
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
 
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
 
+            if (data.type === 'PING') {
+                ws.send(JSON.stringify({ type: 'PONG' }));
+                return;
+            }
+
             if (data.type === 'HOST_ROOM') {
                 currentRoomCode = data.code;
                 rooms.set(currentRoomCode, { host: ws, members: new Set() });
-                console.log(`Room hosted: ${currentRoomCode}`);
+                console.log(`Room created: ${currentRoomCode}`);
+                ws.send(JSON.stringify({ type: 'ROOM_HOSTED_SUCCESS', code: data.code }));
             } 
             else if (data.type === 'JOIN_ROOM') {
                 const room = rooms.get(data.code);
@@ -26,7 +40,7 @@ wss.on('connection', (ws) => {
                     currentRoomCode = data.code;
                     room.members.add(ws);
                     ws.send(JSON.stringify({ type: 'ROOM_JOIN_SUCCESS', code: data.code }));
-                    console.log(`User joined room: ${data.code}`);
+                    console.log(`User joined: ${data.code}`);
                 } else {
                     ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND' }));
                 }
@@ -34,7 +48,6 @@ wss.on('connection', (ws) => {
             else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
                 if (currentRoomCode && rooms.has(currentRoomCode)) {
                     const room = rooms.get(currentRoomCode);
-                    // Restrict playback and control actions strictly to the Host
                     if (room.host === ws) {
                         const payload = JSON.stringify(data);
                         room.members.forEach(member => {
@@ -42,8 +55,6 @@ wss.on('connection', (ws) => {
                                 member.send(payload);
                             }
                         });
-                    } else {
-                        ws.send(JSON.stringify({ type: 'ERROR', message: 'Only the host can control playback.' }));
                     }
                 }
             }
@@ -76,7 +87,7 @@ wss.on('connection', (ws) => {
                 }
             }
         } catch (err) {
-            console.error('Error handling message:', err);
+            console.error('Error:', err);
         }
     });
 
@@ -96,6 +107,15 @@ wss.on('connection', (ws) => {
         }
     });
 });
+
+// Periodic heartbeat check every 25 seconds to keep connections alive
+setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (!ws.isAlive) return ws.terminate();
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 25000);
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
