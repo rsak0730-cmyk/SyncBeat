@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SyncBeat - Multi-Device Real-Time Room Synchronization</title>
+    <title>SyncBeat - Multi-Device Room Sync</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#7c3aed">
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -92,7 +92,7 @@
         .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
         .code-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none; }
         .btn-purple { background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
-        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; text-align: center; }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
     </style>
@@ -108,8 +108,7 @@
                     <span class="room-badge">Cloud Sync</span>
                 </div>
                 <div class="status-pills">
-                    <div class="pill active">📶 Wi-Fi</div>
-                    <div class="pill active">⚡ Node</div>
+                    <div class="pill active" id="serverStatePill">⚡ Connecting...</div>
                 </div>
             </div>
             <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
@@ -248,7 +247,7 @@
     <div id="toastModal">Notification</div>
 
     <script>
-        // Make sure this matches your deployed Render URL exactly
+        // REPLACE THIS with your exact Render service URL (e.g. wss://syncbeat-backend-xxxx.onrender.com)
         const BACKEND_WS = 'wss://syncbeat-server.onrender.com';
         
         let ws = null;
@@ -260,6 +259,9 @@
         let ytPlayer = null;
         let scannerStream = null;
         let scannerInterval = null;
+        let isConnecting = false;
+        let retryTimeout = null;
+        let pendingCallback = null;
         let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
 
         const topCanvas = document.getElementById('topParticleCanvas');
@@ -300,9 +302,9 @@
         window.addEventListener('DOMContentLoaded', () => { 
             initTopCanvas(); 
             renderPlaylist(); 
+            connectWebSocket(); // Pre-warm server connection on page load
         });
 
-        // Mobile Wakeup & Reconnection handler
         document.addEventListener("visibilitychange", () => {
             if (!document.hidden && currentRoomCode) {
                 if (!ws || ws.readyState !== WebSocket.OPEN) {
@@ -320,7 +322,7 @@
             const toast = document.getElementById('toastModal');
             toast.textContent = msg;
             toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+            setTimeout(() => toast.classList.remove('show'), 3500);
         }
 
         function getUserInputName() {
@@ -413,56 +415,90 @@
         }
 
         function connectWebSocket(onSuccess) {
+            if (onSuccess) pendingCallback = onSuccess;
+
             if (ws && ws.readyState === WebSocket.OPEN) {
-                if (onSuccess) onSuccess();
+                if (pendingCallback) {
+                    const cb = pendingCallback;
+                    pendingCallback = null;
+                    cb();
+                }
                 return;
             }
 
-            showToast("Connecting to server...");
-            ws = new WebSocket(BACKEND_WS);
+            if (isConnecting) return;
+            isConnecting = true;
 
-            ws.onopen = () => {
-                showToast("Connected to Server!");
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = setInterval(() => {
-                    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
-                }, 20000);
-                if (onSuccess) onSuccess();
-            };
+            const pill = document.getElementById('serverStatePill');
+            if (pill) pill.textContent = "⏳ Waking up...";
 
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'ROOM_HOSTED_SUCCESS') {
-                        showToast("Room is active!");
-                    } else if (data.type === 'ROOM_JOIN_SUCCESS') {
-                        isHosting = false;
-                        currentRoomCode = data.code;
-                        document.getElementById('displayRoomCode').textContent = data.code;
-                        document.getElementById('sessionSubtitle').textContent = "Member: " + currentUserName;
-                        document.getElementById('sessionHeaderTitle').textContent = "Member Session";
-                        document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
-                        document.getElementById('peerRoleTag').textContent = "MEMBER";
-                        document.getElementById('hostUrlControls').style.display = "none";
-                        document.getElementById('hostPlayerControls').style.display = "none";
-                        document.getElementById('mainLandingView').classList.add('hidden');
-                        document.getElementById('hostSessionView').classList.remove('hidden');
-                        showToast("Joined room: " + data.code);
-                    } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                        showToast(data.message || "Room not found.");
-                    } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME', 'REACTION', 'ROOM_CLOSED'].includes(data.type)) {
-                        handleIncomingControl(data);
-                    } else if (data.type === 'REACTION') {
-                        showFloatingReaction(data.emoji, data.name || 'Peer');
-                    } else if (data.type === 'ROOM_CLOSED') {
-                        exitHostSession();
-                        showToast("Host closed the room session.");
+            try {
+                ws = new WebSocket(BACKEND_WS);
+
+                ws.onopen = () => {
+                    isConnecting = false;
+                    clearTimeout(retryTimeout);
+                    if (pill) { pill.textContent = "⚡ Node Live"; pill.style.background = "#10b981"; }
+                    showToast("Server connected!");
+                    
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = setInterval(() => {
+                        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
+                    }, 20000);
+
+                    if (pendingCallback) {
+                        const cb = pendingCallback;
+                        pendingCallback = null;
+                        cb();
                     }
-                } catch (e) {}
-            };
+                };
 
-            ws.onerror = () => { showToast("Connection error. Reconnecting..."); };
-            ws.onclose = () => { clearInterval(heartbeatInterval); };
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'ROOM_HOSTED_SUCCESS') {
+                            showToast("Room created!");
+                        } else if (data.type === 'ROOM_JOIN_SUCCESS') {
+                            isHosting = false;
+                            currentRoomCode = data.code;
+                            document.getElementById('displayRoomCode').textContent = data.code;
+                            document.getElementById('sessionSubtitle').textContent = "Member: " + currentUserName;
+                            document.getElementById('sessionHeaderTitle').textContent = "Member Session";
+                            document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
+                            document.getElementById('peerRoleTag').textContent = "MEMBER";
+                            document.getElementById('hostUrlControls').style.display = "none";
+                            document.getElementById('hostPlayerControls').style.display = "none";
+                            document.getElementById('mainLandingView').classList.add('hidden');
+                            document.getElementById('hostSessionView').classList.remove('hidden');
+                            showToast("Joined room: " + data.code);
+                        } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
+                            showToast(data.message || "Room not found.");
+                        } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME', 'REACTION', 'ROOM_CLOSED'].includes(data.type)) {
+                            handleIncomingControl(data);
+                        } else if (data.type === 'REACTION') {
+                            showFloatingReaction(data.emoji, data.name || 'Peer');
+                        } else if (data.type === 'ROOM_CLOSED') {
+                            exitHostSession();
+                            showToast("Host closed the room session.");
+                        }
+                    } catch (e) {}
+                };
+
+                ws.onerror = () => {
+                    isConnecting = false;
+                    if (pill) { pill.textContent = "⏳ Retrying..."; pill.style.background = "#f59e0b"; }
+                    showToast("Waking up Render server... Retrying in 4s");
+                    clearTimeout(retryTimeout);
+                    retryTimeout = setTimeout(() => connectWebSocket(), 4000);
+                };
+
+                ws.onclose = () => {
+                    isConnecting = false;
+                    clearInterval(heartbeatInterval);
+                };
+            } catch (e) {
+                isConnecting = false;
+            }
         }
 
         function startHostingSession() {
