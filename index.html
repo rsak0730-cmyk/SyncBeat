@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncBeat - Multi-Device Real-Time Room Synchronization</title>
+    <!-- Web App Manifest Link -->
+    <link rel="manifest" href="manifest.json">
     <!-- Official YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <!-- jsQR Library for Real-Time Camera QR Scanning -->
@@ -422,7 +424,7 @@
                 </div>
             </div>
 
-            <!-- Hosting Active & Code Banner (Refresh icon 🌐 removed permanently) -->
+            <!-- Hosting Active & Code Banner -->
             <div class="card hosting-banner" id="hostingBannerCard">
                 <div class="hosting-top-row">
                     <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">HOSTING ACTIVE</span></div>
@@ -586,6 +588,15 @@
 
     <!-- Toast Notification Overlay -->
     <div id="toastModal">Notification Message</div>
+
+    <!-- Service Worker Registration Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker Registered'))
+                .catch((err) => console.log('Service Worker Registration Failed:', err));
+        }
+    </script>
 
     <script>
         // Top Falling Random Color & Blinking Particles Canvas Overlay Logic
