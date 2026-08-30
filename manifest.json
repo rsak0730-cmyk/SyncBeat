@@ -1,15 +1,17 @@
 {
   "name": "SyncBeat",
   "short_name": "SyncBeat",
+  "description": "Multi-Device Real-Time Room Synchronization and Music Controller app",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f5f3ff",
   "theme_color": "#7c3aed",
   "icons": [
     {
-      "src": "https://via.placeholder.com/512",
+      "src": "https://www.pwabuilder.com/assets/images/pwa_logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
