@@ -31,11 +31,26 @@ wss.on('connection', (ws) => {
                     ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND' }));
                 }
             } 
-            else if (['CONTROL', 'PLAY_TRACK', 'VOLUME', 'REACTION', 'ROOM_CLOSED'].includes(data.type)) {
+            else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
+                if (currentRoomCode && rooms.has(currentRoomCode)) {
+                    const room = rooms.get(currentRoomCode);
+                    // Restrict playback and control actions strictly to the Host
+                    if (room.host === ws) {
+                        const payload = JSON.stringify(data);
+                        room.members.forEach(member => {
+                            if (member.readyState === WebSocket.OPEN) {
+                                member.send(payload);
+                            }
+                        });
+                    } else {
+                        ws.send(JSON.stringify({ type: 'ERROR', message: 'Only the host can control playback.' }));
+                    }
+                }
+            }
+            else if (data.type === 'REACTION') {
                 if (currentRoomCode && rooms.has(currentRoomCode)) {
                     const room = rooms.get(currentRoomCode);
                     const payload = JSON.stringify(data);
-                    
                     if (room.host && room.host !== ws && room.host.readyState === WebSocket.OPEN) {
                         room.host.send(payload);
                     }
@@ -44,8 +59,18 @@ wss.on('connection', (ws) => {
                             member.send(payload);
                         }
                     });
-
-                    if (data.type === 'ROOM_CLOSED') {
+                }
+            }
+            else if (data.type === 'ROOM_CLOSED') {
+                if (currentRoomCode && rooms.has(currentRoomCode)) {
+                    const room = rooms.get(currentRoomCode);
+                    if (room.host === ws) {
+                        const payload = JSON.stringify(data);
+                        room.members.forEach(member => {
+                            if (member.readyState === WebSocket.OPEN) {
+                                member.send(payload);
+                            }
+                        });
                         rooms.delete(currentRoomCode);
                     }
                 }
