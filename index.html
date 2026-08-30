@@ -408,6 +408,7 @@
         let ytPlayer = null;
         let scannerStream = null;
         let scannerInterval = null;
+        let socketRetries = 0;
         let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
 
         const topCanvas = document.getElementById('topParticleCanvas');
@@ -555,10 +556,12 @@
                 return;
             }
 
-            showToast("Connecting to cloud server...");
+            showToast("Connecting to cloud room...");
             ws = new WebSocket(BACKEND_WS);
 
             ws.onopen = () => {
+                socketRetries = 0;
+                showToast("Connected successfully!");
                 clearInterval(heartbeatInterval);
                 heartbeatInterval = setInterval(() => {
                     if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
@@ -585,7 +588,7 @@
                     showToast("Joined room: " + data.code);
                 } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
                     showToast(data.message || "Room not found or control restricted to host.");
-                } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
+                } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
                     handleIncomingControl(data);
                 } else if (data.type === 'REACTION') {
                     showFloatingReaction(data.emoji, data.name || 'Peer');
@@ -595,8 +598,21 @@
                 }
             };
 
-            ws.onerror = () => { showToast("Connection error. Tap again."); if (onError) onError(); };
-            ws.onclose = () => { clearInterval(heartbeatInterval); };
+            ws.onerror = () => {
+                if (socketRetries < 5) {
+                    socketRetries++;
+                    showToast(`Waking up server... (${socketRetries}/5)`);
+                    setTimeout(() => connectWebSocket(onSuccess, onError), 2000);
+                } else {
+                    showToast("Connection failed. Check server status.");
+                    socketRetries = 0;
+                    if (onError) onError();
+                }
+            };
+
+            ws.onclose = () => { 
+                clearInterval(heartbeatInterval); 
+            };
         }
 
         function startHostingSession() {
