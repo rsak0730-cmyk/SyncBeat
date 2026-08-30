@@ -20,6 +20,11 @@ wss.on('connection', (ws) => {
         try {
             const data = JSON.parse(message);
 
+            if (data.type === 'PING') {
+                ws.send(JSON.stringify({ type: 'PONG' }));
+                return;
+            }
+
             if (data.type === 'HOST_ROOM') {
                 currentRoom = data.code;
                 userName = data.name || 'Host';
