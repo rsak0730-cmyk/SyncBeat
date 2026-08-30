@@ -1,11 +1,13 @@
 {
   "name": "syncbeat",
   "version": "1.0.0",
+  "description": "Multi-Device Real-Time Room Synchronization",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "express": "^4.19.2",
     "ws": "^8.16.0"
   }
 }

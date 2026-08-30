@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SyncBeat - Multi-Device Real-Time Room Synchronization</title>
-    <!-- Official YouTube IFrame API[span_0](start_span)[span_0](end_span) -->
+    <!-- Official YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <!-- jsQR Library for Real-Time Camera QR Scanning[span_1](start_span)[span_1](end_span) -->
+    <!-- jsQR Library for Real-Time Camera QR Scanning -->
     <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
     <style>
         body {
@@ -26,7 +26,7 @@
             max-width: 420px;
         }
 
-        /* Top Slow Falling Color-Changing & Blinking Particles Canvas Overlay[span_2](start_span)[span_2](end_span) */
+        /* Top Slow Falling Color-Changing & Blinking Particles Canvas Overlay */
         #topParticleCanvas {
             position: fixed;
             top: 0;
@@ -37,7 +37,7 @@
             z-index: 9999;
         }
 
-        /* Advanced Button VFX & Ripple Animations[span_3](start_span)[span_3](end_span) */
+        /* Advanced Button VFX & Ripple Animations */
         @keyframes vfxGlowPulse {
             0% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4), inset 0 0 0 rgba(255,255,255,0); }
             50% { box-shadow: 0 0 18px rgba(124, 58, 237, 0.8), 0 0 25px rgba(168, 85, 247, 0.6); }
@@ -59,7 +59,7 @@
             filter: brightness(1.25);
         }
 
-        /* Ripple VFX Particle Effect[span_4](start_span)[span_4](end_span) */
+        /* Ripple VFX Particle Effect */
         .ripple {
             position: absolute;
             background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%, transparent 100%);
@@ -73,7 +73,7 @@
             100% { transform: scale(4.5); opacity: 0; }
         }
 
-        /* Transparent Animated Music Sticker VFX ("LIVE PLAY")[span_5](start_span)[span_5](end_span) */
+        /* Transparent Animated Music Sticker VFX ("LIVE PLAY") */
         .vfx-sticker {
             position: absolute;
             top: 14px;
@@ -171,7 +171,7 @@
             height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px;
         }
         
-        /* Banner Card[span_6](start_span)[span_6](end_span) */
+        /* Banner Card */
         .banner-card {
             background: linear-gradient(135deg, #f3e8ff, #ede9fe);
             border: 1px solid #d8b4fe;
@@ -193,7 +193,7 @@
             display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
         }
 
-        /* Hosting Banner[span_7](start_span)[span_7](end_span) */
+        /* Hosting Banner */
         .hosting-banner { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe; }
         .hosting-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .hosting-active-tag { display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #10b981; }
@@ -233,7 +233,7 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }
 
-        /* Player[span_8](start_span)[span_8](end_span) */
+        /* Player */
         .player-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
         .album-art {
             width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px;
@@ -258,7 +258,7 @@
         .inline-volume input[type="range"] { flex: 1; accent-color: #7c3aed; cursor: pointer; }
         .volume-pct { font-size: 11px; font-weight: 700; color: #7c3aed; width: 30px; text-align: right; }
 
-        /* Queue & Playlist[span_9](start_span)[span_9](end_span) */
+        /* Queue & Playlist */
         .queue-item {
             display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff;
         }
@@ -272,7 +272,7 @@
         }
         .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px 0; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 12px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 0 10px rgba(124, 58, 237, 0.2); }
 
-        /* Reactions & Cheerable Moments Floating Animation[span_10](start_span)[span_10](end_span) */
+        /* Reactions & Cheerable Moments Floating Animation */
         .reactions-grid { display: flex; justify-content: space-around; background: #faf8ff; padding: 10px; border-radius: 14px; border: 1px solid #f3e8ff; }
         .reaction-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
         .reaction-btn:active { transform: scale(1.3); }
@@ -292,7 +292,7 @@
             100% { transform: translateY(-360px) scale(1.6) rotate(0deg); opacity: 0; }
         }
 
-        /* Connected Peers[span_11](start_span)[span_11](end_span) */
+        /* Connected Peers */
         .peer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
         .peer-info { display: flex; align-items: center; gap: 10px; }
         .peer-icon { width: 32px; height: 32px; background: #ede9fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 8px rgba(124, 58, 237, 0.2); }
@@ -300,7 +300,7 @@
         .peer-meta { font-size: 10px; color: #6b7280; }
         .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
 
-        /* Connect Code Card[span_12](start_span)[span_12](end_span) */
+        /* Connect Code Card */
         .input-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; margin-bottom: 12px; }
         .code-input {
             width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px;
@@ -325,11 +325,11 @@
 </head>
 <body>
 
-    <!-- Top Falling Random Color & Blinking Particles Canvas Overlay[span_13](start_span)[span_13](end_span) -->
+    <!-- Top Falling Random Color & Blinking Particles Canvas Overlay -->
     <canvas id="topParticleCanvas"></canvas>
 
     <div class="container">
-        <!-- Landing View[span_14](start_span)[span_14](end_span) -->
+        <!-- Landing View -->
         <div id="mainLandingView">
             <div class="header">
                 <div class="logo-area">
@@ -343,14 +343,14 @@
             </div>
             <div class="subtitle">Multi-Device Real-Time Room Synchronization</div>
 
-            <!-- Profile Name Setup Card[span_15](start_span)[span_15](end_span) -->
+            <!-- Profile Name Setup Card -->
             <div class="card" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe;">
                 <div class="card-header-sm"><span>👤 Your Profile & Role</span></div>
                 <div style="font-size: 11px; color: #6d28d9; margin-bottom: 6px;">Enter your name to join or host rooms:</div>
                 <input type="text" id="userNameInput" class="code-input" placeholder="Your Name (e.g., Alex)" style="padding: 10px 14px; font-size: 13px;">
             </div>
 
-            <!-- First Button: Return to Hosting Room[span_16](start_span)[span_16](end_span) -->
+            <!-- First Button: Return to Hosting Room -->
             <div id="returnActiveRoomCard" class="card banner-card hidden" onclick="returnToActiveRoom()" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 1px solid #86efac;">
                 <div class="banner-icon" style="background: #10b981;">🚀</div>
                 <div class="banner-content">
@@ -360,7 +360,7 @@
                 <div class="banner-arrow" style="background: #10b981;">→</div>
             </div>
 
-            <!-- Connection Instructions Card[span_17](start_span)[span_17](end_span) -->
+            <!-- Connection Instructions Card -->
             <div class="card" style="background: linear-gradient(135deg, #faf8ff, #f3e8ff); border: 1px solid #d8b4fe;">
                 <div class="card-header-sm"><span>💡 How to Connect</span></div>
                 <div style="font-size: 11px; color: #4c1d95; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;">
@@ -369,7 +369,7 @@
                 </div>
             </div>
 
-            <!-- Live Camera QR Scanner Card[span_18](start_span)[span_18](end_span) -->
+            <!-- Live Camera QR Scanner Card -->
             <div class="card" id="scannerCard" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe;">
                 <div class="card-header-sm"><span>📸 Scan QR Code to Join</span></div>
                 <button class="btn-purple" id="scannerToggleBtn" onclick="soundClick(); toggleQrScanner();" style="margin-bottom: 8px;">🛸 OPEN CAMERA SCANNER</button>
@@ -381,7 +381,7 @@
                 </div>
             </div>
 
-            <!-- Second Button: Generate Code & Host Room[span_19](start_span)[span_19](end_span) -->
+            <!-- Second Button: Generate Code & Host Room -->
             <div class="card banner-card" id="generateHostCard" onclick="startHostingSession()">
                 <div class="banner-icon">🔮</div>
                 <div class="banner-content">
@@ -391,7 +391,7 @@
                 <div class="banner-arrow">→</div>
             </div>
 
-            <!-- Connect Through Code Card[span_20](start_span)[span_20](end_span) -->
+            <!-- Connect Through Code Card -->
             <div class="card" id="connectMemberCard">
                 <div class="card-header-sm"><span>Connect Through Code</span></div>
                 <div class="input-group">
@@ -401,7 +401,7 @@
                 <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
             </div>
 
-            <!-- Dynamic Active Room / Hosting Control Card[span_21](start_span)[span_21](end_span) -->
+            <!-- Dynamic Active Room / Hosting Control Card -->
             <div id="activeHostingControlCard" class="card hidden" style="background: #fef2f2; border: 1px solid #fecaca;">
                 <div class="card-header-sm" style="color: #ef4444;"><span>⚠️ Active Room / Hosting Control</span></div>
                 <div style="font-size: 11px; color: #b91c1c; margin-bottom: 8px;">Shut down or reset running background host server or active session</div>
@@ -409,11 +409,11 @@
             </div>
         </div>
 
-        <!-- Host / Member Room Session View[span_22](start_span)[span_22](end_span) -->
+        <!-- Host / Member Room Session View -->
         <div id="hostSessionView" class="hidden">
             <div class="header">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <!-- Top Left Back Switch Button[span_23](start_span)[span_23](end_span) -->
+                    <!-- Top Left Back Switch Button -->
                     <button class="back-btn" onclick="soundClick(); exitHostSession();">←</button>
                     <div>
                         <div style="font-size: 15px; font-weight: 800; color: #1e1b4b;" id="sessionHeaderTitle">Room Session</div>
@@ -422,7 +422,7 @@
                 </div>
             </div>
 
-            <!-- Hosting Active & Code Banner (Refresh icon 🌐 removed permanently)[span_24](start_span)[span_24](end_span) -->
+            <!-- Hosting Active & Code Banner (Refresh icon 🌐 removed permanently) -->
             <div class="card hosting-banner" id="hostingBannerCard">
                 <div class="hosting-top-row">
                     <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">HOSTING ACTIVE</span></div>
@@ -439,31 +439,31 @@
 
                 <div class="ip-display-box">
                     <span>Host IP: <strong id="displayHostIp">192.168.43.1</strong></span>
-                    <!-- Hologram Copy IP Button[span_25](start_span)[span_25](end_span) -->
+                    <!-- Hologram Copy IP Button -->
                     <button class="code-action-btn" style="padding: 4px 8px; margin: 0;" onclick="soundClick(); copyHostIp();">🧬 Copy IP</button>
                 </div>
 
                 <div class="code-actions">
-                    <!-- Hologram Action Buttons[span_26](start_span)[span_26](end_span) -->
+                    <!-- Hologram Action Buttons -->
                     <button class="code-action-btn" onclick="soundClick(); copyCode();">🧬 Copy Code</button>
                     <button class="code-action-btn" onclick="soundClick(); shareCode();">📡 Share</button>
                     <button class="code-action-btn" onclick="soundClick(); showQRCode();">🔮 QR Code</button>
                 </div>
 
-                <!-- Close Room Session Button[span_27](start_span)[span_27](end_span) -->
+                <!-- Close Room Session Button -->
                 <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ CLOSE ROOM SESSION</button>
             </div>
 
-            <!-- Volume System Prominent at Top[span_28](start_span)[span_28](end_span) -->
+            <!-- Volume System Prominent at Top -->
             <div class="inline-volume">
                 <span>🔊</span>
                 <input type="range" id="sessionMasterVol" min="0" max="100" value="100" oninput="updateRealTimeMasterVol(this.value)">
                 <span class="volume-pct" id="sessionVolPct">100%</span>
             </div>
 
-            <!-- Direct Media Player with Transparent Animated Sticker Overlay[span_29](start_span)[span_29](end_span) -->
+            <!-- Direct Media Player with Transparent Animated Sticker Overlay -->
             <div class="card" style="position: relative;">
-                <!-- Transparent Animated Music Sticker ("LIVE PLAY")[span_30](start_span)[span_30](end_span) -->
+                <!-- Transparent Animated Music Sticker ("LIVE PLAY") -->
                 <div id="vfxMusicSticker" class="vfx-sticker hidden">
                     <span>🎶 LIVE PLAY 🎵</span>
                 </div>
@@ -501,7 +501,7 @@
                 </div>
             </div>
 
-            <!-- Saved Playlist / Favorites Storage System[span_31](start_span)[span_31](end_span) -->
+            <!-- Saved Playlist / Favorites Storage System -->
             <div class="card">
                 <div class="card-header-sm">
                     <span>⭐ Saved Playlist <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="playlistCount">0</span></span>
@@ -511,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- Upcoming Queue[span_32](start_span)[span_32](end_span) -->
+            <!-- Upcoming Queue -->
             <div class="card">
                 <div class="card-header-sm">
                     <span>Upcoming Queue <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="queueCount">0</span></span>
@@ -519,7 +519,7 @@
                 <div id="queueList"></div>
             </div>
 
-            <!-- YouTube URL Controller[span_33](start_span)[span_33](end_span) -->
+            <!-- YouTube URL Controller -->
             <div class="card">
                 <div class="card-header-sm"><span>YouTube URL Controller</span></div>
                 <div style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">Paste a valid YouTube URL below</div>
@@ -533,13 +533,13 @@
                     <button class="action-btn-custom" onclick="soundSuccess(); handleUrlAction('save');" style="background: #f59e0b;">💎 Save</button>
                 </div>
 
-                <!-- YouTube Embedded Player Frame Container[span_34](start_span)[span_34](end_span) -->
+                <!-- YouTube Embedded Player Frame Container -->
                 <div id="ytEmbedWrapper" style="margin-top: 12px; display: block; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
                 </div>
             </div>
 
-            <!-- Broadcast Room Signal / Reaction[span_35](start_span)[span_35](end_span) -->
+            <!-- Broadcast Room Signal / Reaction -->
             <div class="card">
                 <div class="card-header-sm"><span>Broadcast Room Signal / Reaction</span></div>
                 <div class="reactions-grid">
@@ -552,7 +552,7 @@
                 </div>
             </div>
 
-            <!-- Connected Mobiles with User Names & Roles[span_36](start_span)[span_36](end_span) -->
+            <!-- Connected Mobiles with User Names & Roles -->
             <div class="card">
                 <div class="card-header-sm">
                     <span>Connected Peer Devices</span>
@@ -575,7 +575,7 @@
 
     </div>
 
-    <!-- QR Modal Overlay[span_37](start_span)[span_37](end_span) -->
+    <!-- QR Modal Overlay -->
     <div id="qrModal" class="hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;">
         <div style="background: white; padding: 20px; border-radius: 20px; text-align: center; max-width: 280px; width: 90%; box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);">
             <div style="font-weight: 800; font-size: 15px; color: #7c3aed; margin-bottom: 10px;">Room QR Code</div>
@@ -584,11 +584,11 @@
         </div>
     </div>
 
-    <!-- Toast Notification Overlay[span_38](start_span)[span_38](end_span) -->
+    <!-- Toast Notification Overlay -->
     <div id="toastModal">Notification Message</div>
 
     <script>
-        // Top Falling Random Color & Blinking Particles Canvas Overlay Logic[span_39](start_span)[span_39](end_span)
+        // Top Falling Random Color & Blinking Particles Canvas Overlay Logic
         const topCanvas = document.getElementById('topParticleCanvas');
         const tCtx = topCanvas.getContext('2d');
         let topParticles = [];
@@ -659,7 +659,7 @@
             updateHostingStateUI();
         });
 
-        // Automatic Ripple VFX Effect on Every Button Click across the App[span_40](start_span)[span_40](end_span)
+        // Automatic Ripple VFX Effect on Every Button Click across the App
         document.addEventListener('click', function (e) {
             const target = e.target.closest('button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card');
             if (target) {
@@ -675,7 +675,7 @@
             }
         });
 
-        // Web Audio API Sound Synthesizer Effects[span_41](start_span)[span_41](end_span)
+        // Web Audio API Sound Synthesizer Effects
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) {
@@ -1156,7 +1156,8 @@
 
         function initWebSocket(ip, onOpenCallback) {
             try {
-                ws = new WebSocket(`ws://${ip}:8080`);
+                // Connected to Live Render WebSocket Backend[span_0](start_span)[span_0](end_span)
+                ws = new WebSocket('wss://syncbeat-backend-zksz.onrender.com');
                 ws.onopen = () => { if (onOpenCallback) onOpenCallback(); };
                 ws.onmessage = (event) => {
                     const data = JSON.parse(event.data);
@@ -1610,7 +1611,7 @@
             showToast("Track removed from queue.");
         }
 
-        // Cheerable Moments Floating Reactions Feature[span_42](start_span)[span_42](end_span)
+        // Cheerable Moments Floating Reactions Feature
         function sendReaction(emoji) {
             const senderName = currentUserName || "User";
             showFloatingReaction(emoji, senderName);
