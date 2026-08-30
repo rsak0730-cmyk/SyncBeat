@@ -556,63 +556,68 @@
                 return;
             }
 
-            showToast("Connecting to cloud room...");
-            ws = new WebSocket(BACKEND_WS);
+            showToast("Waking up Render server...");
 
-            ws.onopen = () => {
-                socketRetries = 0;
-                showToast("Connected successfully!");
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = setInterval(() => {
-                    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
-                }, 20000);
-                if (onSuccess) onSuccess();
-            };
+            fetch('https://syncbeat-backend-zksz.onrender.com/', { mode: 'no-cors' }).catch(() => {});
 
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === 'ROOM_HOSTED_SUCCESS') {
-                    showToast("Room hosted successfully!");
-                } else if (data.type === 'ROOM_JOIN_SUCCESS') {
-                    isHosting = false;
-                    currentRoomCode = data.code;
-                    document.getElementById('displayRoomCode').textContent = data.code;
-                    document.getElementById('sessionSubtitle').textContent = "Member: " + currentUserName;
-                    document.getElementById('sessionHeaderTitle').textContent = "Member Session";
-                    document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
-                    document.getElementById('peerRoleTag').textContent = "MEMBER";
-                    document.getElementById('hostUrlControls').style.display = "none";
-                    document.getElementById('hostPlayerControls').style.display = "none";
-                    document.getElementById('mainLandingView').classList.add('hidden');
-                    document.getElementById('hostSessionView').classList.remove('hidden');
-                    showToast("Joined room: " + data.code);
-                } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                    showToast(data.message || "Room not found or control restricted to host.");
-                } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
-                    handleIncomingControl(data);
-                } else if (data.type === 'REACTION') {
-                    showFloatingReaction(data.emoji, data.name || 'Peer');
-                } else if (data.type === 'ROOM_CLOSED') {
-                    exitHostSession();
-                    showToast("Host closed the room session.");
-                }
-            };
+            setTimeout(() => {
+                ws = new WebSocket(BACKEND_WS);
 
-            ws.onerror = () => {
-                if (socketRetries < 5) {
-                    socketRetries++;
-                    showToast(`Waking up server... (${socketRetries}/5)`);
-                    setTimeout(() => connectWebSocket(onSuccess, onError), 2000);
-                } else {
-                    showToast("Connection failed. Check server status.");
+                ws.onopen = () => {
                     socketRetries = 0;
-                    if (onError) onError();
-                }
-            };
+                    showToast("Connected successfully!");
+                    clearInterval(heartbeatInterval);
+                    heartbeatInterval = setInterval(() => {
+                        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
+                    }, 20000);
+                    if (onSuccess) onSuccess();
+                };
 
-            ws.onclose = () => { 
-                clearInterval(heartbeatInterval); 
-            };
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'ROOM_HOSTED_SUCCESS') {
+                        showToast("Room hosted successfully!");
+                    } else if (data.type === 'ROOM_JOIN_SUCCESS') {
+                        isHosting = false;
+                        currentRoomCode = data.code;
+                        document.getElementById('displayRoomCode').textContent = data.code;
+                        document.getElementById('sessionSubtitle').textContent = "Member: " + currentUserName;
+                        document.getElementById('sessionHeaderTitle').textContent = "Member Session";
+                        document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
+                        document.getElementById('peerRoleTag').textContent = "MEMBER";
+                        document.getElementById('hostUrlControls').style.display = "none";
+                        document.getElementById('hostPlayerControls').style.display = "none";
+                        document.getElementById('mainLandingView').classList.add('hidden');
+                        document.getElementById('hostSessionView').classList.remove('hidden');
+                        showToast("Joined room: " + data.code);
+                    } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
+                        showToast(data.message || "Room not found or control restricted to host.");
+                    } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
+                        handleIncomingControl(data);
+                    } else if (data.type === 'REACTION') {
+                        showFloatingReaction(data.emoji, data.name || 'Peer');
+                    } else if (data.type === 'ROOM_CLOSED') {
+                        exitHostSession();
+                        showToast("Host closed the room session.");
+                    }
+                };
+
+                ws.onerror = () => {
+                    if (socketRetries < 10) {
+                        socketRetries++;
+                        showToast(`Server waking up... (${socketRetries}/10)`);
+                        setTimeout(() => connectWebSocket(onSuccess, onError), 3000);
+                    } else {
+                        showToast("Connection failed. Check server status.");
+                        socketRetries = 0;
+                        if (onError) onError();
+                    }
+                };
+
+                ws.onclose = () => { 
+                    clearInterval(heartbeatInterval); 
+                };
+            }, 2000);
         }
 
         function startHostingSession() {
