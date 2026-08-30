@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncBeat - Multi-Device Real-Time Room Synchronization</title>
+    <!-- Official YouTube IFrame API[span_0](start_span)[span_0](end_span) -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <!-- jsQR Library for Real-Time Camera QR Scanning[span_1](start_span)[span_1](end_span) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f3ff;
+            color: #1e1b4b;
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        /* Top Slow Falling Color-Changing & Blinking Particles Canvas Overlay[span_2](start_span)[span_2](end_span) */
+        #topParticleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Advanced Button VFX & Ripple Animations[span_3](start_span)[span_3](end_span) */
+        @keyframes vfxGlowPulse {
+            0% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4), inset 0 0 0 rgba(255,255,255,0); }
+            50% { box-shadow: 0 0 18px rgba(124, 58, 237, 0.8), 0 0 25px rgba(168, 85, 247, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4), inset 0 0 0 rgba(255,255,255,0); }
+        }
+
+        button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+        button:hover, .btn-purple:hover, .action-btn-custom:hover, .code-action-btn:hover {
+            animation: vfxGlowPulse 1.4s infinite;
+            filter: brightness(1.12);
+        }
+        button:active, .btn-purple:active, .action-btn-custom:active, .code-action-btn:active, .close-session-btn:active, .control-btn:active, .play-pause-lg:active, .reaction-btn:active, .pill:active, .banner-card:active {
+            transform: scale(0.92) translateY(1px) !important;
+            filter: brightness(1.25);
+        }
+
+        /* Ripple VFX Particle Effect[span_4](start_span)[span_4](end_span) */
+        .ripple {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%, transparent 100%);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleVfxAnim 0.55s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleVfxAnim {
+            0% { transform: scale(0); opacity: 0.9; }
+            100% { transform: scale(4.5); opacity: 0; }
+        }
+
+        /* Transparent Animated Music Sticker VFX ("LIVE PLAY")[span_5](start_span)[span_5](end_span) */
+        .vfx-sticker {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: rgba(0, 255, 102, 0.15);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(0, 255, 102, 0.6);
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #00ff66;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 10;
+            animation: stickerFloatPulse 1.6s infinite ease-in-out;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+        }
+        @keyframes stickerFloatPulse {
+            0%, 100% { transform: translateY(0) scale(1) rotate(-2deg); opacity: 0.85; }
+            50% { transform: translateY(-3px) scale(1.08) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 10px #00ff66); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-area h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            color: #7c3aed;
+        }
+        .room-badge {
+            background: #ede9fe;
+            color: #7c3aed;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #7c3aed;
+            cursor: pointer;
+        }
+        .subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .status-pills {
+            display: flex;
+            gap: 6px;
+        }
+        .pill {
+            background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px; cursor: pointer;
+        }
+        .pill.active { background: #7c3aed; color: white; border-color: #7c3aed; }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #ede9fe;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05);
+        }
+        .card-header-sm {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #7c3aed;
+            margin-bottom: 8px;
+        }
+        .dot {
+            height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px;
+        }
+        
+        /* Banner Card[span_6](start_span)[span_6](end_span) */
+        .banner-card {
+            background: linear-gradient(135deg, #f3e8ff, #ede9fe);
+            border: 1px solid #d8b4fe;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .banner-icon {
+            background: #7c3aed; color: white; width: 45px; height: 45px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .banner-content { flex: 1; margin-left: 15px; }
+        .banner-title { font-weight: 700; font-size: 15px; color: #4c1d95; margin-bottom: 3px; }
+        .banner-desc { font-size: 11px; color: #6d28d9; line-height: 1.3; }
+        .banner-arrow {
+            background: #7c3aed; color: white; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+        }
+
+        /* Hosting Banner[span_7](start_span)[span_7](end_span) */
+        .hosting-banner { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe; }
+        .hosting-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .hosting-active-tag { display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #10b981; }
+        
+        .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .3s; border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #7c3aed; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .code-box {
+            background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px;
+            text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px;
+            margin-bottom: 8px; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .ip-display-box {
+            background: rgba(255, 255, 255, 0.7); border: 1px solid #d8b4fe; border-radius: 10px; padding: 6px 12px;
+            text-align: center; font-size: 12px; font-weight: 700; color: #6d28d9; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .code-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .code-action-btn {
+            background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px;
+            padding: 10px 4px; border-radius: 12px; cursor: pointer; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+            box-shadow: 0 0 8px rgba(124, 58, 237, 0.1);
+        }
+        .close-session-btn {
+            background: #ef4444; color: white; border: none; width: 100%; padding: 12px;
+            border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Player[span_8](start_span)[span_8](end_span) */
+        .player-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .album-art {
+            width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px; color: #7c3aed; flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+        }
+        .track-title { font-size: 13px; font-weight: 800; color: #1e1b4b; margin-bottom: 2px; word-break: break-all; }
+        .track-artist { font-size: 11px; color: #6b7280; font-weight: 500; }
+        .waveform { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; opacity: 0.4; }
+        .waveform span { height: 10px; width: 3px; background: #7c3aed; border-radius: 2px; }
+        .progress-track { background: #f3e8ff; height: 5px; border-radius: 3px; position: relative; cursor: pointer; margin-bottom: 4px; }
+        .progress-fill { background: #7c3aed; width: 0%; height: 100%; border-radius: 3px; }
+        .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; font-weight: 600; margin-bottom: 12px; }
+        .player-controls { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 15px; }
+        .control-btn { background: none; border: none; font-size: 18px; color: #4c1d95; cursor: pointer; }
+        .play-pause-lg {
+            background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5); cursor: pointer; border: none;
+        }
+        .inline-volume { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 10px 14px; border-radius: 16px; border: 1px solid #ede9fe; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.05); }
+        .inline-volume input[type="range"] { flex: 1; accent-color: #7c3aed; cursor: pointer; }
+        .volume-pct { font-size: 11px; font-weight: 700; color: #7c3aed; width: 30px; text-align: right; }
+
+        /* Queue & Playlist[span_9](start_span)[span_9](end_span) */
+        .queue-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff;
+        }
+        .queue-item:last-child { border-bottom: none; }
+        .action-icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px; color: #7c3aed; }
+        
+        .search-bar-row { display: flex; gap: 8px; margin-top: 8px; margin-bottom: 10px; }
+        .search-input {
+            flex: 1; background: #faf8ff; border: 1px solid #ddd6fe; padding: 10px 12px; border-radius: 12px;
+            font-size: 13px; color: #1e1b4b; outline: none; box-sizing: border-box; width: 100%;
+        }
+        .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px 0; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 12px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 0 10px rgba(124, 58, 237, 0.2); }
+
+        /* Reactions & Cheerable Moments Floating Animation[span_10](start_span)[span_10](end_span) */
+        .reactions-grid { display: flex; justify-content: space-around; background: #faf8ff; padding: 10px; border-radius: 14px; border: 1px solid #f3e8ff; }
+        .reaction-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+        .reaction-btn:active { transform: scale(1.3); }
+
+        .floating-reaction {
+            position: fixed;
+            bottom: 100px;
+            font-size: 38px;
+            animation: floatUpCheers 2.2s ease-out forwards;
+            z-index: 3000;
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.7));
+        }
+        @keyframes floatUpCheers {
+            0% { transform: translateY(0) scale(0.6) rotate(-10deg); opacity: 1; }
+            50% { transform: translateY(-180px) scale(1.3) rotate(10deg); opacity: 0.9; }
+            100% { transform: translateY(-360px) scale(1.6) rotate(0deg); opacity: 0; }
+        }
+
+        /* Connected Peers[span_11](start_span)[span_11](end_span) */
+        .peer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
+        .peer-info { display: flex; align-items: center; gap: 10px; }
+        .peer-icon { width: 32px; height: 32px; background: #ede9fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 8px rgba(124, 58, 237, 0.2); }
+        .peer-name { font-size: 13px; font-weight: 700; color: #1e1b4b; }
+        .peer-meta { font-size: 10px; color: #6b7280; }
+        .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+
+        /* Connect Code Card[span_12](start_span)[span_12](end_span) */
+        .input-group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; margin-bottom: 12px; }
+        .code-input {
+            width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px;
+            font-size: 15px; font-weight: 700; color: #7c3aed; letter-spacing: 1px; outline: none; box-sizing: border-box;
+        }
+        .code-input::placeholder { color: #c4b5fd; letter-spacing: normal; }
+        .btn-purple {
+            background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 0 15px rgba(124, 58, 237, 0.4); text-align: center;
+        }
+
+        #toastModal {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+            z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        #toastModal.show { opacity: 1; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Falling Random Color & Blinking Particles Canvas Overlay[span_13](start_span)[span_13](end_span) -->
+    <canvas id="topParticleCanvas"></canvas>
+
+    <div class="container">
+        <!-- Landing View[span_14](start_span)[span_14](end_span) -->
+        <div id="mainLandingView">
+            <div class="header">
+                <div class="logo-area">
+                    <h1>SyncBeat</h1>
+                    <span class="room-badge">Room Sync</span>
+                </div>
+                <div class="status-pills">
+                    <div class="pill active" id="wifiPill" onclick="soundClick(); toggleStatus('wifi');">📶 Wi-Fi</div>
+                    <div class="pill active" id="btPill" onclick="soundClick(); toggleStatus('bt');">⚡ BT</div>
+                </div>
+            </div>
+            <div class="subtitle">Multi-Device Real-Time Room Synchronization</div>
+
+            <!-- Profile Name Setup Card[span_15](start_span)[span_15](end_span) -->
+            <div class="card" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe;">
+                <div class="card-header-sm"><span>👤 Your Profile & Role</span></div>
+                <div style="font-size: 11px; color: #6d28d9; margin-bottom: 6px;">Enter your name to join or host rooms:</div>
+                <input type="text" id="userNameInput" class="code-input" placeholder="Your Name (e.g., Alex)" style="padding: 10px 14px; font-size: 13px;">
+            </div>
+
+            <!-- First Button: Return to Hosting Room[span_16](start_span)[span_16](end_span) -->
+            <div id="returnActiveRoomCard" class="card banner-card hidden" onclick="returnToActiveRoom()" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border: 1px solid #86efac;">
+                <div class="banner-icon" style="background: #10b981;">🚀</div>
+                <div class="banner-content">
+                    <div class="banner-title" style="color: #065f46;">Return to Hosting Room</div>
+                    <div class="banner-desc" style="color: #047857;">Jump back to your live created room session</div>
+                </div>
+                <div class="banner-arrow" style="background: #10b981;">→</div>
+            </div>
+
+            <!-- Connection Instructions Card[span_17](start_span)[span_17](end_span) -->
+            <div class="card" style="background: linear-gradient(135deg, #faf8ff, #f3e8ff); border: 1px solid #d8b4fe;">
+                <div class="card-header-sm"><span>💡 How to Connect</span></div>
+                <div style="font-size: 11px; color: #4c1d95; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;">
+                    <div>1. <strong>Host:</strong> Turn on mobile data & hotspot, enter your name above, and click Host.</div>
+                    <div>2. <strong>Member:</strong> Connect to host's hotspot, enter your name, and scan QR or enter Code.</div>
+                </div>
+            </div>
+
+            <!-- Live Camera QR Scanner Card[span_18](start_span)[span_18](end_span) -->
+            <div class="card" id="scannerCard" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe;">
+                <div class="card-header-sm"><span>📸 Scan QR Code to Join</span></div>
+                <button class="btn-purple" id="scannerToggleBtn" onclick="soundClick(); toggleQrScanner();" style="margin-bottom: 8px;">🛸 OPEN CAMERA SCANNER</button>
+                
+                <div id="scannerViewContainer" class="hidden" style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; text-align: center; margin-top: 8px;">
+                    <video id="qrVideoElement" autoplay playsinline style="width: 100%; max-height: 200px; object-fit: cover;"></video>
+                    <canvas id="qrCanvasElement" style="display: none;"></canvas>
+                    <button class="code-action-btn" style="background: #ef4444; color: white; border: none; width: 100%; border-radius: 0; padding: 8px;" onclick="soundError(); stopQrScanner();">Close Scanner</button>
+                </div>
+            </div>
+
+            <!-- Second Button: Generate Code & Host Room[span_19](start_span)[span_19](end_span) -->
+            <div class="card banner-card" id="generateHostCard" onclick="startHostingSession()">
+                <div class="banner-icon">🔮</div>
+                <div class="banner-content">
+                    <div class="banner-title">Generate Code & Host Room</div>
+                    <div class="banner-desc">Full playback control as Room Host</div>
+                </div>
+                <div class="banner-arrow">→</div>
+            </div>
+
+            <!-- Connect Through Code Card[span_20](start_span)[span_20](end_span) -->
+            <div class="card" id="connectMemberCard">
+                <div class="card-header-sm"><span>Connect Through Code</span></div>
+                <div class="input-group">
+                    <input type="text" id="hostIpInput" class="code-input" placeholder="Host IP (e.g., 192.168.43.1)">
+                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g., SYNC-4B9X)" maxlength="10">
+                </div>
+                <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
+            </div>
+
+            <!-- Dynamic Active Room / Hosting Control Card[span_21](start_span)[span_21](end_span) -->
+            <div id="activeHostingControlCard" class="card hidden" style="background: #fef2f2; border: 1px solid #fecaca;">
+                <div class="card-header-sm" style="color: #ef4444;"><span>⚠️ Active Room / Hosting Control</span></div>
+                <div style="font-size: 11px; color: #b91c1c; margin-bottom: 8px;">Shut down or reset running background host server or active session</div>
+                <button class="close-session-btn" onclick="forceCloseActiveHosting()">🛡️ FORCE CLOSE ACTIVE HOSTING</button>
+            </div>
+        </div>
+
+        <!-- Host / Member Room Session View[span_22](start_span)[span_22](end_span) -->
+        <div id="hostSessionView" class="hidden">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Top Left Back Switch Button[span_23](start_span)[span_23](end_span) -->
+                    <button class="back-btn" onclick="soundClick(); exitHostSession();">←</button>
+                    <div>
+                        <div style="font-size: 15px; font-weight: 800; color: #1e1b4b;" id="sessionHeaderTitle">Room Session</div>
+                        <div style="font-size: 10px; color: #6b7280;" id="sessionSubtitle">Room SYNC-64GG | Background Play Enabled</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hosting Active & Code Banner (Refresh icon 🌐 removed permanently)[span_24](start_span)[span_24](end_span) -->
+            <div class="card hosting-banner" id="hostingBannerCard">
+                <div class="hosting-top-row">
+                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">HOSTING ACTIVE</span></div>
+                    <div style="font-size: 11px; font-weight: 700; color: #7c3aed;" id="roleIndicatorBadge">Role: Host</div>
+                    <label class="switch" id="broadcastSwitchContainer">
+                        <input type="checkbox" checked id="broadcastToggle" onchange="soundClick()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="code-box">
+                    <span id="displayRoomCode">SYNC-64GG</span>
+                </div>
+
+                <div class="ip-display-box">
+                    <span>Host IP: <strong id="displayHostIp">192.168.43.1</strong></span>
+                    <!-- Hologram Copy IP Button[span_25](start_span)[span_25](end_span) -->
+                    <button class="code-action-btn" style="padding: 4px 8px; margin: 0;" onclick="soundClick(); copyHostIp();">🧬 Copy IP</button>
+                </div>
+
+                <div class="code-actions">
+                    <!-- Hologram Action Buttons[span_26](start_span)[span_26](end_span) -->
+                    <button class="code-action-btn" onclick="soundClick(); copyCode();">🧬 Copy Code</button>
+                    <button class="code-action-btn" onclick="soundClick(); shareCode();">📡 Share</button>
+                    <button class="code-action-btn" onclick="soundClick(); showQRCode();">🔮 QR Code</button>
+                </div>
+
+                <!-- Close Room Session Button[span_27](start_span)[span_27](end_span) -->
+                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ CLOSE ROOM SESSION</button>
+            </div>
+
+            <!-- Volume System Prominent at Top[span_28](start_span)[span_28](end_span) -->
+            <div class="inline-volume">
+                <span>🔊</span>
+                <input type="range" id="sessionMasterVol" min="0" max="100" value="100" oninput="updateRealTimeMasterVol(this.value)">
+                <span class="volume-pct" id="sessionVolPct">100%</span>
+            </div>
+
+            <!-- Direct Media Player with Transparent Animated Sticker Overlay[span_29](start_span)[span_29](end_span) -->
+            <div class="card" style="position: relative;">
+                <!-- Transparent Animated Music Sticker ("LIVE PLAY")[span_30](start_span)[span_30](end_span) -->
+                <div id="vfxMusicSticker" class="vfx-sticker hidden">
+                    <span>🎶 LIVE PLAY 🎵</span>
+                </div>
+
+                <div class="card-header-sm"><span>● Direct Media Player (Universal Remote Control Enabled)</span></div>
+                <div class="player-info">
+                    <div class="album-art" id="sessionArt">🎧</div>
+                    <div style="overflow: hidden; flex: 1;">
+                        <div class="track-title" id="sessionTitle">No Track Playing</div>
+                        <div class="track-artist" id="sessionArtist">Connected peers can control playback _</div>
+                    </div>
+                </div>
+
+                <div class="waveform">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+
+                <div class="progress-track" onclick="seekTrack(event)">
+                    <div class="progress-fill" id="sessionFill"></div>
+                </div>
+                <div class="time-info">
+                    <span id="sessionCurrentTime">0:00</span>
+                    <span id="sessionTotalDuration">3:00</span>
+                </div>
+
+                <!-- Player Controls with Rewind & Fast Forward -->
+                <div class="player-controls">
+                    <button class="control-btn" onclick="soundClick(); prevTrack();" title="Previous">⏮</button>
+                    <button class="control-btn" onclick="soundClick(); rewindTrack(10);" title="Rewind 10s">⏪</button>
+                    <button class="play-pause-lg" id="sessionPlayBtn" onclick="soundAction(); togglePlaySession();" title="Play/Pause">▶</button>
+                    <button class="control-btn" onclick="soundClick(); forwardTrack(10);" title="Fast Forward 10s">⏩</button>
+                    <button class="control-btn" onclick="soundClick(); nextTrack();" title="Next">⏭</button>
+                </div>
+            </div>
+
+            <!-- Saved Playlist / Favorites Storage System[span_31](start_span)[span_31](end_span) -->
+            <div class="card">
+                <div class="card-header-sm">
+                    <span>⭐ Saved Playlist <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="playlistCount">0</span></span>
+                </div>
+                <div id="playlistContainer">
+                    <div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs in playlist yet.</div>
+                </div>
+            </div>
+
+            <!-- Upcoming Queue[span_32](start_span)[span_32](end_span) -->
+            <div class="card">
+                <div class="card-header-sm">
+                    <span>Upcoming Queue <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="queueCount">0</span></span>
+                </div>
+                <div id="queueList"></div>
+            </div>
+
+            <!-- YouTube URL Controller[span_33](start_span)[span_33](end_span) -->
+            <div class="card">
+                <div class="card-header-sm"><span>YouTube URL Controller</span></div>
+                <div style="font-size: 10px; color: #6b7280; margin-bottom: 8px;">Paste a valid YouTube URL below</div>
+                
+                <div style="margin-bottom: 8px;">
+                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL (e.g. youtu.be/...)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                    <button class="action-btn-custom" onclick="soundAction(); handleUrlAction('play');" style="background: #7c3aed;">💫 Play</button>
+                    <button class="action-btn-custom" onclick="soundAction(); handleUrlAction('queue');" style="background: #10b981;">🚀 Queue</button>
+                    <button class="action-btn-custom" onclick="soundSuccess(); handleUrlAction('save');" style="background: #f59e0b;">💎 Save</button>
+                </div>
+
+                <!-- YouTube Embedded Player Frame Container[span_34](start_span)[span_34](end_span) -->
+                <div id="ytEmbedWrapper" style="margin-top: 12px; display: block; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
+                    <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
+                </div>
+            </div>
+
+            <!-- Broadcast Room Signal / Reaction[span_35](start_span)[span_35](end_span) -->
+            <div class="card">
+                <div class="card-header-sm"><span>Broadcast Room Signal / Reaction</span></div>
+                <div class="reactions-grid">
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('🔥');">🔥</button>
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('🎵');">🎵</button>
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('🎶');">🎶</button>
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('⚡');">⚡</button>
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('🙌');">🙌</button>
+                    <button class="reaction-btn" onclick="soundReaction(); sendReaction('🎉');">🎉</button>
+                </div>
+            </div>
+
+            <!-- Connected Mobiles with User Names & Roles[span_36](start_span)[span_36](end_span) -->
+            <div class="card">
+                <div class="card-header-sm">
+                    <span>Connected Peer Devices</span>
+                    <span style="color: #10b981; font-weight: 700;">● P2P Active</span>
+                </div>
+                <div id="peerListContainer">
+                    <div class="peer-item">
+                        <div class="peer-info">
+                            <div class="peer-icon">👤</div>
+                            <div>
+                                <div class="peer-name" id="peerSelfDisplay">Local User</div>
+                                <div class="peer-meta">Active • Synchronized</div>
+                            </div>
+                        </div>
+                        <span class="sync-tag" id="peerRoleTag">PEER</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QR Modal Overlay[span_37](start_span)[span_37](end_span) -->
+    <div id="qrModal" class="hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000;">
+        <div style="background: white; padding: 20px; border-radius: 20px; text-align: center; max-width: 280px; width: 90%; box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);">
+            <div style="font-weight: 800; font-size: 15px; color: #7c3aed; margin-bottom: 10px;">Room QR Code</div>
+            <div id="qrImageContainer" style="margin-bottom: 12px; display: flex; justify-content: center;"></div>
+            <button class="btn-purple" onclick="soundClick(); closeQrModal();">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay[span_38](start_span)[span_38](end_span) -->
+    <div id="toastModal">Notification Message</div>
+
+    <script>
+        // Top Falling Random Color & Blinking Particles Canvas Overlay Logic[span_39](start_span)[span_39](end_span)
+        const topCanvas = document.getElementById('topParticleCanvas');
+        const tCtx = topCanvas.getContext('2d');
+        let topParticles = [];
+        let topAnimId = null;
+
+        function initTopCanvas() {
+            topCanvas.width = window.innerWidth;
+            topCanvas.height = window.innerHeight;
+            topParticles = [];
+            const count = 75;
+            for (let i = 0; i < count; i++) {
+                topParticles.push({
+                    x: Math.random() * topCanvas.width,
+                    y: Math.random() * topCanvas.height,
+                    size: 1.5 + Math.random() * 3,
+                    speed: 0.2 + Math.random() * 0.4,
+                    colorHue: Math.random() * 360,
+                    colorSpeed: 0.4 + Math.random() * 1.0,
+                    alpha: Math.random(),
+                    alphaSpeed: 0.008 + Math.random() * 0.02
+                });
+            }
+        }
+
+        function renderTopParticles() {
+            if (!isSessionPlaying) {
+                tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+                return;
+            }
+            tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+
+            topParticles.forEach(p => {
+                p.y += p.speed;
+                if (p.y > topCanvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * topCanvas.width;
+                }
+
+                p.alpha += p.alphaSpeed;
+                if (p.alpha > 0.95 || p.alpha < 0.15) {
+                    p.alphaSpeed = -p.alphaSpeed;
+                }
+
+                p.colorHue = (p.colorHue + p.colorSpeed) % 360;
+
+                tCtx.save();
+                tCtx.beginPath();
+                tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                tCtx.fillStyle = `hsl(${p.colorHue}, 100%, 70%)`;
+                tCtx.globalAlpha = p.alpha;
+                tCtx.shadowBlur = 10;
+                tCtx.shadowColor = `hsl(${p.colorHue}, 100%, 70%)`;
+                tCtx.fill();
+                tCtx.restore();
+            });
+
+            topAnimId = requestAnimationFrame(renderTopParticles);
+        }
+
+        window.addEventListener('resize', () => {
+            initTopCanvas();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initTopCanvas();
+            renderPlaylist();
+            checkActiveHostingState();
+            updateHostingStateUI();
+        });
+
+        // Automatic Ripple VFX Effect on Every Button Click across the App[span_40](start_span)[span_40](end_span)
+        document.addEventListener('click', function (e) {
+            const target = e.target.closest('button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card');
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                target.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 550);
+            }
+        });
+
+        // Web Audio API Sound Synthesizer Effects[span_41](start_span)[span_41](end_span)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(frequency, type, duration, gainVal = 0.08) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function soundClick() { playTone(650, 'sine', 0.04, 0.06); }
+        function soundSuccess() { 
+            playTone(440, 'sine', 0.06, 0.08);
+            setTimeout(() => playTone(880, 'sine', 0.08, 0.08), 60);
+        }
+        function soundAction() { playTone(540, 'triangle', 0.06, 0.08); }
+        function soundError() { playTone(140, 'sawtooth', 0.12, 0.1); }
+        function soundReaction() {
+            playTone(587.33, 'sine', 0.06, 0.06);
+            setTimeout(() => playTone(880, 'sine', 0.1, 0.06), 50);
+        }
+
+        function soundRoomCreated() {
+            try {
+                initAudio();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        playTone(freq, 'sine', 0.15, 0.1);
+                    }, idx * 90);
+                });
+            } catch(e) {}
+        }
+
+        function soundRoomClosed() {
+            try {
+                initAudio();
+                const notes = [392.00, 329.63, 261.63];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        playTone(freq, 'sine', 0.2, 0.09);
+                    }, idx * 140);
+                });
+            } catch(e) {}
+        }
+
+        let ws = null;
+        let isHosting = false;
+        let currentRoomCode = "";
+        let currentUserName = "User";
+        let isSessionPlaying = false;
+        let progressInterval = null;
+
+        let ytPlayer = null;
+        let scannerStream = null;
+        let scannerInterval = null;
+
+        let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
+
+        function getActiveRoomSession() {
+            return localStorage.getItem('syncbeat_active_room') || null;
+        }
+
+        function setActiveRoomSession(code) {
+            if (code) {
+                localStorage.setItem('syncbeat_active_room', code);
+            } else {
+                localStorage.removeItem('syncbeat_active_room');
+            }
+            updateHostingStateUI();
+            checkActiveHostingState();
+        }
+
+        function updateHostingStateUI() {
+            const activeRoom = getActiveRoomSession();
+            const returnCard = document.getElementById('returnActiveRoomCard');
+            const generateHostCard = document.getElementById('generateHostCard');
+            const connectMemberCard = document.getElementById('connectMemberCard');
+            const scannerCard = document.getElementById('scannerCard');
+
+            if (activeRoom) {
+                if (returnCard) returnCard.classList.remove('hidden');
+                if (generateHostCard) generateHostCard.classList.add('hidden');
+                if (connectMemberCard) connectMemberCard.classList.add('hidden');
+                if (scannerCard) scannerCard.classList.add('hidden');
+            } else {
+                if (returnCard) returnCard.classList.add('hidden');
+                if (generateHostCard) generateHostCard.classList.remove('hidden');
+                if (connectMemberCard) connectMemberCard.classList.remove('hidden');
+                if (scannerCard) scannerCard.classList.remove('hidden');
+            }
+        }
+
+        function checkActiveHostingState() {
+            const controlCard = document.getElementById('activeHostingControlCard');
+            const activeRoom = getActiveRoomSession();
+            if (activeRoom) {
+                controlCard.classList.remove('hidden');
+            } else {
+                controlCard.classList.add('hidden');
+            }
+        }
+
+        function returnToActiveRoom() {
+            const activeRoom = getActiveRoomSession();
+            if (activeRoom) {
+                currentRoomCode = activeRoom;
+                isHosting = true;
+                const codeEl = document.getElementById('displayRoomCode');
+                const subEl = document.getElementById('sessionSubtitle');
+                const titleEl = document.getElementById('sessionHeaderTitle');
+                if (codeEl) codeEl.textContent = currentRoomCode;
+                if (subEl) subEl.textContent = "Room " + currentRoomCode + " | Host: " + currentUserName;
+                if (titleEl) titleEl.textContent = "Host Session (" + currentUserName + ")";
+                
+                document.getElementById('mainLandingView').classList.add('hidden');
+                document.getElementById('hostSessionView').classList.remove('hidden');
+                updatePlaybackVfx(isSessionPlaying);
+                showToast("Returned to active room: " + currentRoomCode);
+            }
+        }
+
+        function updatePlaybackVfx(playing) {
+            const sticker = document.getElementById('vfxMusicSticker');
+            const sessionView = document.getElementById('hostSessionView');
+            const isSessionVisible = sessionView && !sessionView.classList.contains('hidden');
+
+            if (playing && isSessionVisible) {
+                if (sticker) sticker.classList.remove('hidden');
+                renderTopParticles();
+            } else {
+                if (sticker) sticker.classList.add('hidden');
+                tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+            }
+        }
+
+        function renderPlaylist() {
+            const container = document.getElementById('playlistContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            const countEl = document.getElementById('playlistCount');
+            if (countEl) countEl.textContent = savedPlaylist.length;
+
+            if (savedPlaylist.length === 0) {
+                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs in playlist yet.</div>';
+                return;
+            }
+
+            savedPlaylist.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'queue-item';
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1; margin-right: 8px;">
+                        <div class="album-art" style="width:36px;height:36px;font-size:16px;flex-shrink:0;">⭐</div>
+                        <div style="overflow: hidden; flex: 1;">
+                            <div style="font-size: 12px; font-weight: 700; word-break: break-all;" class="pl-title">${item.title}</div>
+                            <div style="font-size: 10px; color: #6b7280;">Saved Track</div>
+                        </div>
+                    </div>
+                    <div style="flex-shrink: 0; display: flex; gap: 4px;">
+                        <button class="action-icon-btn" onclick="soundAction(); playPlaylistIndex(${index});">▶</button>
+                        <button class="action-icon-btn" style="color: #ef4444;" onclick="soundError(); removePlaylistIndex(${index});">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function saveSongToPlaylist(title, url) {
+            if (!savedPlaylist.some(item => item.url === url)) {
+                savedPlaylist.push({ title, url });
+                localStorage.setItem('syncbeat_playlist', JSON.stringify(savedPlaylist));
+                renderPlaylist();
+                showToast("Saved to persistent playlist!");
+            } else {
+                showToast("Song already exists in playlist.");
+            }
+        }
+
+        function playPlaylistIndex(index) {
+            const item = savedPlaylist[index];
+            if (item) {
+                const ytId = extractYouTubeId(item.url) || "dQw4w9WgXcQ";
+                playYouTubeStreamByUrl(item.url, item.title, ytId);
+            }
+        }
+
+        function removePlaylistIndex(index) {
+            savedPlaylist.splice(index, 1);
+            localStorage.setItem('syncbeat_playlist', JSON.stringify(savedPlaylist));
+            renderPlaylist();
+            showToast("Removed from playlist.");
+        }
+
+        function exitHostSession() {
+            soundClick();
+            if (isHosting) {
+                setActiveRoomSession(currentRoomCode);
+                showToast("Returned to home. Room & music running in background.");
+            } else {
+                isSessionPlaying = false;
+                updatePlaybackVfx(false);
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+                if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                    ytPlayer.stopVideo();
+                }
+                setActiveRoomSession(null);
+                showToast("Disconnected from room and returned to home.");
+            }
+
+            document.getElementById('hostSessionView').classList.add('hidden');
+            document.getElementById('mainLandingView').classList.remove('hidden');
+            checkActiveHostingState();
+            updateHostingStateUI();
+        }
+
+        function closeRoomAndReturnHome() {
+            soundRoomClosed();
+            isSessionPlaying = false;
+            updatePlaybackVfx(false);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
+            }
+            setActiveRoomSession(null);
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            isHosting = false;
+            currentRoomCode = "";
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                ytPlayer.stopVideo();
+            }
+            checkActiveHostingState();
+            updateHostingStateUI();
+
+            document.getElementById('hostSessionView').classList.add('hidden');
+            document.getElementById('mainLandingView').classList.remove('hidden');
+            showToast("Room closed. All options available.");
+        }
+
+        function forceCloseActiveHosting() {
+            soundRoomClosed();
+            isSessionPlaying = false;
+            updatePlaybackVfx(false);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
+            }
+            setActiveRoomSession(null);
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+            isHosting = false;
+            currentRoomCode = "";
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                ytPlayer.stopVideo();
+            }
+            checkActiveHostingState();
+            updateHostingStateUI();
+            showToast("Active hosting room session closed and code invalidated.");
+        }
+
+        function toggleQrScanner() {
+            const container = document.getElementById('scannerViewContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                document.getElementById('scannerToggleBtn').textContent = "🛡️ CLOSE SCANNER";
+                startQrScanner();
+            } else {
+                stopQrScanner();
+            }
+        }
+
+        function startQrScanner() {
+            const video = document.getElementById('qrVideoElement');
+            const canvas = document.getElementById('qrCanvasElement');
+            const context = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then((stream) => {
+                    scannerStream = stream;
+                    video.srcObject = stream;
+                    video.setAttribute("playsinline", true);
+                    video.play();
+
+                    scannerInterval = setInterval(() => {
+                        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                            canvas.height = video.videoHeight;
+                            canvas.width = video.videoWidth;
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: "dontInvert",
+                            });
+
+                            if (code) {
+                                parseQrResult(code.data);
+                            }
+                        }
+                    }, 300);
+                })
+                .catch((err) => {
+                    showToast("Camera access denied or unavailable.");
+                    stopQrScanner();
+                });
+        }
+
+        function stopQrScanner() {
+            if (scannerStream) {
+                scannerStream.getTracks().forEach(track => track.stop());
+                scannerStream = null;
+            }
+            clearInterval(scannerInterval);
+            document.getElementById('scannerViewContainer').classList.add('hidden');
+            document.getElementById('scannerToggleBtn').textContent = "🛸 OPEN CAMERA SCANNER";
+        }
+
+        function parseQrResult(data) {
+            let parts = data.split('|');
+            if (parts.length === 2) {
+                document.getElementById('hostIpInput').value = parts[0].trim();
+                document.getElementById('roomCodeInput').value = parts[1].trim().toUpperCase();
+                stopQrScanner();
+                showToast("QR Code scanned! Connecting...");
+                connectToRoom();
+            } else {
+                document.getElementById('roomCodeInput').value = data.trim().toUpperCase();
+                document.getElementById('hostIpInput').value = "192.168.43.1";
+                stopQrScanner();
+                connectToRoom();
+            }
+        }
+
+        function showQRCode() {
+            const hostIp = document.getElementById('displayHostIp').textContent;
+            const qrData = `${hostIp}|${currentRoomCode}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=185x185&data=${encodeURIComponent(qrData)}`;
+            
+            document.getElementById('qrImageContainer').innerHTML = `<img src="${qrUrl}" alt="Room QR Code" style="border-radius: 10px; border: 1px solid #d8b4fe;" />`;
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeQrModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        function setupMediaSession(title, artist) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title,
+                    artist: artist,
+                    album: 'SyncBeat Room (' + currentRoomCode + ')',
+                    artwork: [
+                        { src: 'https://via.placeholder.com/96', sizes: '96x96', type: 'image/png' },
+                        { src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => { togglePlaySession(); });
+                navigator.mediaSession.setActionHandler('pause', () => { togglePlaySession(); });
+                navigator.mediaSession.setActionHandler('previoustrack', () => { prevTrack(); });
+                navigator.mediaSession.setActionHandler('nexttrack', () => { nextTrack(); });
+                navigator.mediaSession.playbackState = "playing";
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastModal');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2500);
+        }
+
+        function toggleStatus(type) {
+            const pill = document.getElementById(type + 'Pill');
+            if (pill) pill.classList.toggle('active');
+            showToast(type.toUpperCase() + " status toggled.");
+        }
+
+        function getUserInputName() {
+            const nameInput = document.getElementById('userNameInput').value.trim();
+            return nameInput ? nameInput : "User";
+        }
+
+        // HOST ROOM GENERATION WITH RESTRICTION IF ALREADY IN A ROOM
+        function startHostingSession() {
+            const activeRoom = getActiveRoomSession();
+            if (activeRoom && isHosting) {
+                soundError();
+                showToast("Restriction: You are already hosting an active room session!");
+                return;
+            }
+
+            currentUserName = getUserInputName();
+            isHosting = true;
+            currentRoomCode = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            
+            soundRoomCreated();
+            setActiveRoomSession(currentRoomCode);
+
+            const codeEl = document.getElementById('displayRoomCode');
+            const ipEl = document.getElementById('displayHostIp');
+            const subEl = document.getElementById('sessionSubtitle');
+            const titleEl = document.getElementById('sessionHeaderTitle');
+            const statusEl = document.getElementById('sessionStatusText');
+            const badgeEl = document.getElementById('roleIndicatorBadge');
+            const selfDispEl = document.getElementById('peerSelfDisplay');
+            const roleTagEl = document.getElementById('peerRoleTag');
+            const closeBtn = document.getElementById('closeSessionBtn');
+
+            if (codeEl) codeEl.textContent = currentRoomCode;
+            if (ipEl) ipEl.textContent = "192.168.43.1";
+            if (subEl) subEl.textContent = "Room " + currentRoomCode + " | Host: " + currentUserName;
+            if (titleEl) titleEl.textContent = "Host Session (" + currentUserName + ")";
+            if (statusEl) statusEl.textContent = "HOSTING ACTIVE";
+            if (badgeEl) badgeEl.textContent = "Role: Host";
+            if (selfDispEl) selfDispEl.textContent = currentUserName + " (Host)";
+            if (roleTagEl) roleTagEl.textContent = "HOST";
+
+            if (closeBtn) closeBtn.style.display = "block";
+
+            checkActiveHostingState();
+
+            document.getElementById('mainLandingView').classList.add('hidden');
+            document.getElementById('hostSessionView').classList.remove('hidden');
+
+            updatePlaybackVfx(isSessionPlaying);
+
+            initWebSocket('127.0.0.1', () => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
+                }
+            });
+            showToast("Hosting active as Host: " + currentUserName);
+        }
+
+        // CONNECT TO ROOM WITH REAL-TIME CODE VALIDATION & SPECIFIC ERROR MESSAGE
+        function connectToRoom() {
+            currentUserName = getUserInputName();
+            const hostIp = document.getElementById('hostIpInput').value.trim();
+            const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+
+            if (!hostIp || code.length < 4) {
+                soundError();
+                showToast("Please enter valid Host IP and Room Code.");
+                return;
+            }
+
+            showToast("Verifying room code in real-time...");
+
+            initWebSocket(hostIp, () => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName }));
+                }
+            });
+        }
+
+        function initWebSocket(ip, onOpenCallback) {
+            try {
+                ws = new WebSocket(`ws://${ip}:8080`);
+                ws.onopen = () => { if (onOpenCallback) onOpenCallback(); };
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'ROOM_JOIN_SUCCESS') {
+                        soundRoomCreated();
+                        isHosting = false;
+                        currentRoomCode = data.code;
+                        
+                        const codeEl = document.getElementById('displayRoomCode');
+                        const ipEl = document.getElementById('displayHostIp');
+                        const subEl = document.getElementById('sessionSubtitle');
+                        const titleEl = document.getElementById('sessionHeaderTitle');
+                        const statusEl = document.getElementById('sessionStatusText');
+                        const badgeEl = document.getElementById('roleIndicatorBadge');
+                        const selfDispEl = document.getElementById('peerSelfDisplay');
+                        const roleTagEl = document.getElementById('peerRoleTag');
+                        const closeBtn = document.getElementById('closeSessionBtn');
+
+                        if (codeEl) codeEl.textContent = data.code;
+                        if (ipEl) ipEl.textContent = ip;
+                        if (subEl) subEl.textContent = "Room " + data.code + " | Member: " + currentUserName;
+                        if (titleEl) titleEl.textContent = "Member Session (" + currentUserName + ")";
+                        if (statusEl) statusEl.textContent = "CONNECTED TO HOST";
+                        if (badgeEl) badgeEl.textContent = "Role: Member";
+                        if (selfDispEl) selfDispEl.textContent = currentUserName + " (Member)";
+                        if (roleTagEl) roleTagEl.textContent = "MEMBER";
+
+                        if (closeBtn) closeBtn.style.display = "block";
+
+                        checkActiveHostingState();
+
+                        document.getElementById('mainLandingView').classList.add('hidden');
+                        document.getElementById('hostSessionView').classList.remove('hidden');
+
+                        updatePlaybackVfx(isSessionPlaying);
+                        showToast("Joined room successfully as Member: " + currentUserName);
+
+                    } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ROOM_INVALID' || data.type === 'ERROR') {
+                        soundError();
+                        showToast("No room available according to this 'code/ip'");
+                        if (ws) {
+                            ws.close();
+                            ws = null;
+                        }
+                    } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
+                        handleIncomingControl(data);
+                    } else if (data.type === 'REACTION') {
+                        showFloatingReaction(data.emoji, data.name || 'A peer');
+                    } else if (data.type === 'ROOM_CLOSED') {
+                        soundRoomClosed();
+                        isSessionPlaying = false;
+                        updatePlaybackVfx(false);
+                        setActiveRoomSession(null);
+                        if (ws) {
+                            ws.close();
+                            ws = null;
+                        }
+                        isHosting = false;
+                        currentRoomCode = "";
+                        if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                            ytPlayer.stopVideo();
+                        }
+                        checkActiveHostingState();
+                        updateHostingStateUI();
+
+                        document.getElementById('hostSessionView').classList.add('hidden');
+                        document.getElementById('mainLandingView').classList.remove('hidden');
+                        showToast("The host has closed the room. Disconnected and returned home.");
+                    }
+                };
+                ws.onerror = () => { 
+                    soundError();
+                    showToast("No room available according to this 'code/ip'"); 
+                };
+            } catch(e) {
+                showToast("No room available according to this 'code/ip'");
+            }
+        }
+
+        function copyCode() {
+            soundClick();
+            navigator.clipboard.writeText(currentRoomCode);
+            showToast("Copied code: " + currentRoomCode);
+        }
+
+        function copyHostIp() {
+            soundClick();
+            const ipEl = document.getElementById('displayHostIp');
+            const ip = ipEl ? ipEl.textContent : "192.168.43.1";
+            navigator.clipboard.writeText(ip);
+            showToast("Copied Host IP: " + ip);
+        }
+
+        function shareCode() {
+            soundClick();
+            const ipEl = document.getElementById('displayHostIp');
+            const ip = ipEl ? ipEl.textContent : "192.168.43.1";
+            if (navigator.share) {
+                navigator.share({ title: 'SyncBeat Room', text: 'Join room ' + currentRoomCode + ' at IP: ' + ip });
+            } else {
+                showToast("Share info generated for " + currentRoomCode);
+            }
+        }
+
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            let match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function addTrackToQueue(title, artist) {
+            const queueList = document.getElementById('queueList');
+            if (!queueList) return;
+            const item = document.createElement('div');
+            item.className = 'queue-item';
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1; margin-right: 8px;">
+                    <div class="album-art" style="width:36px;height:36px;font-size:16px;flex-shrink:0;">⭐</div>
+                    <div style="overflow: hidden; flex: 1;">
+                        <div style="font-size: 12px; font-weight: 700; word-break: break-all;" class="q-title">${title}</div>
+                        <div style="font-size: 10px; color: #6b7280;" class="q-artist">${artist}</div>
+                    </div>
+                </div>
+                <div style="flex-shrink: 0; display: flex; gap: 4px;">
+                    <button class="action-icon-btn" onclick="soundAction(); playFromQueueElement(this);">▶</button>
+                    <button class="action-icon-btn" style="color: #ef4444;" onclick="soundError(); removeQueueItem(this);">✕</button>
+                </div>
+            `;
+            queueList.appendChild(item);
+            
+            let count = document.querySelectorAll('.queue-item').length;
+            const countEl = document.getElementById('queueCount');
+            if (countEl) countEl.textContent = count;
+        }
+
+        function playFromQueueElement(btn) {
+            const qItem = btn.closest('.queue-item');
+            if (!qItem) return;
+            const titleEl = qItem.querySelector('.q-title');
+            const artistEl = qItem.querySelector('.q-artist');
+            const title = titleEl ? titleEl.textContent : "";
+            const artist = artistEl ? artistEl.textContent : "";
+            const ytId = extractYouTubeId(title) || "dQw4w9WgXcQ";
+            playYouTubeStreamByUrl(title, artist, ytId);
+        }
+
+        function handleUrlAction(actionType) {
+            const inputField = document.getElementById('queueUrlInput');
+            if (!inputField) return;
+            const val = inputField.value.trim();
+            if (!val) {
+                soundError();
+                showToast("Please paste a valid YouTube URL.");
+                return;
+            }
+
+            const ytId = extractYouTubeId(val);
+            if (!ytId) {
+                soundError();
+                showToast("Error: Wrong URL! Enter a valid YouTube URL.");
+                inputField.value = "";
+                return;
+            }
+
+            if (actionType === 'save') {
+                saveSongToPlaylist(val, val);
+            } else if (actionType === 'queue') {
+                addTrackToQueue(val, "YouTube Stream");
+                showToast("Added to queue successfully!");
+            } else {
+                playYouTubeStreamByUrl(val, "YouTube Stream", ytId);
+            }
+            inputField.value = "";
+        }
+
+        function playYouTubeStreamByUrl(title, artist, explicitYtId = null) {
+            const titleEl = document.getElementById('sessionTitle');
+            const artistEl = document.getElementById('sessionArtist');
+            const artEl = document.getElementById('sessionArt');
+            const playBtn = document.getElementById('sessionPlayBtn');
+
+            if (titleEl) titleEl.textContent = title;
+            if (artistEl) artistEl.textContent = artist;
+            if (artEl) artEl.textContent = "▶️";
+
+            isSessionPlaying = true;
+            updatePlaybackVfx(true);
+            if (playBtn) playBtn.textContent = "⏸";
+
+            const ytId = explicitYtId || extractYouTubeId(title);
+            if (ytId) {
+                loadYouTubeStream(ytId);
+            }
+
+            setupMediaSession(title, artist);
+            showToast("Now Playing: " + title);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'PLAY_TRACK', title: title, artist: artist }));
+            }
+        }
+
+        function playNextInQueue() {
+            const firstQueueItem = document.querySelector('#queueList .queue-item');
+            if (firstQueueItem) {
+                const btn = firstQueueItem.querySelector('.action-icon-btn');
+                if (btn) playFromQueueElement(btn);
+                firstQueueItem.remove();
+                let count = document.querySelectorAll('.queue-item').length;
+                const countEl = document.getElementById('queueCount');
+                if (countEl) countEl.textContent = count;
+            } else {
+                showToast("Queue is empty. Playback finished.");
+                isSessionPlaying = false;
+                updatePlaybackVfx(false);
+                const playBtn = document.getElementById('sessionPlayBtn');
+                if (playBtn) playBtn.textContent = "▶";
+                if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+                clearInterval(progressInterval);
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = "paused";
+                }
+            }
+        }
+
+        function loadYouTubeStream(ytId) {
+            const embedWrapper = document.getElementById('ytEmbedWrapper');
+            if (embedWrapper) embedWrapper.style.display = "block";
+            const volInput = document.getElementById('sessionMasterVol');
+            const currentVol = volInput ? parseInt(volInput.value) : 100;
+
+            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+                ytPlayer.loadVideoById(ytId);
+                ytPlayer.setVolume(currentVol);
+                startYouTubeProgressLoop();
+            } else {
+                ytPlayer = new YT.Player('ytPlayerDiv', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: ytId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'playsinline': 1 },
+                    events: {
+                        'onReady': (event) => {
+                            event.target.playVideo();
+                            event.target.setVolume(currentVol);
+                            isSessionPlaying = true;
+                            updatePlaybackVfx(true);
+                            const playBtn = document.getElementById('sessionPlayBtn');
+                            if (playBtn) playBtn.textContent = "⏸";
+                            startYouTubeProgressLoop();
+                        },
+                        'onStateChange': (event) => {
+                            if (event.data === YT.PlayerState.PLAYING) {
+                                isSessionPlaying = true;
+                                updatePlaybackVfx(true);
+                                const playBtn = document.getElementById('sessionPlayBtn');
+                                if (playBtn) playBtn.textContent = "⏸";
+                                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+                            } else if (event.data === YT.PlayerState.PAUSED) {
+                                isSessionPlaying = false;
+                                updatePlaybackVfx(false);
+                                const playBtn = document.getElementById('sessionPlayBtn');
+                                if (playBtn) playBtn.textContent = "▶";
+                                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+                            } else if (event.data === YT.PlayerState.ENDED) {
+                                playNextInQueue();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function startYouTubeProgressLoop() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (!isSessionPlaying || !ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+                try {
+                    const current = ytPlayer.getCurrentTime();
+                    const duration = ytPlayer.getDuration() || 1;
+                    const pct = (current / duration) * 100;
+                    const fillEl = document.getElementById('sessionFill');
+                    if (fillEl) fillEl.style.width = pct + "%";
+                    
+                    const curTimeEl = document.getElementById('sessionCurrentTime');
+                    const totDurEl = document.getElementById('sessionTotalDuration');
+                    if (curTimeEl) curTimeEl.textContent = formatTime(current);
+                    if (totDurEl) totDurEl.textContent = formatTime(duration);
+                } catch(e) {}
+            }, 500);
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return m + ":" + (s < 10 ? "0" : "") + s;
+        }
+
+        // Universal Remote Play/Pause Control
+        function togglePlaySession() {
+            isSessionPlaying = !isSessionPlaying;
+            updatePlaybackVfx(isSessionPlaying);
+            const playBtn = document.getElementById('sessionPlayBtn');
+            if (playBtn) playBtn.textContent = isSessionPlaying ? "⏸" : "▶";
+            
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                if (isSessionPlaying) {
+                    ytPlayer.playVideo();
+                    showToast("Playback Resumed");
+                } else {
+                    ytPlayer.pauseVideo();
+                    showToast("Playback Paused");
+                }
+            }
+
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = isSessionPlaying ? "playing" : "paused";
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'CONTROL', action: isSessionPlaying ? 'play' : 'pause' }));
+            }
+        }
+
+        // Universal Rewind Function (e.g. jump back 10 seconds)
+        function rewindTrack(seconds) {
+            soundClick();
+            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.seekTo === 'function') {
+                const currentTime = ytPlayer.getCurrentTime();
+                const targetTime = Math.max(0, currentTime - seconds);
+                ytPlayer.seekTo(targetTime, true);
+                showToast(`Rewound ${seconds}s`);
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: targetTime }));
+                }
+            } else {
+                showToast("Rewind action sent to room");
+            }
+        }
+
+        // Universal Fast Forward Function (skip ahead 10 seconds)
+        function forwardTrack(seconds) {
+            soundClick();
+            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function' && typeof ytPlayer.seekTo === 'function') {
+                const currentTime = ytPlayer.getCurrentTime();
+                const duration = ytPlayer.getDuration();
+                const targetTime = Math.min(duration, currentTime + seconds);
+                ytPlayer.seekTo(targetTime, true);
+                showToast(`Skipped ahead ${seconds}s`);
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: targetTime }));
+                }
+            }
+        }
+
+        function updateRealTimeMasterVol(val) {
+            const volPctEl = document.getElementById('sessionVolPct');
+            if (volPctEl) volPctEl.textContent = val + "%";
+
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                ytPlayer.setVolume(parseInt(val));
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
+            }
+        }
+
+        function handleIncomingControl(data) {
+            if (data.type === 'PLAY_TRACK') {
+                document.getElementById('sessionTitle').textContent = data.title;
+                document.getElementById('sessionArtist').textContent = data.artist + " • Synced Remote";
+                isSessionPlaying = true;
+                updatePlaybackVfx(true);
+                const playBtn = document.getElementById('sessionPlayBtn');
+                if (playBtn) playBtn.textContent = "⏸";
+                const ytId = extractYouTubeId(data.title);
+                if (ytId) loadYouTubeStream(ytId);
+                setupMediaSession(data.title, data.artist);
+                showToast("Remote Sync: Now Playing " + data.title);
+            } else if (data.type === 'CONTROL') {
+                if (data.action === 'play' || data.action === 'pause') {
+                    isSessionPlaying = (data.action === 'play');
+                    updatePlaybackVfx(isSessionPlaying);
+                    const playBtn = document.getElementById('sessionPlayBtn');
+                    if (playBtn) playBtn.textContent = isSessionPlaying ? "⏸" : "▶";
+                    if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                        if (isSessionPlaying) ytPlayer.playVideo();
+                        else ytPlayer.pauseVideo();
+                    }
+                } else if (data.action === 'seek' && typeof data.time === 'number') {
+                    if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+                        ytPlayer.seekTo(data.time, true);
+                    }
+                } else if (data.action === 'next') {
+                    playNextInQueue();
+                }
+            } else if (data.type === 'VOLUME') {
+                const volInput = document.getElementById('sessionMasterVol');
+                const volPctEl = document.getElementById('sessionVolPct');
+                if (volInput) volInput.value = data.volume;
+                if (volPctEl) volPctEl.textContent = data.volume + "%";
+                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                    ytPlayer.setVolume(parseInt(data.volume));
+                }
+            }
+        }
+
+        function seekTrack(event) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const pct = (event.clientX - rect.left) / rect.width;
+            if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                const duration = ytPlayer.getDuration();
+                const targetTime = pct * duration;
+                ytPlayer.seekTo(targetTime, true);
+                const fillEl = document.getElementById('sessionFill');
+                if (fillEl) fillEl.style.width = (pct * 100) + "%";
+
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: targetTime }));
+                }
+            }
+        }
+
+        function prevTrack() {
+            soundAction();
+            showToast("Triggered previous track across room");
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'CONTROL', action: 'prev' }));
+            }
+        }
+
+        function nextTrack() {
+            soundAction();
+            playNextInQueue();
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'CONTROL', action: 'next' }));
+            }
+        }
+
+        function removeQueueItem(btn) {
+            const qItem = btn.closest('.queue-item');
+            if (qItem) qItem.remove();
+            let count = document.querySelectorAll('.queue-item').length;
+            const countEl = document.getElementById('queueCount');
+            if (countEl) countEl.textContent = count;
+            showToast("Track removed from queue.");
+        }
+
+        // Cheerable Moments Floating Reactions Feature[span_42](start_span)[span_42](end_span)
+        function sendReaction(emoji) {
+            const senderName = currentUserName || "User";
+            showFloatingReaction(emoji, senderName);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: senderName }));
+            }
+        }
+
+        function showFloatingReaction(emoji, senderName) {
+            const container = document.body;
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.textContent = emoji;
+            
+            const randomX = Math.floor(Math.random() * (window.innerWidth - 80)) + 20;
+            el.style.left = randomX + 'px';
+            container.appendChild(el);
+
+            showToast(`${senderName} cheered with ${emoji}! 🎉`);
+
+            setTimeout(() => {
+                el.remove();
+            }, 2200);
+        }
+    </script>
+</body>
+</html>
