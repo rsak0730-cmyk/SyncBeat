@@ -247,10 +247,122 @@
         }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
+
+        /* Spotify Dynamic Player UI */
+        .spotify-card {
+            background: linear-gradient(145deg, #181818, #121212);
+            border: 1px solid #282828;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 14px;
+            color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .spotify-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .spotify-logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            font-size: 14px;
+            color: #1db954;
+        }
+        .spotify-search-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .spotify-input {
+            flex: 1;
+            background: #242424;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 10px 14px;
+            border-radius: 25px;
+            font-size: 12px;
+            outline: none;
+        }
+        .spotify-input::placeholder {
+            color: #b3b3b3;
+        }
+        .spotify-play-btn {
+            background: #1db954;
+            color: #000000;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .spotify-now-playing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1f1f1f;
+            padding: 12px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+        }
+        .spotify-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #333333;
+        }
+        .spotify-track-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .spotify-artist-name {
+            font-size: 11px;
+            color: #b3b3b3;
+        }
+        .spotify-track-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #181818;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+        .spotify-track-item:hover {
+            background: #282828;
+        }
+        .spotify-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .spotify-item-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
     <canvas id="topParticleCanvas"></canvas>
+    <!-- Inbuilt Real Direct Audio Streaming Element -->
+    <audio id="realAudioPlayer" preload="auto"></audio>
+
     <div class="container">
         <!-- Landing View -->
         <div id="mainLandingView">
@@ -415,7 +527,7 @@
                     </div>
                 </div>
 
-                <!-- Video Wrapper with Native Player Controls (Quality & Settings enabled for all devices) -->
+                <!-- Video Wrapper with Native Controls Enabled for All Devices -->
                 <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
                     <!-- Back to Room Button (Appears only in Full-Screen Mode) -->
@@ -467,6 +579,39 @@
                     <button class="action-btn-custom" style="padding: 10px 14px;" onclick="sendChatMessage()">Send</button>
                 </div>
             </div>
+
+            <!-- Spotify Real Search & Player UI -->
+            <div class="spotify-card" id="spotifyBoxCard">
+                <div class="spotify-header">
+                    <div class="spotify-logo">
+                        <span>🟢</span> Spotify Player
+                    </div>
+                    <span style="font-size: 10px; color: #1db954; font-weight: 700; background: rgba(29, 185, 84, 0.15); padding: 4px 8px; border-radius: 12px;">Real Search Live Sync</span>
+                </div>
+
+                <div id="spotifyHostOnlyControls">
+                    <div class="spotify-search-bar">
+                        <input type="text" class="spotify-input" id="spotifySearchInput" placeholder="🔍 Search any Song or Artist..." onkeydown="if(event.key==='Enter') handleSpotifySearchPlay()">
+                        <button class="spotify-play-btn" onclick="handleSpotifySearchPlay()">🔍 Search</button>
+                    </div>
+                </div>
+
+                <!-- Spotify Mini Now Playing Bar -->
+                <div class="spotify-now-playing">
+                    <img id="spotifyCurrentCover" class="spotify-thumb" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&h=100&fit=crop" alt="Cover">
+                    <div style="flex: 1; overflow: hidden;">
+                        <div class="spotify-track-name" id="spotifyCurrentTitle">No Track Playing</div>
+                        <div class="spotify-artist-name" id="spotifyCurrentArtist">Search and play a song above</div>
+                    </div>
+                    <button class="action-icon-btn" style="color:#1db954; font-size:18px;" onclick="togglePlaySession()">⏯</button>
+                </div>
+
+                <!-- Spotify Live Searched Results Container -->
+                <div style="font-size: 11px; font-weight: 700; color: #b3b3b3; margin-bottom: 8px; text-transform: uppercase;">🎵 Searched Results</div>
+                <div id="spotifyTracksContainer" style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column;">
+                    <div style="font-size: 11px; color: #777777; text-align: center; padding: 14px;">Type a song or artist name above to find and play real music.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -487,6 +632,9 @@
         let scannerInterval = null;
         let savedPlaylist = [];
         let upcomingQueue = [];
+
+        const realAudio = document.getElementById('realAudioPlayer');
+        let currentActiveMode = 'none'; // 'audio' or 'youtube'
 
         const topCanvas = document.getElementById('topParticleCanvas');
         const tCtx = topCanvas.getContext('2d');
@@ -521,7 +669,6 @@
                     p.x = Math.random() * topCanvas.width; 
                 }
                 
-                // Slowed down blinking effect and subtle random color shifts
                 p.alpha += (Math.random() - 0.5) * 0.01;
                 if (p.alpha < 0.15) p.alpha = 0.15;
                 if (p.alpha > 0.85) p.alpha = 0.85;
@@ -767,6 +914,369 @@
             }
         }
 
+        function extractYouTubeId(url) {
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function handleUrlAction(type) {
+            const input = document.getElementById('queueUrlInput');
+            const val = input.value.trim();
+            const ytId = extractYouTubeId(val);
+            if (!ytId) { showToast("Enter a valid YouTube URL."); return; }
+
+            if (type === 'save') {
+                saveSongToPlaylist(val, val);
+            } else if (type === 'queue') {
+                upcomingQueue.push({ title: val, url: val });
+                renderQueue();
+                showToast("Added to upcoming queue!");
+            } else {
+                if (!isHosting) { showToast("Only the host can play songs."); return; }
+                playYouTubeStream(val, ytId, 0);
+            }
+            input.value = "";
+        }
+
+        /* Real Live Dynamic Music Search & Direct Audio Streaming Engine */
+        async function handleSpotifySearchPlay() {
+            const input = document.getElementById('spotifySearchInput');
+            const query = input.value.trim();
+            if (!query) { showToast("Enter a song name or artist."); return; }
+
+            const container = document.getElementById('spotifyTracksContainer');
+            container.innerHTML = '<div style="font-size: 11px; color: #1db954; text-align: center; padding: 14px;">Searching real music tracks...</div>';
+
+            try {
+                const ytId = extractYouTubeId(query);
+                if (ytId) {
+                    playYouTubeStream("Custom YouTube Video", ytId, 0);
+                    container.innerHTML = '<div style="font-size: 11px; color: #b3b3b3; text-align: center; padding: 14px;">Playing direct YouTube track</div>';
+                    input.value = "";
+                    return;
+                }
+
+                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
+                const data = await res.json();
+
+                if (!data.results || data.results.length === 0) {
+                    container.innerHTML = '<div style="font-size: 11px; color: #ef4444; text-align: center; padding: 14px;">No matching songs found. Try another search.</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.results.forEach(track => {
+                    const trackTitle = track.trackName || 'Unknown Title';
+                    const artistName = track.artistName || 'Unknown Artist';
+                    const artwork = (track.artworkUrl100 || '').replace('100x100bb', '300x300bb');
+                    const audioUrl = track.previewUrl || '';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'spotify-track-item';
+                    div.innerHTML = `
+                        <div class="spotify-item-left">
+                            <img class="spotify-item-thumb" src="${artwork}" alt="Cover" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=80&h=80&fit=crop'">
+                            <div style="overflow: hidden;">
+                                <div style="font-size: 12px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">${escapeHtml(trackTitle)}</div>
+                                <div style="font-size: 10px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">${escapeHtml(artistName)}</div>
+                            </div>
+                        </div>
+                        <button class="spotify-play-btn" style="padding: 6px 12px; font-size: 11px;">▶ Play</button>
+                    `;
+                    const btn = div.querySelector('button');
+                    btn.onclick = () => {
+                        playDirectRealAudio(trackTitle, artistName, artwork, audioUrl);
+                    };
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div style="font-size: 11px; color: #ef4444; text-align: center; padding: 14px;">Failed to fetch songs. Check your connection.</div>';
+            }
+        }
+
+        function playDirectRealAudio(trackTitle, artistName, coverUrl, audioUrl, startTime = 0) {
+            if (!isHosting && !audioUrl) { showToast("Only the host can initiate playback."); return; }
+
+            currentActiveMode = 'audio';
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                ytPlayer.pauseVideo();
+            }
+
+            document.getElementById('spotifyCurrentTitle').textContent = trackTitle;
+            document.getElementById('spotifyCurrentArtist').textContent = artistName;
+            if (coverUrl) document.getElementById('spotifyCurrentCover').src = coverUrl;
+
+            document.getElementById('sessionTitle').textContent = trackTitle;
+            document.getElementById('sessionArtist').textContent = artistName;
+
+            isSessionPlaying = true;
+            document.getElementById('vfxMusicSticker').classList.remove('hidden');
+            document.getElementById('sessionPlayBtn').textContent = "⏸";
+            renderTopParticles();
+
+            if (audioUrl) {
+                realAudio.src = audioUrl;
+                realAudio.currentTime = startTime;
+                const volVal = parseInt(document.getElementById('sessionMasterVol').value || 100) / 100;
+                realAudio.volume = volVal;
+                realAudio.play().catch(e => console.error(e));
+            }
+            
+            startAudioProgressTracker();
+
+            if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'PLAY_REAL_SONG',
+                    title: trackTitle,
+                    artist: artistName,
+                    cover: coverUrl,
+                    audioUrl: audioUrl,
+                    currentTime: 0
+                }));
+            }
+            showToast("Playing: " + trackTitle);
+        }
+
+        function startAudioProgressTracker() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (currentActiveMode === 'audio' && realAudio) {
+                    const current = realAudio.currentTime;
+                    const total = realAudio.duration || 30;
+                    if (total > 0) {
+                        const pct = (current / total) * 100;
+                        document.getElementById('sessionFill').style.width = pct + '%';
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
+                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
+                    }
+                }
+            }, 500);
+        }
+
+        function startProgressTracker() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (currentActiveMode === 'youtube' && isSessionPlaying && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
+                    const current = ytPlayer.getCurrentTime();
+                    const total = ytPlayer.getDuration();
+                    if (total > 0) {
+                        const pct = (current / total) * 100;
+                        document.getElementById('sessionFill').style.width = pct + '%';
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
+                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
+                    }
+                }
+            }, 500);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function seekTrack(event) {
+            if (!isHosting) { 
+                showToast("Only the host can control playback scrubbing."); 
+                return; 
+            }
+
+            const track = event.currentTarget;
+            const rect = track.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = Math.max(0, Math.min(1, clickX / width));
+
+            if (currentActiveMode === 'audio' && realAudio && realAudio.duration) {
+                const newTime = percentage * realAudio.duration;
+                realAudio.currentTime = newTime;
+                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
+                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
+                }
+            } else if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                const duration = ytPlayer.getDuration();
+                const newTime = percentage * duration;
+                ytPlayer.seekTo(newTime, true);
+                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
+                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
+                }
+            }
+        }
+
+        function playYouTubeStream(title, ytId, startTime = 0) {
+            currentActiveMode = 'youtube';
+            if (realAudio) realAudio.pause();
+
+            document.getElementById('sessionTitle').textContent = title;
+            document.getElementById('sessionArtist').textContent = "Synchronized Stream";
+            document.getElementById('spotifyCurrentTitle').textContent = title;
+            isSessionPlaying = true;
+            document.getElementById('vfxMusicSticker').classList.remove('hidden');
+            document.getElementById('sessionPlayBtn').textContent = "⏸";
+            renderTopParticles();
+
+            loadYouTubePlayer(ytId, startTime);
+            startProgressTracker();
+
+            if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ 
+                    type: 'PLAY_TRACK', 
+                    title: title, 
+                    artist: currentUserName, 
+                    currentTime: ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0 
+                }));
+            }
+        }
+
+        function loadYouTubePlayer(ytId, startTime = 0) {
+            applyRoleUI();
+
+            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+                ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
+                if (!isHosting && typeof ytPlayer.seekTo === 'function') {
+                    ytPlayer.seekTo(startTime, true);
+                }
+            } else {
+                ytPlayer = new YT.Player('ytPlayerDiv', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: ytId,
+                    playerVars: { 
+                        'autoplay': 1, 
+                        'controls': 1,
+                        'disablekb': 1,               
+                        'modestbranding': 1,
+                        'start': startTime 
+                    },
+                    events: {
+                        'onReady': (e) => { 
+                            e.target.seekTo(startTime, true);
+                            e.target.playVideo(); 
+                        }
+                    }
+                });
+            }
+        }
+
+        function togglePlaySession() {
+            if (!isHosting) { showToast("Only the host can control playback."); return; }
+            isSessionPlaying = !isSessionPlaying;
+            document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
+            document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
+            
+            let currentTime = 0;
+            if (currentActiveMode === 'audio' && realAudio) {
+                if (isSessionPlaying) {
+                    realAudio.play().catch(() => {});
+                    startAudioProgressTracker();
+                } else {
+                    realAudio.pause();
+                    clearInterval(progressInterval);
+                }
+                currentTime = realAudio.currentTime;
+            } else if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                currentTime = ytPlayer.getCurrentTime();
+                if (isSessionPlaying) {
+                    ytPlayer.playVideo();
+                    startProgressTracker();
+                } else {
+                    ytPlayer.pauseVideo();
+                    clearInterval(progressInterval);
+                }
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ 
+                    type: 'CONTROL', 
+                    action: isSessionPlaying ? 'play' : 'pause', 
+                    time: currentTime 
+                }));
+            }
+        }
+
+        function updateRealTimeMasterVol(val) {
+            if (!isHosting) return;
+            document.getElementById('sessionVolPct').textContent = val + "%";
+            const numericVol = parseInt(val);
+
+            if (realAudio) realAudio.volume = numericVol / 100;
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(numericVol);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
+            }
+        }
+
+        function handleIncomingControl(data) {
+            if (data.type === 'PLAY_TRACK') {
+                const ytId = extractYouTubeId(data.title) || '34Na4j8AVgA';
+                playYouTubeStream(data.title, ytId, data.currentTime || 0);
+            } else if (data.type === 'PLAY_REAL_SONG') {
+                playDirectRealAudio(data.title, data.artist, data.cover, data.audioUrl, data.currentTime || 0);
+            } else if (data.type === 'CONTROL') {
+                isSessionPlaying = (data.action === 'play' || data.action === 'seek');
+                document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
+                document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
+                
+                if (currentActiveMode === 'audio' && realAudio) {
+                    if (typeof data.time === 'number') {
+                        realAudio.currentTime = data.time;
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
+                    }
+                    if (data.action === 'play' || data.action === 'seek') {
+                        realAudio.play().catch(() => {});
+                        startAudioProgressTracker();
+                    }
+                    if (data.action === 'pause') {
+                        realAudio.pause();
+                        clearInterval(progressInterval);
+                    }
+                } else if (currentActiveMode === 'youtube' && ytPlayer) {
+                    if (typeof data.time === 'number') {
+                        ytPlayer.seekTo(data.time, true);
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
+                    }
+                    if (data.action === 'play' || data.action === 'seek') {
+                        ytPlayer.playVideo();
+                        startProgressTracker();
+                    }
+                    if (data.action === 'pause') {
+                        ytPlayer.pauseVideo();
+                        clearInterval(progressInterval);
+                    }
+                }
+            } else if (data.type === 'VOLUME') {
+                const volInput = document.getElementById('sessionMasterVol');
+                const volPctEl = document.getElementById('sessionVolPct');
+                if (volInput) volInput.value = data.volume;
+                if (volPctEl) volPctEl.textContent = data.volume + "%";
+                const num = parseInt(data.volume);
+                if (realAudio) realAudio.volume = num / 100;
+                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                    ytPlayer.setVolume(num);
+                }
+            }
+        }
+
+        function sendReaction(emoji) {
+            showFloatingReaction(emoji, currentUserName);
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
+        }
+
+        function showFloatingReaction(emoji, sender) {
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.textContent = emoji;
+            el.style.left = (Math.random() * (window.innerWidth - 60) + 20) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2200);
+        }
+
         function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
@@ -868,6 +1378,11 @@
                 hostOnlyControls.classList.toggle('hidden', !isHost);
             }
 
+            const spotifyHostControls = document.getElementById('spotifyHostOnlyControls');
+            if (spotifyHostControls) {
+                spotifyHostControls.classList.toggle('hidden', !isHost);
+            }
+
             const cardTitle = document.getElementById('controllerCardTitle');
             if (cardTitle) {
                 cardTitle.textContent = isHost ? "YouTube Controller" : "Live Stream View";
@@ -964,6 +1479,8 @@
                             showToast(data.message || "Room expired or closed.");
                         } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
                             handleIncomingControl(data);
+                        } else if (data.type === 'PLAY_REAL_SONG') {
+                            handleIncomingControl(data);
                         } else if (data.type === 'REACTION') {
                             showFloatingReaction(data.emoji, data.name || 'Peer');
                         } else if (data.type === 'CHAT_MESSAGE') {
@@ -1043,219 +1560,6 @@
             if (navigator.share) { navigator.share({ title: 'SyncBeat Room', text: 'Join my room: ' + currentRoomCode }); }
         }
 
-        function extractYouTubeId(url) {
-            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        function handleUrlAction(type) {
-            const input = document.getElementById('queueUrlInput');
-            const val = input.value.trim();
-            const ytId = extractYouTubeId(val);
-            if (!ytId) { showToast("Enter a valid YouTube URL."); return; }
-
-            if (type === 'save') {
-                saveSongToPlaylist(val, val);
-            } else if (type === 'queue') {
-                upcomingQueue.push({ title: val, url: val });
-                renderQueue();
-                showToast("Added to upcoming queue!");
-            } else {
-                if (!isHosting) { showToast("Only the host can play songs."); return; }
-                playYouTubeStream(val, ytId, 0);
-            }
-            input.value = "";
-        }
-
-        function startProgressTracker() {
-            clearInterval(progressInterval);
-            progressInterval = setInterval(() => {
-                if (isSessionPlaying && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
-                    const current = ytPlayer.getCurrentTime();
-                    const total = ytPlayer.getDuration();
-                    if (total > 0) {
-                        const pct = (current / total) * 100;
-                        document.getElementById('sessionFill').style.width = pct + '%';
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
-                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
-                    }
-                }
-            }, 500);
-        }
-
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-
-        function seekTrack(event) {
-            if (!isHosting) { 
-                showToast("Only the host can control playback scrubbing."); 
-                return; 
-            }
-            if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
-
-            const track = event.currentTarget;
-            const rect = track.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const width = rect.width;
-            const percentage = Math.max(0, Math.min(1, clickX / width));
-            const duration = ytPlayer.getDuration();
-            const newTime = percentage * duration;
-
-            ytPlayer.seekTo(newTime, true);
-            document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
-            document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
-
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ 
-                    type: 'CONTROL', 
-                    action: 'seek', 
-                    time: newTime 
-                }));
-            }
-        }
-
-        function playYouTubeStream(title, ytId, startTime = 0) {
-            document.getElementById('sessionTitle').textContent = title;
-            document.getElementById('sessionArtist').textContent = "Synchronized Stream";
-            isSessionPlaying = true;
-            document.getElementById('vfxMusicSticker').classList.remove('hidden');
-            document.getElementById('sessionPlayBtn').textContent = "⏸";
-            renderTopParticles();
-
-            loadYouTubePlayer(ytId, startTime);
-            startProgressTracker();
-
-            if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ 
-                    type: 'PLAY_TRACK', 
-                    title: title, 
-                    artist: currentUserName, 
-                    currentTime: ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0 
-                }));
-            }
-        }
-
-        function loadYouTubePlayer(ytId, startTime = 0) {
-            applyRoleUI();
-
-            if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
-                if (!isHosting && typeof ytPlayer.seekTo === 'function') {
-                    ytPlayer.seekTo(startTime, true);
-                }
-            } else {
-                ytPlayer = new YT.Player('ytPlayerDiv', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: ytId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'controls': 1, // Enabled for all users so they can access native player quality and settings
-                        'disablekb': 1,               
-                        'modestbranding': 1,
-                        'start': startTime 
-                    },
-                    events: {
-                        'onReady': (e) => { 
-                            e.target.seekTo(startTime, true);
-                            e.target.playVideo(); 
-                        }
-                    }
-                });
-            }
-        }
-
-        function togglePlaySession() {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
-            isSessionPlaying = !isSessionPlaying;
-            document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
-            document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
-            
-            let currentTime = 0;
-            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                currentTime = ytPlayer.getCurrentTime();
-                if (isSessionPlaying) {
-                    ytPlayer.playVideo();
-                    startProgressTracker();
-                } else {
-                    ytPlayer.pauseVideo();
-                    clearInterval(progressInterval);
-                }
-            }
-
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ 
-                    type: 'CONTROL', 
-                    action: isSessionPlaying ? 'play' : 'pause', 
-                    time: currentTime 
-                }));
-            }
-        }
-
-        function updateRealTimeMasterVol(val) {
-            if (!isHosting) return;
-            document.getElementById('sessionVolPct').textContent = val + "%";
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(val));
-
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
-            }
-        }
-
-        function handleIncomingControl(data) {
-            if (data.type === 'PLAY_TRACK') {
-                const ytId = extractYouTubeId(data.title);
-                if (ytId) playYouTubeStream(data.title, ytId, data.currentTime || 0);
-            } else if (data.type === 'CONTROL') {
-                isSessionPlaying = (data.action === 'play' || data.action === 'seek');
-                document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
-                document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
-                if (ytPlayer) {
-                    if (typeof data.time === 'number') {
-                        ytPlayer.seekTo(data.time, true);
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
-                        if (ytPlayer.getDuration && ytPlayer.getDuration() > 0) {
-                            const pct = (data.time / ytPlayer.getDuration()) * 100;
-                            document.getElementById('sessionFill').style.width = pct + '%';
-                        }
-                    }
-                    if (data.action === 'play' || data.action === 'seek') {
-                        ytPlayer.playVideo();
-                        startProgressTracker();
-                    }
-                    if (data.action === 'pause') {
-                        ytPlayer.pauseVideo();
-                        clearInterval(progressInterval);
-                    }
-                }
-            } else if (data.type === 'VOLUME') {
-                const volInput = document.getElementById('sessionMasterVol');
-                const volPctEl = document.getElementById('sessionVolPct');
-                if (volInput) volInput.value = data.volume;
-                if (volPctEl) volPctEl.textContent = data.volume + "%";
-                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                    ytPlayer.setVolume(parseInt(data.volume));
-                }
-            }
-        }
-
-        function sendReaction(emoji) {
-            showFloatingReaction(emoji, currentUserName);
-            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
-        }
-
-        function showFloatingReaction(emoji, sender) {
-            const el = document.createElement('div');
-            el.className = 'floating-reaction';
-            el.textContent = emoji;
-            el.style.left = (Math.random() * (window.innerWidth - 60) + 20) + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 2200);
-        }
-
         function closeRoomAndReturnHome() {
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
             localStorage.removeItem('syncbeat_active_room');
@@ -1268,6 +1572,7 @@
             localStorage.removeItem('syncbeat_active_room');
             checkBackgroundRoomState();
             clearChatBox();
+            if (realAudio) { realAudio.pause(); realAudio.src = ''; }
             if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
             if (ws) { ws.close(); ws = null; }
             showToast("Force closed active hosting session.");
@@ -1281,6 +1586,7 @@
         }
 
         function exitHostSession() {
+            if (realAudio) { realAudio.pause(); realAudio.src = ''; }
             if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
             if (ws) { ws.close(); ws = null; }
             document.getElementById('hostSessionView').classList.add('hidden');

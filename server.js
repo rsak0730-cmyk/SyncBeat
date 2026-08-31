@@ -41,7 +41,7 @@ wss.on('connection', (ws) => {
                 } else {
                     ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND', message: 'Room code not found or expired.' }));
                 }
-            } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME' || data.type === 'REACTION' || data.type === 'CHAT_MESSAGE') {
+            } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME' || data.type === 'REACTION' || data.type === 'CHAT_MESSAGE' || data.type === 'PLAY_REAL_SONG') {
                 if (currentRoom && rooms[currentRoom]) {
                     const room = rooms[currentRoom];
                     const targets = [room.host, ...room.peers].filter(client => client && client !== ws && client.readyState === WebSocket.OPEN);
