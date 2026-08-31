@@ -330,9 +330,9 @@
                 </div>
 
                 <div class="player-controls" id="hostPlayerControls">
-                    <button class="control-btn" onclick="rewindTrack(10)">⏪</button>
+                    <button class="control-btn" onclick="seekTrackHost('rewind', 10)">⏪</button>
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
-                    <button class="control-btn" onclick="forwardTrack(10)">⏩</button>
+                    <button class="control-btn" onclick="seekTrackHost('forward', 10)">⏩</button>
                 </div>
             </div>
 
@@ -403,7 +403,6 @@
         let currentRoomCode = "";
         let currentUserName = "User";
         let isSessionPlaying = false;
-        let progressInterval = null;
         let heartbeatInterval = null;
         let ytPlayer = null;
         let scannerStream = null;
@@ -497,10 +496,11 @@
         }
 
         function playPlaylistIndex(index) {
+            if (!isHosting) { showToast("Only the host can change tracks."); return; }
             const item = savedPlaylist[index];
             if (item) {
                 const ytId = extractYouTubeId(item.url);
-                if (ytId) playYouTubeStream(item.title, ytId);
+                if (ytId) playYouTubeStream(item.title, ytId, 0);
             }
         }
 
@@ -589,7 +589,7 @@
                             document.getElementById('hostSessionView').classList.remove('hidden');
                             showToast("Joined room: " + data.code);
                         } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                            showToast(data.message || "Room not found or control restricted to host.");
+                            showToast(data.message || "Room not found or action restricted to host.");
                         } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
                             handleIncomingControl(data);
                         } else if (data.type === 'REACTION') {
@@ -649,6 +649,7 @@
         }
 
         function handleUrlAction(type) {
+            if (!isHosting) { showToast("Only the host can trigger actions."); return; }
             const input = document.getElementById('queueUrlInput');
             const val = input.value.trim();
             const ytId = extractYouTubeId(val);
@@ -657,37 +658,41 @@
             if (type === 'save') {
                 saveSongToPlaylist(val, val);
             } else {
-                playYouTubeStream(val, ytId);
+                playYouTubeStream(val, ytId, 0);
             }
             input.value = "";
         }
 
-        function playYouTubeStream(title, ytId) {
+        function playYouTubeStream(title, ytId, startTime = 0) {
             document.getElementById('sessionTitle').textContent = title;
-            document.getElementById('sessionArtist').textContent = "Synchronized Stream";
+            document.getElementById('sessionArtist').textContent = isHosting ? "Host Stream" : "Synced with Host";
             isSessionPlaying = true;
             document.getElementById('vfxMusicSticker').classList.remove('hidden');
             document.getElementById('sessionPlayBtn').textContent = "⏸";
             renderTopParticles();
 
-            loadYouTubePlayer(ytId);
+            loadYouTubePlayer(ytId, startTime);
 
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'PLAY_TRACK', title: title, artist: 'Host' }));
+                const currentTime = ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0;
+                ws.send(JSON.stringify({ type: 'PLAY_TRACK', title: title, time: currentTime }));
             }
         }
 
-        function loadYouTubePlayer(ytId) {
+        function loadYouTubePlayer(ytId, startTime = 0) {
             if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                ytPlayer.loadVideoById(ytId);
+                ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
             } else {
                 ytPlayer = new YT.Player('ytPlayerDiv', {
                     height: '100%',
                     width: '100%',
                     videoId: ytId,
-                    playerVars: { 'autoplay': 1, 'controls': 1 },
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startTime },
                     events: {
-                        'onReady': (e) => { e.target.playVideo(); }
+                        'onReady': (e) => { 
+                            e.target.seekTo(startTime, true);
+                            e.target.playVideo(); 
+                        }
                     }
                 });
             }
@@ -698,49 +703,62 @@
             isSessionPlaying = !isSessionPlaying;
             document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
             document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
+            
+            const currentTime = ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0;
+
             if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
                 if (isSessionPlaying) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
             }
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'CONTROL', action: isSessionPlaying ? 'play' : 'pause' }));
+                ws.send(JSON.stringify({ type: 'CONTROL', action: isSessionPlaying ? 'play' : 'pause', time: currentTime }));
             }
         }
 
-        function rewindTrack(sec) {
+        function seekTrackHost(actionType, sec) {
             if (!isHosting) { showToast("Only the host can control playback."); return; }
             if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                const target = Math.max(0, ytPlayer.getCurrentTime() - sec);
+                const target = actionType === 'rewind' ? Math.max(0, ytPlayer.getCurrentTime() - sec) : ytPlayer.getCurrentTime() + sec;
                 ytPlayer.seekTo(target, true);
-                if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
-            }
-        }
-
-        function forwardTrack(sec) {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
-            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                const target = ytPlayer.getCurrentTime() + sec;
-                ytPlayer.seekTo(target, true);
-                if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
+                }
             }
         }
 
         function updateRealTimeMasterVol(val) {
+            if (!isHosting) { 
+                showToast("Only the host can adjust room volume.");
+                return; 
+            }
             document.getElementById('sessionVolPct').textContent = val + "%";
             if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(val));
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
+            }
         }
 
         function handleIncomingControl(data) {
             if (data.type === 'PLAY_TRACK') {
                 const ytId = extractYouTubeId(data.title);
-                if (ytId) playYouTubeStream(data.title, ytId);
+                if (ytId) playYouTubeStream(data.title, ytId, data.time || 0);
             } else if (data.type === 'CONTROL') {
                 isSessionPlaying = (data.action === 'play');
                 document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
                 document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
                 if (ytPlayer) {
+                    if (typeof data.time === 'number') {
+                        ytPlayer.seekTo(data.time, true);
+                    }
                     if (data.action === 'play') ytPlayer.playVideo();
                     if (data.action === 'pause') ytPlayer.pauseVideo();
-                    if (data.action === 'seek' && typeof data.time === 'number') ytPlayer.seekTo(data.time, true);
+                }
+            } else if (data.type === 'VOLUME') {
+                const volInput = document.getElementById('sessionMasterVol');
+                if (volInput) volInput.value = data.volume;
+                document.getElementById('sessionVolPct').textContent = data.volume + "%";
+                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                    ytPlayer.setVolume(parseInt(data.volume));
                 }
             }
         }
