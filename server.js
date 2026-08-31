@@ -7,19 +7,28 @@ const server = http.createServer((req, res) => {
 });
 
 const wss = new WebSocket.Server({ server });
-const rooms = {}; // Format: { roomCode: { host: ws, peers: [{ ws, name, accountId, role }] } }
+const rooms = {};
 
 wss.on('connection', (ws) => {
     let currentRoom = null;
-    let clientRole = null;
+    ws.isAlive = true;
+
+    // Respond to client pings to keep Render connection alive
+    ws.on('pong', () => {
+        ws.isAlive = true;
+    });
 
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
 
+            if (data.type === 'PING') {
+                ws.send(JSON.stringify({ type: 'PONG' }));
+                return;
+            }
+
             if (data.type === 'HOST_ROOM') {
                 currentRoom = data.code;
-                clientRole = 'HOST';
                 ws.clientName = data.name || 'Host';
                 ws.clientAccountId = data.accountId || 'SYNC-0000';
 
@@ -34,7 +43,6 @@ wss.on('connection', (ws) => {
 
             } else if (data.type === 'JOIN_ROOM') {
                 currentRoom = data.code;
-                clientRole = 'MEMBER';
                 ws.clientName = data.name || 'Member';
                 ws.clientAccountId = data.accountId || 'SYNC-0000';
 
@@ -80,6 +88,19 @@ wss.on('connection', (ws) => {
             }
         }
     });
+});
+
+// Periodic background check to drop dead connections cleanly
+const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws.isAlive === false) return ws.terminate();
+        ws.isAlive = false;
+        ws.ping();
+    });
+}, 30000);
+
+wss.on('close', () => {
+    clearInterval(interval);
 });
 
 function broadcastToRoom(roomCode, data, excludeWs = null) {

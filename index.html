@@ -737,6 +737,9 @@
                         } else if (data.type === 'ROOM_JOIN_SUCCESS') {
                             isHosting = false;
                             currentRoomCode = data.code;
+                            localStorage.setItem('syncbeat_active_room', currentRoomCode);
+                            checkBackgroundRoomState();
+
                             document.getElementById('displayRoomCode').textContent = data.code;
                             document.getElementById('sessionSubtitle').textContent = `Member: ${currentUserName} (${currentAccountId})`;
                             document.getElementById('sessionHeaderTitle').textContent = "Member Session";
@@ -803,6 +806,11 @@
         }
 
         function startHostingSession() {
+            if (localStorage.getItem('syncbeat_active_room')) {
+                showToast("You already have an active room! Please leave or close it first.");
+                return;
+            }
+
             currentUserName = getUserInputName();
             currentRoomCode = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
             
@@ -837,6 +845,11 @@
         }
 
         function connectToRoom() {
+            if (localStorage.getItem('syncbeat_active_room')) {
+                showToast("You already have an active room! Please leave or close it first.");
+                return;
+            }
+
             currentUserName = getUserInputName();
             const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
             if (code.length < 4) { showToast("Enter a valid room code."); return; }
