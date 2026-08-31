@@ -43,7 +43,6 @@ wss.on('connection', (ws) => {
             else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
                 if (currentRoomCode && rooms.has(currentRoomCode)) {
                     const room = rooms.get(currentRoomCode);
-                    // Restrict strictly to Host
                     if (room.host === ws) {
                         const payload = JSON.stringify(data);
                         room.members.forEach(member => {
@@ -51,8 +50,6 @@ wss.on('connection', (ws) => {
                                 member.send(payload);
                             }
                         });
-                    } else {
-                        ws.send(JSON.stringify({ type: 'ERROR', message: 'Only the host can control playback and volume.' }));
                     }
                 }
             }
@@ -74,17 +71,18 @@ wss.on('connection', (ws) => {
                 if (currentRoomCode && rooms.has(currentRoomCode)) {
                     const room = rooms.get(currentRoomCode);
                     if (room.host === ws) {
-                        const payload = JSON.stringify(data);
                         room.members.forEach(member => {
                             if (member.readyState === WebSocket.OPEN) {
-                                member.send(payload);
+                                member.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
                             }
                         });
                         rooms.delete(currentRoomCode);
                     }
                 }
             }
-        } catch (err) {}
+        } catch (err) {
+            console.error('Error:', err);
+        }
     });
 
     ws.on('close', () => {
@@ -113,4 +111,6 @@ setInterval(() => {
 }, 25000);
 
 const PORT = process.env.PORT || 10000;
-server.listen(PORT, () => {});
+server.listen(PORT, () => {
+    console.log(`SyncBeat server running on port ${PORT}`);
+});

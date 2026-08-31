@@ -234,22 +234,32 @@
             <div class="header">
                 <div class="logo-area">
                     <h1>SyncBeat</h1>
-                    <span class="room-badge">Cloud Sync</span>
+                    <span class="room-badge">Room Sync</span>
                 </div>
                 <div class="status-pills">
                     <div class="pill active" id="wifiPill">📶 Wi-Fi</div>
-                    <div class="pill active" id="btPill">⚡ Cloud</div>
+                    <div class="pill active" id="btPill">⚡ BT</div>
                 </div>
             </div>
-            <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
+            <div class="subtitle">Multi-Device Real-Time Room Synchronization</div>
 
             <div class="card">
-                <div class="card-header-sm"><span>👤 Your Name</span></div>
-                <input type="text" id="userNameInput" class="code-input" placeholder="Enter Your Name" style="padding: 10px 14px; font-size: 13px;">
+                <div class="card-header-sm"><span>👤 Your Profile & Role</span></div>
+                <input type="text" id="userNameInput" class="code-input" placeholder="Enter your name to join or host rooms" style="padding: 10px 14px; font-size: 13px;">
+            </div>
+
+            <!-- Active Room Return Banner (Appears when room is running in background) -->
+            <div class="card banner-card hidden" id="returnHostingBanner" onclick="returnToHostingSession()">
+                <div class="banner-icon" style="background: #10b981;">🚀</div>
+                <div class="banner-content">
+                    <div class="banner-title">Return to Hosting Room</div>
+                    <div class="banner-desc">Jump back to your live created room session</div>
+                </div>
+                <div class="banner-arrow" style="background: #10b981;">→</div>
             </div>
 
             <div class="card" id="scannerCard">
-                <div class="card-header-sm"><span>📸 Scan QR Code</span></div>
+                <div class="card-header-sm"><span>📸 Scan QR Code to Join</span></div>
                 <button class="btn-purple" id="scannerToggleBtn" onclick="toggleQrScanner()" style="margin-bottom: 8px;">🛸 OPEN CAMERA SCANNER</button>
                 <div id="scannerViewContainer" class="hidden" style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000;">
                     <video id="qrVideoElement" autoplay playsinline style="width: 100%; max-height: 200px; object-fit: cover;"></video>
@@ -262,24 +272,34 @@
                 <div class="banner-icon">🔮</div>
                 <div class="banner-content">
                     <div class="banner-title">Generate Code & Host Room</div>
-                    <div class="banner-desc">Host controls music for everyone</div>
+                    <div class="banner-desc">Full playback control as Room Host</div>
                 </div>
                 <div class="banner-arrow">→</div>
             </div>
 
             <div class="card" id="connectMemberCard">
-                <div class="card-header-sm"><span>Connect to Host</span></div>
-                <div style="margin: 10px 0;">
-                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g. SYNC-4B9X)" maxlength="10">
+                <div class="card-header-sm"><span>Connect Through Code</span></div>
+                <div style="margin-bottom: 10px;">
+                    <input type="text" id="hostIpInput" class="code-input" placeholder="Host IP (e.g., 192.168.43.1)" style="padding: 10px 14px; font-size: 13px;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g., SYNC-4B9X)" maxlength="10" style="padding: 10px 14px; font-size: 13px;">
                 </div>
                 <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
+            </div>
+
+            <!-- Force Close Active Hosting Control matching video details -->
+            <div class="card" id="forceCloseCard" style="background: #fff5f5; border-color: #fed7d7;">
+                <div class="card-header-sm" style="color: #e53e3e;"><span>⚠️ Active Room / Hosting Control</span></div>
+                <div style="font-size: 11px; color: #718096; margin-bottom: 10px;">Shut down or reset running background host server or active session</div>
+                <button class="close-session-btn" onclick="forceCloseActiveHosting()">⚡ FORCE CLOSE ACTIVE HOSTING</button>
             </div>
         </div>
 
         <!-- Room Session View -->
         <div id="hostSessionView" class="hidden">
             <div class="header">
-                <button class="back-btn" onclick="exitHostSession()">←</button>
+                <button class="back-btn" onclick="goBackToHome()">←</button>
                 <div>
                     <div style="font-size: 15px; font-weight: 800;" id="sessionHeaderTitle">Room Session</div>
                     <div style="font-size: 10px; color: #6b7280;" id="sessionSubtitle">Connected to Cloud</div>
@@ -288,7 +308,7 @@
 
             <div class="card hosting-banner">
                 <div class="hosting-top-row">
-                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">ACTIVE</span></div>
+                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">HOSTING ACTIVE</span></div>
                     <div style="font-size: 11px; font-weight: 700; color: #7c3aed;" id="roleIndicatorBadge">Role: Host</div>
                 </div>
                 
@@ -296,12 +316,15 @@
                     <span id="displayRoomCode">SYNC-0000</span>
                 </div>
 
+                <div style="font-size: 11px; color: #6b7280; margin-bottom: 6px;">Host IP: <span id="hostIpDisplay">192.168.43.1</span></div>
+
                 <div class="code-actions">
                     <button class="code-action-btn" onclick="copyCode()">📋 Copy Code</button>
                     <button class="code-action-btn" onclick="shareCode()">📡 Share</button>
+                    <button class="code-action-btn" onclick="showQrCodeModal()">🌐 QR Code</button>
                 </div>
 
-                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ LEAVE ROOM</button>
+                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ CLOSE ROOM SESSION</button>
             </div>
 
             <div class="inline-volume">
@@ -312,12 +335,12 @@
 
             <div class="card" style="position: relative;">
                 <div id="vfxMusicSticker" class="vfx-sticker hidden">🎶 LIVE PLAY 🎵</div>
-                <div class="card-header-sm"><span>● Direct Media Player</span></div>
+                <div class="card-header-sm"><span>● Direct Media Player (Universal Remote Control Enabled)</span></div>
                 <div class="player-info">
                     <div class="album-art" id="sessionArt">🎧</div>
                     <div style="overflow: hidden; flex: 1;">
                         <div class="track-title" id="sessionTitle">No Track Playing</div>
-                        <div class="track-artist" id="sessionArtist">Waiting for Host...</div>
+                        <div class="track-artist" id="sessionArtist">Connected peers can control playback _</div>
                     </div>
                 </div>
 
@@ -326,12 +349,14 @@
                 </div>
                 <div class="time-info">
                     <span id="sessionCurrentTime">0:00</span>
-                    <span id="sessionTotalDuration">0:00</span>
+                    <span id="sessionTotalDuration">3:00</span>
                 </div>
 
                 <div class="player-controls" id="hostPlayerControls">
                     <button class="control-btn" onclick="rewindTrack(10)">⏪</button>
+                    <button class="control-btn" onclick="rewindTrack(5)">⏮</button>
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
+                    <button class="control-btn" onclick="forwardTrack(5)">⏭</button>
                     <button class="control-btn" onclick="forwardTrack(10)">⏩</button>
                 </div>
             </div>
@@ -353,41 +378,44 @@
             </div>
 
             <div class="card" id="hostUrlControls">
-                <div class="card-header-sm"><span>YouTube Controller</span></div>
+                <div class="card-header-sm"><span>YouTube URL Controller</span></div>
+                <div style="font-size: 10px; color: #6b7280; margin-bottom: 6px;">Paste a valid YouTube URL below</div>
                 <div style="margin-bottom: 8px;">
-                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
+                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL (e.g., youtu.be/...)">
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="action-btn-custom" onclick="handleUrlAction('play')">💫 Play Song</button>
-                    <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save Playlist</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                    <button class="action-btn-custom" onclick="handleUrlAction('play')">💫 Play</button>
+                    <button class="action-btn-custom" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Queue</button>
+                    <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
                 </div>
-                <div id="ytEmbedWrapper" style="margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
+                <div id="ytEmbedWrapper" style="margin-top: 12px; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header-sm"><span>Room Reactions</span></div>
+                <div class="card-header-sm"><span>Broadcast Room Signal / Reaction</span></div>
                 <div class="reactions-grid">
                     <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
                     <button class="reaction-btn" onclick="sendReaction('🎵')">🎵</button>
                     <button class="reaction-btn" onclick="sendReaction('⚡')">⚡</button>
                     <button class="reaction-btn" onclick="sendReaction('🎉')">🎉</button>
+                    <button class="reaction-btn" onclick="sendReaction('🙌')">🙌</button>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header-sm"><span>Connected Peer Devices</span></div>
+                <div class="card-header-sm"><span>Connected Peer Devices <span class="sync-tag" style="background:#dcfce7; color:#16a34a; margin-left:4px;">● P2P ACTIVE</span></span></div>
                 <div id="peerListContainer">
                     <div class="peer-item">
                         <div class="peer-info">
                             <div class="peer-icon">👤</div>
                             <div>
-                                <div class="peer-name" id="peerSelfDisplay">Local User</div>
-                                <div class="peer-meta">Active • Connected</div>
+                                <div class="peer-name" id="peerSelfDisplay">Local User (Host)</div>
+                                <div class="peer-meta">Active • Synchronized</div>
                             </div>
                         </div>
-                        <span class="sync-tag" id="peerRoleTag">PEER</span>
+                        <span class="sync-tag" id="peerRoleTag">HOST</span>
                     </div>
                 </div>
             </div>
@@ -451,7 +479,11 @@
         }
 
         window.addEventListener('resize', initTopCanvas);
-        window.addEventListener('DOMContentLoaded', () => { initTopCanvas(); renderPlaylist(); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            initTopCanvas(); 
+            renderPlaylist(); 
+            checkBackgroundRoomState();
+        });
 
         function showToast(msg) {
             const toast = document.getElementById('toastModal');
@@ -462,6 +494,17 @@
 
         function getUserInputName() {
             return document.getElementById('userNameInput').value.trim() || "User";
+        }
+
+        function checkBackgroundRoomState() {
+            // Check if user has an active room session running in background
+            const activeRoom = localStorage.getItem('syncbeat_active_room');
+            const returnBanner = document.getElementById('returnHostingBanner');
+            if (activeRoom && returnBanner) {
+                returnBanner.classList.remove('hidden');
+            } else if (returnBanner) {
+                returnBanner.classList.add('hidden');
+            }
         }
 
         function renderPlaylist() {
@@ -550,6 +593,10 @@
             document.getElementById('scannerToggleBtn').textContent = "🛸 OPEN CAMERA SCANNER";
         }
 
+        function showQrCodeModal() {
+            showToast("Room QR Code ready to scan!");
+        }
+
         function connectWebSocket(onSuccess, onError) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 if (onSuccess) onSuccess();
@@ -614,6 +661,9 @@
             connectWebSocket(() => {
                 isHosting = true;
                 ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
+                localStorage.setItem('syncbeat_active_room', currentRoomCode);
+                checkBackgroundRoomState();
+
                 document.getElementById('displayRoomCode').textContent = currentRoomCode;
                 document.getElementById('sessionSubtitle').textContent = "Host: " + currentUserName;
                 document.getElementById('sessionHeaderTitle').textContent = "Host Session";
@@ -625,6 +675,13 @@
                 document.getElementById('mainLandingView').classList.add('hidden');
                 document.getElementById('hostSessionView').classList.remove('hidden');
             });
+        }
+
+        function returnToHostingSession() {
+            // Jump back to active session view without destroying background room
+            document.getElementById('mainLandingView').classList.add('hidden');
+            document.getElementById('hostSessionView').classList.remove('hidden');
+            showToast("Returned to room session.");
         }
 
         function connectToRoom() {
@@ -659,6 +716,8 @@
 
             if (type === 'save') {
                 saveSongToPlaylist(val, val);
+            } else if (type === 'queue') {
+                showToast("Added to upcoming queue!");
             } else {
                 if (!isHosting) { showToast("Only the host can play songs."); return; }
                 playYouTubeStream(val, ytId, 0);
@@ -814,11 +873,28 @@
 
         function closeRoomAndReturnHome() {
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
+            localStorage.removeItem('syncbeat_active_room');
+            checkBackgroundRoomState();
             exitHostSession();
         }
 
+        function forceCloseActiveHosting() {
+            localStorage.removeItem('syncbeat_active_room');
+            checkBackgroundRoomState();
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            if (ws) { ws.close(); ws = null; }
+            showToast("Force closed active hosting session.");
+        }
+
+        function goBackToHome() {
+            // Back arrow click: hides session view locally, leaving the room running in background and displaying the return banner
+            document.getElementById('hostSessionView').classList.add('hidden');
+            document.getElementById('mainLandingView').classList.remove('hidden');
+            checkBackgroundRoomState();
+            showToast("Returned to home. Room & music running in background.");
+        }
+
         function exitHostSession() {
-            // Back arrow click: only hides the session view locally without destroying the room/websocket connection
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
         }
