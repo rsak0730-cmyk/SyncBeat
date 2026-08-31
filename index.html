@@ -330,9 +330,9 @@
                 </div>
 
                 <div class="player-controls" id="hostPlayerControls">
-                    <button class="control-btn" onclick="seekTrackHost('rewind', 10)">⏪</button>
+                    <button class="control-btn" onclick="rewindTrack(10)">⏪</button>
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
-                    <button class="control-btn" onclick="seekTrackHost('forward', 10)">⏩</button>
+                    <button class="control-btn" onclick="forwardTrack(10)">⏩</button>
                 </div>
             </div>
 
@@ -403,6 +403,7 @@
         let currentRoomCode = "";
         let currentUserName = "User";
         let isSessionPlaying = false;
+        let progressInterval = null;
         let heartbeatInterval = null;
         let ytPlayer = null;
         let scannerStream = null;
@@ -496,7 +497,7 @@
         }
 
         function playPlaylistIndex(index) {
-            if (!isHosting) { showToast("Only the host can change tracks."); return; }
+            if (!isHosting) { showToast("Only the host can play songs."); return; }
             const item = savedPlaylist[index];
             if (item) {
                 const ytId = extractYouTubeId(item.url);
@@ -585,6 +586,7 @@
                             document.getElementById('peerRoleTag').textContent = "MEMBER";
                             document.getElementById('hostUrlControls').style.display = "none";
                             document.getElementById('hostPlayerControls').style.display = "none";
+                            document.getElementById('sessionMasterVol').disabled = true;
                             document.getElementById('mainLandingView').classList.add('hidden');
                             document.getElementById('hostSessionView').classList.remove('hidden');
                             showToast("Joined room: " + data.code);
@@ -619,6 +621,7 @@
                 document.getElementById('peerRoleTag').textContent = "HOST";
                 document.getElementById('hostUrlControls').style.display = "block";
                 document.getElementById('hostPlayerControls').style.display = "flex";
+                document.getElementById('sessionMasterVol').disabled = false;
                 document.getElementById('mainLandingView').classList.add('hidden');
                 document.getElementById('hostSessionView').classList.remove('hidden');
             });
@@ -649,7 +652,6 @@
         }
 
         function handleUrlAction(type) {
-            if (!isHosting) { showToast("Only the host can trigger actions."); return; }
             const input = document.getElementById('queueUrlInput');
             const val = input.value.trim();
             const ytId = extractYouTubeId(val);
@@ -658,6 +660,7 @@
             if (type === 'save') {
                 saveSongToPlaylist(val, val);
             } else {
+                if (!isHosting) { showToast("Only the host can play songs."); return; }
                 playYouTubeStream(val, ytId, 0);
             }
             input.value = "";
@@ -665,7 +668,7 @@
 
         function playYouTubeStream(title, ytId, startTime = 0) {
             document.getElementById('sessionTitle').textContent = title;
-            document.getElementById('sessionArtist').textContent = isHosting ? "Host Stream" : "Synced with Host";
+            document.getElementById('sessionArtist').textContent = "Synchronized Stream";
             isSessionPlaying = true;
             document.getElementById('vfxMusicSticker').classList.remove('hidden');
             document.getElementById('sessionPlayBtn').textContent = "⏸";
@@ -674,8 +677,12 @@
             loadYouTubePlayer(ytId, startTime);
 
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
-                const currentTime = ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0;
-                ws.send(JSON.stringify({ type: 'PLAY_TRACK', title: title, time: currentTime }));
+                ws.send(JSON.stringify({ 
+                    type: 'PLAY_TRACK', 
+                    title: title, 
+                    artist: 'Host', 
+                    currentTime: ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0 
+                }));
             }
         }
 
@@ -704,20 +711,25 @@
             document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
             document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
             
-            const currentTime = ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0;
-
-            if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+            let currentTime = 0;
+            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                currentTime = ytPlayer.getCurrentTime();
                 if (isSessionPlaying) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
             }
+
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'CONTROL', action: isSessionPlaying ? 'play' : 'pause', time: currentTime }));
+                ws.send(JSON.stringify({ 
+                    type: 'CONTROL', 
+                    action: isSessionPlaying ? 'play' : 'pause', 
+                    time: currentTime 
+                }));
             }
         }
 
-        function seekTrackHost(actionType, sec) {
+        function rewindTrack(sec) {
             if (!isHosting) { showToast("Only the host can control playback."); return; }
             if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                const target = actionType === 'rewind' ? Math.max(0, ytPlayer.getCurrentTime() - sec) : ytPlayer.getCurrentTime() + sec;
+                const target = Math.max(0, ytPlayer.getCurrentTime() - sec);
                 ytPlayer.seekTo(target, true);
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
@@ -725,14 +737,36 @@
             }
         }
 
-        function updateRealTimeMasterVol(val) {
-            if (!isHosting) { 
-                showToast("Only the host can adjust room volume.");
-                return; 
+        function forwardTrack(sec) {
+            if (!isHosting) { showToast("Only the host can control playback."); return; }
+            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                const target = ytPlayer.getCurrentTime() + sec;
+                ytPlayer.seekTo(target, true);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
+                }
             }
+        }
+
+        function seekTrack(event) {
+            if (!isHosting) { showToast("Only the host can seek tracks."); return; }
+            const rect = event.currentTarget.getBoundingClientRect();
+            const pct = (event.clientX - rect.left) / rect.width;
+            if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                const duration = ytPlayer.getDuration();
+                const targetTime = pct * duration;
+                ytPlayer.seekTo(targetTime, true);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: targetTime }));
+                }
+            }
+        }
+
+        function updateRealTimeMasterVol(val) {
+            if (!isHosting) return;
             document.getElementById('sessionVolPct').textContent = val + "%";
             if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(val));
-            
+
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
             }
@@ -741,7 +775,7 @@
         function handleIncomingControl(data) {
             if (data.type === 'PLAY_TRACK') {
                 const ytId = extractYouTubeId(data.title);
-                if (ytId) playYouTubeStream(data.title, ytId, data.time || 0);
+                if (ytId) playYouTubeStream(data.title, ytId, data.currentTime || 0);
             } else if (data.type === 'CONTROL') {
                 isSessionPlaying = (data.action === 'play');
                 document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
@@ -755,8 +789,9 @@
                 }
             } else if (data.type === 'VOLUME') {
                 const volInput = document.getElementById('sessionMasterVol');
+                const volPctEl = document.getElementById('sessionVolPct');
                 if (volInput) volInput.value = data.volume;
-                document.getElementById('sessionVolPct').textContent = data.volume + "%";
+                if (volPctEl) volPctEl.textContent = data.volume + "%";
                 if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
                     ytPlayer.setVolume(parseInt(data.volume));
                 }
@@ -783,8 +818,7 @@
         }
 
         function exitHostSession() {
-            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
-            if (ws) { ws.close(); ws = null; }
+            // Back arrow click: only hides the session view locally without destroying the room/websocket connection
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
         }
