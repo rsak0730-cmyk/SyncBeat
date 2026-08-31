@@ -194,6 +194,7 @@
             font-size: 13px; box-sizing: border-box; outline: none;
         }
         .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .action-btn-custom:disabled { background: #d8b4fe !important; cursor: not-allowed; opacity: 0.7; }
         .reactions-grid { display: flex; justify-content: space-around; background: #faf8ff; padding: 10px; border-radius: 14px; }
         .reaction-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
         .floating-reaction {
@@ -357,7 +358,7 @@
 
                 <div class="player-controls" id="hostPlayerControls">
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
-                    <button class="control-btn" onclick="playNextQueueTrack()" title="Play Next from Queue">⏭️</button>
+                    <button class="control-btn" id="sessionNextBtn" onclick="playNextQueueTrack()" title="Play Next from Queue">⏭️</button>
                 </div>
             </div>
 
@@ -383,14 +384,14 @@
                     <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <button class="action-btn-custom" onclick="handleUrlAction('play')">💫 Play</button>
-                    <button class="action-btn-custom" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
-                    <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
+                    <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play</button>
+                    <button class="action-btn-custom" id="actionQueueBtn" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
+                    <button class="action-btn-custom" id="actionSaveBtn" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
                 </div>
-                <!-- View-Only Unclickable Wrapper with Transparent Blocker Overlay -->
+                <!-- View-Only Unclickable Wrapper with Absolute Transparent Blocker Overlay -->
                 <div id="ytEmbedWrapper" style="position: relative; margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
-                    <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; background: transparent; cursor: not-allowed;"></div>
+                    <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; background: rgba(0,0,0,0.01); pointer-events: auto; cursor: not-allowed;"></div>
                 </div>
             </div>
 
@@ -701,6 +702,37 @@
             }
         }
 
+        function applyRoleUI() {
+            const isHost = isHosting;
+
+            // URL Controller & Action Buttons
+            const urlInput = document.getElementById('queueUrlInput');
+            const playBtn = document.getElementById('actionPlayBtn');
+            const queueBtn = document.getElementById('actionQueueBtn');
+            
+            if (urlInput) {
+                urlInput.disabled = !isHost;
+                urlInput.placeholder = isHost ? "Paste YouTube URL" : "Controlled by Host (View Only)";
+            }
+            if (playBtn) playBtn.disabled = !isHost;
+            if (queueBtn) queueBtn.disabled = !isHost;
+
+            // Main Player Controls & Volume
+            const playPauseBtn = document.getElementById('sessionPlayBtn');
+            const nextBtn = document.getElementById('sessionNextBtn');
+            const masterVol = document.getElementById('sessionMasterVol');
+
+            if (playPauseBtn) playPauseBtn.disabled = !isHost;
+            if (nextBtn) nextBtn.disabled = !isHost;
+            if (masterVol) masterVol.disabled = !isHost;
+
+            // Video Player Blocker Overlay for members
+            const blocker = document.getElementById('memberPlayerBlocker');
+            if (blocker) {
+                blocker.classList.toggle('hidden', isHost);
+            }
+        }
+
         function connectWebSocket(onSuccess, onError) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 if (onSuccess) onSuccess();
@@ -748,13 +780,7 @@
                             document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
                             
                             updateLocalPeerDisplay('MEMBER');
-                            
-                            document.getElementById('hostUrlControls').style.display = "block";
-                            document.getElementById('queueUrlInput').disabled = true;
-                            document.getElementById('queueUrlInput').placeholder = "Controlled by Host (View Only)";
-                            document.getElementById('hostPlayerControls').style.display = "flex";
-                            document.querySelectorAll('#hostPlayerControls button').forEach(btn => btn.disabled = true);
-                            document.getElementById('sessionMasterVol').disabled = true;
+                            applyRoleUI();
 
                             document.getElementById('mainLandingView').classList.add('hidden');
                             document.getElementById('hostSessionView').classList.remove('hidden');
@@ -828,13 +854,8 @@
                 document.getElementById('roleIndicatorBadge').textContent = "Role: Host";
                 
                 updateLocalPeerDisplay('HOST');
+                applyRoleUI();
 
-                document.getElementById('hostUrlControls').style.display = "block";
-                document.getElementById('queueUrlInput').disabled = false;
-                document.getElementById('queueUrlInput').placeholder = "Paste YouTube URL";
-                document.getElementById('hostPlayerControls').style.display = "flex";
-                document.querySelectorAll('#hostPlayerControls button').forEach(btn => btn.disabled = false);
-                document.getElementById('sessionMasterVol').disabled = false;
                 document.getElementById('mainLandingView').classList.add('hidden');
                 document.getElementById('hostSessionView').classList.remove('hidden');
             });
@@ -966,11 +987,7 @@
         }
 
         function loadYouTubePlayer(ytId, startTime = 0) {
-            // Toggle click blocker overlay for members
-            const blocker = document.getElementById('memberPlayerBlocker');
-            if (blocker) {
-                blocker.classList.toggle('hidden', isHosting);
-            }
+            applyRoleUI();
 
             if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
                 ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
@@ -984,8 +1001,8 @@
                     videoId: ytId,
                     playerVars: { 
                         'autoplay': 1, 
-                        'controls': isHosting ? 1 : 0, // Disable player UI controls for members
-                        'disablekb': 1,               // Disable keyboard shortcuts
+                        'controls': isHosting ? 1 : 0, 
+                        'disablekb': 1,               
                         'modestbranding': 1,
                         'start': startTime 
                     },
