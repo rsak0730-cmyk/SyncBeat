@@ -387,8 +387,10 @@
                     <button class="action-btn-custom" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
                     <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
                 </div>
-                <div id="ytEmbedWrapper" style="margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
+                <!-- View-Only Unclickable Wrapper with Transparent Blocker Overlay -->
+                <div id="ytEmbedWrapper" style="position: relative; margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
+                    <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; background: transparent; cursor: not-allowed;"></div>
                 </div>
             </div>
 
@@ -964,14 +966,29 @@
         }
 
         function loadYouTubePlayer(ytId, startTime = 0) {
+            // Toggle click blocker overlay for members
+            const blocker = document.getElementById('memberPlayerBlocker');
+            if (blocker) {
+                blocker.classList.toggle('hidden', isHosting);
+            }
+
             if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
                 ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
+                if (!isHosting && typeof ytPlayer.seekTo === 'function') {
+                    ytPlayer.seekTo(startTime, true);
+                }
             } else {
                 ytPlayer = new YT.Player('ytPlayerDiv', {
                     height: '100%',
                     width: '100%',
                     videoId: ytId,
-                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startTime },
+                    playerVars: { 
+                        'autoplay': 1, 
+                        'controls': isHosting ? 1 : 0, // Disable player UI controls for members
+                        'disablekb': 1,               // Disable keyboard shortcuts
+                        'modestbranding': 1,
+                        'start': startTime 
+                    },
                     events: {
                         'onReady': (e) => { 
                             e.target.seekTo(startTime, true);
