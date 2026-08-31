@@ -8,6 +8,7 @@ const server = http.createServer((req, res) => {
 
 const wss = new WebSocket.Server({ server });
 const rooms = {};
+const OFFLINE_MESH_CHANNEL = "OFFLINE_LOCAL_MESH_LOBBY";
 
 wss.on('connection', (ws) => {
     let currentRoom = null;
@@ -17,7 +18,8 @@ wss.on('connection', (ws) => {
             const data = JSON.parse(message);
             if (data.type === 'PING') return;
 
-            if (data.type === 'HOST_ROOM') {
+            // 1. Room Creation & Joining
+            if (data.type === 'HOST_ROOM' || data.type === 'CREATE_MUSIC_GROUP') {
                 currentRoom = data.code;
                 ws.clientName = data.name || 'Host';
                 ws.accountId = data.accountId || '';
@@ -29,19 +31,52 @@ wss.on('connection', (ws) => {
                 }
                 ws.send(JSON.stringify({ type: 'ROOM_HOSTED_SUCCESS', code: currentRoom }));
                 broadcastPeerList(currentRoom);
-            } else if (data.type === 'JOIN_ROOM') {
+            } else if (data.type === 'JOIN_ROOM' || data.type === 'JOIN_MUSIC_GROUP') {
                 currentRoom = data.code;
                 ws.clientName = data.name || 'Member';
                 ws.accountId = data.accountId || '';
 
                 if (rooms[currentRoom]) {
-                    rooms[currentRoom].peers.push(ws);
+                    if (!rooms[currentRoom].peers.includes(ws)) {
+                        rooms[currentRoom].peers.push(ws);
+                    }
                     ws.send(JSON.stringify({ type: 'ROOM_JOIN_SUCCESS', code: currentRoom }));
                     broadcastPeerList(currentRoom);
                 } else {
-                    ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND', message: 'Room code not found or expired.' }));
+                    ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND', message: 'Room or Music Group not found or expired.' }));
                 }
-            } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME' || data.type === 'REACTION' || data.type === 'CHAT_MESSAGE' || data.type === 'PLAY_REAL_SONG') {
+            } 
+            // 2. Offline Mesh Handlers
+            else if (data.type === 'JOIN_OFFLINE_MESH') {
+                currentRoom = OFFLINE_MESH_CHANNEL;
+                ws.clientName = data.name || 'Group Member';
+                ws.accountId = data.accountId || '';
+                ws.isOfflineHost = data.isHost || false;
+
+                if (!rooms[currentRoom]) {
+                    rooms[currentRoom] = { host: ws.isOfflineHost ? ws : null, peers: [] };
+                }
+
+                if (ws.isOfflineHost) {
+                    rooms[currentRoom].host = ws;
+                } else if (!rooms[currentRoom].peers.includes(ws)) {
+                    rooms[currentRoom].peers.push(ws);
+                }
+
+                ws.send(JSON.stringify({ type: 'OFFLINE_MESH_CONNECTED', role: ws.isOfflineHost ? 'HOST' : 'PEER' }));
+                broadcastOfflinePeers();
+            }
+            // 3. Real-Time Broadcast Relays
+            else if (
+                data.type === 'CONTROL' || 
+                data.type === 'PLAY_YOUTUBE' || 
+                data.type === 'VOLUME' || 
+                data.type === 'REACTION' || 
+                data.type === 'CHAT_MESSAGE' || 
+                data.type === 'SYNC_TIME' ||
+                data.type === 'OFFLINE_FILE_CHUNK' ||
+                data.type === 'OFFLINE_CONTROL'
+            ) {
                 if (currentRoom && rooms[currentRoom]) {
                     const room = rooms[currentRoom];
                     const targets = [room.host, ...room.peers].filter(client => client && client !== ws && client.readyState === WebSocket.OPEN);
@@ -67,15 +102,21 @@ wss.on('connection', (ws) => {
     ws.on('close', () => {
         if (currentRoom && rooms[currentRoom]) {
             const room = rooms[currentRoom];
-            if (room.host === ws) {
-                const targets = [...room.peers].filter(client => client && client.readyState === WebSocket.OPEN);
-                targets.forEach(client => {
-                    client.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
-                });
-                delete rooms[currentRoom];
-            } else {
+            if (currentRoom === OFFLINE_MESH_CHANNEL) {
+                if (room.host === ws) room.host = null;
                 room.peers = room.peers.filter(client => client !== ws);
-                broadcastPeerList(currentRoom);
+                broadcastOfflinePeers();
+            } else {
+                if (room.host === ws) {
+                    const targets = [...room.peers].filter(client => client && client.readyState === WebSocket.OPEN);
+                    targets.forEach(client => {
+                        client.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
+                    });
+                    delete rooms[currentRoom];
+                } else {
+                    room.peers = room.peers.filter(client => client !== ws);
+                    broadcastPeerList(currentRoom);
+                }
             }
         }
     });
@@ -93,7 +134,21 @@ function broadcastPeerList(roomCode) {
     });
     const targets = [room.host, ...room.peers].filter(client => client && client.readyState === WebSocket.OPEN);
     targets.forEach(client => {
-        client.send(JSON.stringify({ type: 'PEER_LIST', peers: peersData }));
+        client.send(JSON.stringify({ 
+            type: 'PEER_LIST', 
+            peers: peersData,
+            count: peersData.length 
+        }));
+    });
+}
+
+function broadcastOfflinePeers() {
+    const room = rooms[OFFLINE_MESH_CHANNEL];
+    if (!room) return;
+    let count = (room.host ? 1 : 0) + room.peers.length;
+    const targets = [room.host, ...room.peers].filter(client => client && client.readyState === WebSocket.OPEN);
+    targets.forEach(client => {
+        client.send(JSON.stringify({ type: 'OFFLINE_PEER_COUNT', count: count }));
     });
 }
 

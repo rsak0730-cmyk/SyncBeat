@@ -7,11 +7,12 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f5f3ff;
-            color: #1e1b4b;
+            background-color: #f8fafc;
+            color: #0f172a;
             margin: 0;
             padding: 15px;
             padding-bottom: 90px;
@@ -20,208 +21,70 @@
             align-items: center;
             overflow-x: hidden;
         }
-        .container {
-            width: 100%;
-            max-width: 420px;
-        }
-        #topParticleCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-        }
+        .container { width: 100%; max-width: 420px; }
+        #topParticleCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
         @keyframes vfxGlowPulse {
             0% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
             50% { box-shadow: 0 0 18px rgba(124, 58, 237, 0.8), 0 0 25px rgba(168, 85, 247, 0.6); }
             100% { box-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
         }
         button, .btn-purple, .action-btn-custom, .code-action-btn, .close-session-btn, .control-btn, .play-pause-lg, .reaction-btn, .pill, .banner-card {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s ease, filter 0.2s ease;
-            cursor: pointer;
+            position: relative; overflow: hidden; transition: transform 0.15s ease, filter 0.2s ease; cursor: pointer;
         }
-        button:hover, .btn-purple:hover, .action-btn-custom:hover {
-            animation: vfxGlowPulse 1.4s infinite;
-        }
-        button:active, .btn-purple:active {
-            transform: scale(0.95);
-        }
+        button:hover, .btn-purple:hover, .action-btn-custom:hover { animation: vfxGlowPulse 1.4s infinite; }
+        button:active, .btn-purple:active { transform: scale(0.95); }
         .vfx-sticker {
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            background: rgba(0, 255, 102, 0.15);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(0, 255, 102, 0.6);
-            border-radius: 30px;
-            padding: 5px 12px;
-            font-size: 11px;
-            font-weight: 800;
-            color: #00ff66;
-            z-index: 10;
+            position: absolute; top: 14px; right: 16px; background: rgba(0, 255, 102, 0.15); backdrop-filter: blur(6px); border: 1px solid rgba(0, 255, 102, 0.6); border-radius: 30px; padding: 5px 12px; font-size: 11px; font-weight: 800; color: #00ff66; z-index: 10;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .logo-area h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 800;
-            color: #7c3aed;
-        }
-        .room-badge {
-            background: #ede9fe;
-            color: #7c3aed;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
-        }
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            color: #7c3aed;
-            cursor: pointer;
-        }
-        .subtitle {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-        .status-pills {
-            display: flex;
-            gap: 6px;
-        }
-        .pill {
-            background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 8px; }
+        .logo-area h1 { margin: 0; font-size: 22px; font-weight: 800; color: #7c3aed; }
+        .room-badge { background: #ede9fe; color: #7c3aed; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+        .back-btn { background: none; border: none; font-size: 22px; font-weight: bold; color: #000; cursor: pointer; }
+        .subtitle { font-size: 12px; color: #6b7280; margin-top: -10px; margin-bottom: 15px; }
+        .status-pills { display: flex; gap: 6px; }
+        .pill { background: #ffffff; border: 1px solid #ddd6fe; padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #7c3aed; display: flex; align-items: center; gap: 4px; }
         .pill.active { background: #7c3aed; color: white; border-color: #7c3aed; }
-        .card {
-            background: #ffffff;
-            border: 1px solid #ede9fe;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05);
-        }
-        .card-header-sm {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #7c3aed;
-            margin-bottom: 8px;
-        }
-        .dot {
-            height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px;
-        }
-        .banner-card {
-            background: linear-gradient(135deg, #f3e8ff, #ede9fe);
-            border: 1px solid #d8b4fe;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .banner-icon {
-            background: #7c3aed; color: white; width: 45px; height: 45px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center; font-size: 20px;
-        }
+        .card { background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; padding: 16px; margin-bottom: 14px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05); }
+        .card-header-sm { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
+        .dot { height: 8px; width: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .banner-card { background: linear-gradient(135deg, #f3e8ff, #ede9fe); border: 1px solid #d8b4fe; display: flex; align-items: center; justify-content: space-between; }
+        .banner-icon { background: #7c3aed; color: white; width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .banner-content { flex: 1; margin-left: 15px; }
         .banner-title { font-weight: 700; font-size: 15px; color: #4c1d95; }
         .banner-desc { font-size: 11px; color: #6d28d9; }
-        .banner-arrow {
-            background: #7c3aed; color: white; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .banner-arrow { background: #7c3aed; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .hosting-banner { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #d8b4fe; }
         .hosting-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .hosting-active-tag { display: flex; align-items: center; font-size: 12px; font-weight: 800; color: #10b981; }
-        .code-box {
-            background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px;
-            text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px;
-        }
+        .code-box { background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px; text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px; }
         .code-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .code-action-btn {
-            background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px;
-            padding: 10px 4px; border-radius: 12px; text-align: center;
-        }
-        .close-session-btn {
-            background: #ef4444; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;
-        }
+        .code-action-btn { background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px; padding: 10px 4px; border-radius: 12px; text-align: center; }
+        .close-session-btn { background: #ef4444; color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; }
         .player-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-        .album-art {
-            width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 22px; color: #7c3aed;
-        }
+        .album-art { width: 50px; height: 50px; background: #f3e8ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #7c3aed; }
         .track-title { font-size: 13px; font-weight: 800; color: #1e1b4b; margin-bottom: 2px; word-break: break-all; }
         .track-artist { font-size: 11px; color: #6b7280; }
         .progress-track { background: #f3e8ff; height: 5px; border-radius: 3px; cursor: pointer; margin-bottom: 4px; }
-        .progress-fill { background: #7c3aed; width: 0%; height: 100%; border-radius: 3px; }
+        .progress-fill { background: #7c3aed; width: 0%; height: 100%; border-radius: 3px; transition: width 0.3s linear; }
         .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-bottom: 12px; }
         .player-controls { display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 15px; }
         .control-btn { background: none; border: none; font-size: 22px; color: #4c1d95; cursor: pointer; }
-        .play-pause-lg {
-            background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer;
-        }
+        .play-pause-lg { background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer; }
         .inline-volume { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 10px 14px; border-radius: 16px; border: 1px solid #ede9fe; margin-bottom: 14px; }
         .inline-volume input[type="range"] { flex: 1; accent-color: #7c3aed; cursor: pointer; }
         .volume-pct { font-size: 11px; font-weight: 700; color: #7c3aed; width: 30px; text-align: right; }
-        .queue-item {
-            display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff;
-        }
+        .queue-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
         .queue-item:last-child { border-bottom: none; }
         .action-icon-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px; color: #7c3aed; }
-        .search-input {
-            width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 10px 12px; border-radius: 12px;
-            font-size: 13px; box-sizing: border-box; outline: none;
-        }
+        .search-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 10px 12px; border-radius: 12px; font-size: 13px; box-sizing: border-box; outline: none; }
         .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
         .action-btn-custom:disabled { background: #d8b4fe !important; cursor: not-allowed; opacity: 0.7; }
-        .reactions-grid { 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 6px; 
-            background: #faf8ff; 
-            padding: 10px; 
-            border-radius: 14px; 
-        }
-        .reaction-btn { 
-            background: none; 
-            border: none; 
-            font-size: 22px; 
-            cursor: pointer; 
-            padding: 6px; 
-            border-radius: 8px; 
-            transition: background 0.2s; 
-        }
-        .reaction-btn:hover { 
-            background: #ede9fe; 
-        }
-        .floating-reaction {
-            position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-360px); opacity: 0; }
-        }
+        .reactions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; background: #faf8ff; padding: 10px; border-radius: 14px; }
+        .reaction-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 6px; border-radius: 8px; transition: background 0.2s; }
+        .reaction-btn:hover { background: #ede9fe; }
+        .floating-reaction { position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none; }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-360px); opacity: 0; } }
         .peer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
         .peer-item:last-child { border-bottom: none; }
         .peer-info { display: flex; align-items: center; gap: 10px; }
@@ -229,142 +92,94 @@
         .peer-name { font-size: 13px; font-weight: 700; color: #1e1b4b; }
         .peer-meta { font-size: 10px; color: #6b7280; }
         .sync-tag { background: #dcfce7; color: #16a34a; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-        .code-input {
-            width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px;
-            font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none;
-        }
-        .btn-purple {
-            background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-        }
-        .profile-btn-row {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
-        }
-        #toastModal {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px;
-            font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
-        }
+        .code-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none; }
+        .btn-purple { background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .profile-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
 
-        /* Spotify Dynamic Player UI */
-        .spotify-card {
-            background: linear-gradient(145deg, #181818, #121212);
-            border: 1px solid #282828;
+        /* SEPARATE YOUTUBE UI CARD */
+        .youtube-card {
+            background: linear-gradient(145deg, #ffffff, #faf5ff);
+            border: 1px solid #ede9fe;
             border-radius: 20px;
             padding: 16px;
             margin-bottom: 14px;
-            color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05);
         }
-        .spotify-header {
+        .youtube-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 12px;
         }
-        .spotify-logo {
+        .youtube-logo {
             display: flex;
             align-items: center;
             gap: 6px;
             font-weight: 800;
-            font-size: 14px;
-            color: #1db954;
+            font-size: 15px;
+            color: #ef4444;
         }
-        .spotify-search-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .spotify-input {
-            flex: 1;
-            background: #242424;
-            border: 1px solid #333333;
-            color: #ffffff;
-            padding: 10px 14px;
-            border-radius: 25px;
-            font-size: 12px;
-            outline: none;
-        }
-        .spotify-input::placeholder {
-            color: #b3b3b3;
-        }
-        .spotify-play-btn {
-            background: #1db954;
-            color: #000000;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 16px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .spotify-now-playing {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #1f1f1f;
-            padding: 12px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-        }
-        .spotify-thumb {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #333333;
-        }
-        .spotify-track-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
-        }
-        .spotify-artist-name {
-            font-size: 11px;
-            color: #b3b3b3;
-        }
-        .spotify-track-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 10px;
-            border-radius: 8px;
-            background: #181818;
-            margin-bottom: 6px;
-            transition: background 0.2s;
-        }
-        .spotify-track-item:hover {
-            background: #282828;
-        }
-        .spotify-item-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .spotify-item-thumb {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
+
+        /* Music Group UI Layout */
+        .music-group-page { width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 90vh; }
+        .mg-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .mg-title { font-size: 19px; font-weight: 900; color: #000000; }
+        .mg-help-btn { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; font-size: 10px; font-weight: bold; color: #000000; }
+        .mg-help-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-bottom: 2px; }
+        
+        .mg-create-card { width: 100%; background: linear-gradient(135deg, #ff7a18, #ff5400); border-radius: 24px; padding: 22px; box-sizing: border-box; position: relative; box-shadow: 0 12px 28px rgba(255, 84, 0, 0.35); color: #ffffff; z-index: 2; }
+        .mg-create-text { font-size: 15px; font-weight: 900; max-width: 65%; line-height: 1.35; margin-bottom: 20px; }
+        .mg-create-btn { background: #ffffff; color: #000000; border: none; border-radius: 30px; padding: 12px 24px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .mg-play-badge { position: absolute; right: 20px; top: 24px; width: 75px; height: 75px; background: rgba(255, 255, 255, 0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .mg-play-triangle { width: 0; height: 0; border-top: 14px solid transparent; border-bottom: 14px solid transparent; border-left: 24px solid rgba(255, 122, 24, 0.85); margin-left: 5px; }
+
+        .mg-track-wrapper { width: 100%; height: 260px; position: relative; display: flex; align-items: center; justify-content: center; margin: -10px 0; z-index: 1; }
+        .mg-svg-path { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .mg-signal-circle { width: 60px; height: 60px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1); z-index: 3; position: relative; }
+
+        .mg-join-card { width: 100%; background: #ffffff; border-radius: 24px; padding: 20px; box-sizing: border-box; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); border: 1px solid #f1f5f9; z-index: 2; }
+        .mg-speaker-icon { width: 65px; height: 80px; border: 4px solid #94a3b8; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 6px 0; box-sizing: border-box; flex-shrink: 0; }
+        .mg-speaker-top-dot { width: 14px; height: 14px; border-radius: 50%; background: #94a3b8; }
+        .mg-speaker-bottom-circle { width: 28px; height: 28px; border-radius: 50%; border: 4px solid #94a3b8; }
+        .mg-join-content { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .mg-join-text { font-size: 13px; font-weight: 900; color: #000000; line-height: 1.35; }
+        .mg-join-btn { background: linear-gradient(135deg, #ff7a18, #ff5400); color: #ffffff; border: none; border-radius: 25px; padding: 12px 20px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 84, 0, 0.3); }
+
+        .mg-server-card { width: 100%; background: #ffffff; border-radius: 24px; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); border: 1px solid #f1f5f9; text-align: center; }
+        .mg-server-badge { background: #fed7aa; color: #9a3412; font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
+        .mg-qr-wrapper { padding: 12px; background: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 16px; display: flex; justify-content: center; }
+
+        .mg-scanner-wrapper { position: relative; width: 100%; height: 480px; max-height: 70vh; background: #000000; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
+        #mgScannerVideo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+        .mg-viewfinder-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 220px; pointer-events: none; z-index: 10; }
+        .mg-corner { position: absolute; width: 32px; height: 32px; border: 4px solid #ffffff; }
+        .mg-corner-tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+        .mg-corner-tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+        .mg-corner-bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+        .mg-corner-br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+        .mg-dialog-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .mg-dialog-box { background: #ffffff; border-radius: 20px; padding: 24px; width: 85%; max-width: 320px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); }
+        .mg-dialog-title { font-size: 16px; font-weight: 800; color: #000; margin-bottom: 20px; }
+        .mg-dialog-actions { display: flex; justify-content: flex-end; gap: 20px; font-weight: 900; font-size: 13px; }
     </style>
 </head>
 <body>
+
+    <div id="interactionOverlay" class="hidden">
+        <h2 style="margin-bottom: 5px; font-size:24px;">🎧 You've Joined the Room!</h2>
+        <p style="margin-bottom: 25px; color:#c4b5fd; font-size:13px;">Tap below to enable Live Media Sync & Sound.</p>
+        <button class="btn-purple" style="width: 240px; font-size: 16px; padding: 16px; border-radius: 30px; box-shadow: 0 10px 20px rgba(124, 58, 237, 0.5);" onclick="unlockMediaContext()">🟢 Connect Audio & Video</button>
+    </div>
+
     <canvas id="topParticleCanvas"></canvas>
-    <!-- Inbuilt Real Direct Audio Streaming Element -->
-    <audio id="realAudioPlayer" preload="auto"></audio>
+    <audio id="realAudioPlayer" preload="auto" playsinline></audio>
 
     <div class="container">
-        <!-- Landing View -->
+        <!-- 1. Main Landing View -->
         <div id="mainLandingView">
             <div class="header">
                 <div class="logo-area">
@@ -388,6 +203,16 @@
                     <button class="code-action-btn" onclick="saveProfileChanges()">💾 Save Profile</button>
                     <button class="code-action-btn" style="background: #f3e8ff; color: #ef4444; border-color: #fca5a5;" onclick="resetDeviceProfile()">🔄 Reset ID</button>
                 </div>
+            </div>
+
+            <!-- Music Group Launcher Card -->
+            <div class="card banner-card" style="background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 2px solid #fed7aa;" onclick="openMusicGroupUI()">
+                <div class="banner-icon" style="background: #ff5400;">📻</div>
+                <div class="banner-content">
+                    <div class="banner-title" style="color: #c2410c;">Music Group (Offline Local Sync)</div>
+                    <div class="banner-desc" style="color: #ea580c;">Wi-Fi & Bluetooth Local 0ms P2P Sharing</div>
+                </div>
+                <div class="banner-arrow" style="background: #ff5400;">→</div>
             </div>
 
             <div class="card banner-card hidden" id="returnHostingBanner" onclick="returnToHostingSession()">
@@ -433,7 +258,92 @@
             </div>
         </div>
 
-        <!-- Room Session View -->
+        <!-- 2. MUSIC GROUP DESIGN -->
+        <div id="musicGroupPageView" class="music-group-page hidden">
+            <div class="mg-header">
+                <button class="back-btn" onclick="promptMusicGroupExit()">←</button>
+                <div class="mg-title">Music Group</div>
+                <button class="mg-help-btn" onclick="showToast('Create or Join via QR to sync local music with 0ms delay.')">
+                    <div class="mg-help-icon">?</div>
+                    <div>Help</div>
+                </button>
+            </div>
+
+            <!-- Main Group Menu -->
+            <div id="mgMenuState" style="width: 100%;">
+                <div class="mg-create-card">
+                    <div class="mg-create-text">Start a group and share your music with everyone</div>
+                    <button class="mg-create-btn" onclick="startMusicGroupServerCreation()">Create Music Group &nbsp;→</button>
+                    <div class="mg-play-badge"><div class="mg-play-triangle"></div></div>
+                </div>
+
+                <div class="mg-track-wrapper">
+                    <svg class="mg-svg-path" viewBox="0 0 400 260" preserveAspectRatio="none">
+                        <path d="M 80 0 C 80 130, 320 130, 320 260" fill="none" stroke="#000000" stroke-width="4.5" stroke-dasharray="8,8" />
+                    </svg>
+                    <div class="mg-signal-circle">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="mg-join-card">
+                    <div class="mg-speaker-icon">
+                        <div class="mg-speaker-top-dot"></div>
+                        <div class="mg-speaker-bottom-circle"></div>
+                    </div>
+                    <div class="mg-join-content">
+                        <div class="mg-join-text">Connect to a group and listen to music together</div>
+                        <button class="mg-join-btn" onclick="startMusicGroupCameraScanner()">Join a Music Group &nbsp;→</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creating Server / QR Display State -->
+            <div id="mgServerState" class="hidden" style="width: 100%;">
+                <div class="mg-server-card">
+                    <div class="mg-server-badge" id="mgPeerLimitBadge">Up to 3 device can connect to this Server</div>
+                    <div class="mg-qr-wrapper" id="mgQrCodeContainer"></div>
+                    <div style="font-weight: 800; font-size: 14px; margin-bottom: 20px;">Scan this to Join</div>
+                    
+                    <input type="file" id="mgLocalAudioInput" accept="audio/*" style="display: none;" onchange="handleMgAudioFile(event)">
+                    <button class="mg-join-btn" style="width: 100%; border-radius: 14px; margin-bottom: 12px;" onclick="document.getElementById('mgLocalAudioInput').click()">📂 Select Local Audio File to Broadcast</button>
+                    <div style="font-size: 12px; color: #64748b; font-weight: bold; cursor: pointer;" onclick="showToast('Ensure all phones are on the same Wi-Fi / Hotspot.')">Not Connecting.?</div>
+                </div>
+            </div>
+
+            <!-- Camera Scanner Viewfinder -->
+            <div id="mgScannerState" class="hidden" style="width: 100%;">
+                <div class="mg-scanner-wrapper">
+                    <video id="mgScannerVideo" autoplay playsinline muted></video>
+                    <canvas id="mgScannerCanvas" style="display: none;"></canvas>
+                    <div class="mg-viewfinder-box">
+                        <div class="mg-corner mg-corner-tl"></div>
+                        <div class="mg-corner mg-corner-tr"></div>
+                        <div class="mg-corner mg-corner-bl"></div>
+                        <div class="mg-corner mg-corner-br"></div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; font-weight: 800; font-size: 13px; color: #475569;">Point camera at Host's QR Code to connect</div>
+            </div>
+        </div>
+
+        <!-- Exit Prompt Dialog -->
+        <div id="mgExitDialog" class="mg-dialog-backdrop hidden">
+            <div class="mg-dialog-box">
+                <div class="mg-dialog-title">Do you want to Exit?</div>
+                <div class="mg-dialog-actions">
+                    <span style="color: #0284c7; cursor: pointer;" onclick="closeMgExitDialog()">CANCEL</span>
+                    <span style="color: #0284c7; cursor: pointer;" onclick="confirmMgExit()">EXIT</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Standard Online Room Session View -->
         <div id="hostSessionView" class="hidden">
             <div class="header">
                 <button class="back-btn" onclick="goBackToHome()">←</button>
@@ -467,9 +377,10 @@
                 <span class="volume-pct" id="sessionVolPct">100%</span>
             </div>
 
+            <!-- Global Media Info & Master Controller (Follows Restricted Playback Rule) -->
             <div class="card" style="position: relative;">
                 <div id="vfxMusicSticker" class="vfx-sticker hidden">🎶 LIVE PLAY 🎵</div>
-                <div class="card-header-sm"><span>● Direct Media Player</span></div>
+                <div class="card-header-sm"><span>● Active Room Player</span></div>
                 <div class="player-info">
                     <div class="album-art" id="sessionArt">🎧</div>
                     <div style="overflow: hidden; flex: 1;">
@@ -483,42 +394,25 @@
                 </div>
                 <div class="time-info">
                     <span id="sessionCurrentTime">0:00</span>
-                    <span id="sessionTotalDuration">3:00</span>
+                    <span id="sessionTotalDuration">0:00</span>
                 </div>
 
                 <div class="player-controls" id="hostPlayerControls">
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
-                    <button class="control-btn" id="sessionNextBtn" onclick="playNextQueueTrack()" title="Play Next from Queue">⏭️</button>
+                    <button class="control-btn" id="sessionNextBtn" onclick="playNextQueueTrack()" title="Play Next from YouTube Queue">⏭️</button>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header-sm">
-                    <span>⭐ Saved Playlist <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="playlistCount">0</span></span>
-                </div>
-                <div id="playlistContainer">
-                    <div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs yet.</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header-sm">
-                    <span>Upcoming Queue <span style="background: #ede9fe; padding: 2px 6px; border-radius: 6px;" id="queueCount">0</span></span>
-                </div>
-                <div id="queueList"></div>
-            </div>
-
-            <!-- YouTube Controller / Video View Card with Full Screen Toggle Button -->
-            <div class="card" id="hostUrlControls">
-                <div class="card-header-sm" id="controllerCardHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <span id="controllerCardTitle">YouTube Controller</span>
-                    <button class="code-action-btn" style="background: #7c3aed; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;" onclick="toggleFullScreenMode()">📺 FULL SCREEN MODE</button>
+            <!-- ================= SEPARATE YOUTUBE UI PLAYER ================= -->
+            <div class="youtube-card" id="hostUrlControls">
+                <div class="youtube-header" id="controllerCardHeader">
+                    <div class="youtube-logo"><span>🔴</span> YouTube Controller & Video Stream</div>
+                    <button class="code-action-btn" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;" onclick="toggleFullScreenMode()">📺 FULL SCREEN</button>
                 </div>
                 
-                <!-- Host-Only Search URL Bar and Action Buttons -->
                 <div id="hostOnlyControls">
                     <div style="margin-bottom: 8px;">
-                        <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
+                        <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube Video URL (e.g. https://youtu.be/...)">
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
                         <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play</button>
@@ -527,16 +421,30 @@
                     </div>
                 </div>
 
-                <!-- Video Wrapper with Native Controls Enabled for All Devices -->
-                <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
+                <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 12px;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
-                    <!-- Back to Room Button (Appears only in Full-Screen Mode) -->
                     <button id="exitFullScreenBtn" class="hidden" style="position: fixed; top: 20px; left: 20px; z-index: 100000000; background: rgba(0,0,0,0.85); color: white; border: 1px solid rgba(255,255,255,0.6); padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; pointer-events: auto;" onclick="toggleFullScreenMode()">← Back to Room</button>
+                </div>
+
+                <!-- YouTube Saved Playlist List -->
+                <div style="font-size: 11px; font-weight: 700; color: #7c3aed; margin-bottom: 4px; text-transform: uppercase;">
+                    ⭐ Saved YouTube Playlist (<span id="playlistCount">0</span>)
+                </div>
+                <div id="playlistContainer" style="max-height: 110px; overflow-y: auto; margin-bottom: 10px; background: #faf8ff; border: 1px solid #ede9fe; border-radius: 10px; padding: 4px 8px;">
+                    <div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">No saved videos yet.</div>
+                </div>
+
+                <!-- YouTube Upcoming Queue List -->
+                <div style="font-size: 11px; font-weight: 700; color: #3b82f6; margin-bottom: 4px; text-transform: uppercase;">
+                    📋 Upcoming YouTube Queue (<span id="queueCount">0</span>)
+                </div>
+                <div id="queueList" style="max-height: 110px; overflow-y: auto; background: #faf8ff; border: 1px solid #ede9fe; border-radius: 10px; padding: 4px 8px;">
+                    <div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">Queue is empty.</div>
                 </div>
             </div>
 
-            <!-- Room Reactions & Stickers Card -->
-            <div class="card">
+            <!-- Reactions & Live Chat -->
+            <div class="card" style="margin-top: 14px;">
                 <div class="card-header-sm"><span>Room Reactions & Stickers</span></div>
                 <div class="reactions-grid">
                     <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
@@ -552,6 +460,7 @@
                 </div>
             </div>
 
+            <!-- Live Connected Room Devices System -->
             <div class="card">
                 <div class="card-header-sm"><span>IN THIS ROOM</span></div>
                 <div id="peerListContainer">
@@ -568,7 +477,7 @@
                 </div>
             </div>
 
-            <!-- Live Room Chat System (Auto-clears when room is closed/left) -->
+            <!-- Real-Time Room Live Chat System -->
             <div class="card">
                 <div class="card-header-sm"><span>💬 Live Room Chat</span></div>
                 <div id="chatMessagesContainer" style="height: 140px; overflow-y: auto; background: #faf8ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 8px; margin-bottom: 8px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
@@ -577,39 +486,6 @@
                 <div style="display: flex; gap: 6px;">
                     <input type="text" id="chatInput" class="search-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
                     <button class="action-btn-custom" style="padding: 10px 14px;" onclick="sendChatMessage()">Send</button>
-                </div>
-            </div>
-
-            <!-- Spotify Real Search & Player UI -->
-            <div class="spotify-card" id="spotifyBoxCard">
-                <div class="spotify-header">
-                    <div class="spotify-logo">
-                        <span>🟢</span> Spotify Player
-                    </div>
-                    <span style="font-size: 10px; color: #1db954; font-weight: 700; background: rgba(29, 185, 84, 0.15); padding: 4px 8px; border-radius: 12px;">Real Search Live Sync</span>
-                </div>
-
-                <div id="spotifyHostOnlyControls">
-                    <div class="spotify-search-bar">
-                        <input type="text" class="spotify-input" id="spotifySearchInput" placeholder="🔍 Search any Song or Artist..." onkeydown="if(event.key==='Enter') handleSpotifySearchPlay()">
-                        <button class="spotify-play-btn" onclick="handleSpotifySearchPlay()">🔍 Search</button>
-                    </div>
-                </div>
-
-                <!-- Spotify Mini Now Playing Bar -->
-                <div class="spotify-now-playing">
-                    <img id="spotifyCurrentCover" class="spotify-thumb" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&h=100&fit=crop" alt="Cover">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div class="spotify-track-name" id="spotifyCurrentTitle">No Track Playing</div>
-                        <div class="spotify-artist-name" id="spotifyCurrentArtist">Search and play a song above</div>
-                    </div>
-                    <button class="action-icon-btn" style="color:#1db954; font-size:18px;" onclick="togglePlaySession()">⏯</button>
-                </div>
-
-                <!-- Spotify Live Searched Results Container -->
-                <div style="font-size: 11px; font-weight: 700; color: #b3b3b3; margin-bottom: 8px; text-transform: uppercase;">🎵 Searched Results</div>
-                <div id="spotifyTracksContainer" style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column;">
-                    <div style="font-size: 11px; color: #777777; text-align: center; padding: 14px;">Type a song or artist name above to find and play real music.</div>
                 </div>
             </div>
         </div>
@@ -621,6 +497,7 @@
         const BACKEND_WS = 'wss://syncbeat-backend2.onrender.com';
         let ws = null;
         let isHosting = false;
+        let isOfflineGroupMode = false;
         let currentRoomCode = "";
         let currentUserName = "User";
         let currentAccountId = "";
@@ -632,9 +509,14 @@
         let scannerInterval = null;
         let savedPlaylist = [];
         let upcomingQueue = [];
+        let syncBroadcastInterval = null;
+        let mgScannerInterval = null;
+        let particleAnimationId = null;
 
         const realAudio = document.getElementById('realAudioPlayer');
-        let currentActiveMode = 'none'; // 'audio' or 'youtube'
+        let currentActiveMode = 'none'; // 'youtube' or 'offline'
+        let isYouTubeFullScreen = false;
+        let offlineFileChunks = [];
 
         const topCanvas = document.getElementById('topParticleCanvas');
         const tCtx = topCanvas.getContext('2d');
@@ -656,34 +538,47 @@
             }
         }
 
-        function renderTopParticles() {
-            if (!isSessionPlaying) {
+        /* Fixed Single-Loop Particle Animation */
+        function startParticleAnimation() {
+            if (particleAnimationId) return;
+
+            function loop() {
+                if (!isSessionPlaying) {
+                    tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
+                    particleAnimationId = null;
+                    return;
+                }
                 tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-                return;
+                topParticles.forEach(p => {
+                    p.y += p.speed;
+                    if (p.y > topCanvas.height) { 
+                        p.y = -10; 
+                        p.x = Math.random() * topCanvas.width; 
+                    }
+                    p.alpha += (Math.random() - 0.5) * 0.01;
+                    if (p.alpha < 0.15) p.alpha = 0.15;
+                    if (p.alpha > 0.85) p.alpha = 0.85;
+                    p.colorHue = (p.colorHue + (Math.random() - 0.5) * 1.5) % 360;
+
+                    tCtx.save();
+                    tCtx.beginPath();
+                    tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    tCtx.fillStyle = `hsl(${p.colorHue}, 100%, 70%)`;
+                    tCtx.globalAlpha = p.alpha;
+                    tCtx.fill();
+                    tCtx.restore();
+                });
+                particleAnimationId = requestAnimationFrame(loop);
+            }
+            particleAnimationId = requestAnimationFrame(loop);
+        }
+
+        function stopParticleAnimation() {
+            if (particleAnimationId) {
+                cancelAnimationFrame(particleAnimationId);
+                particleAnimationId = null;
             }
             tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-            topParticles.forEach(p => {
-                p.y += p.speed;
-                if (p.y > topCanvas.height) { 
-                    p.y = -10; 
-                    p.x = Math.random() * topCanvas.width; 
-                }
-                
-                p.alpha += (Math.random() - 0.5) * 0.01;
-                if (p.alpha < 0.15) p.alpha = 0.15;
-                if (p.alpha > 0.85) p.alpha = 0.85;
-
-                p.colorHue = (p.colorHue + (Math.random() - 0.5) * 1.5) % 360;
-
-                tCtx.save();
-                tCtx.beginPath();
-                tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                tCtx.fillStyle = `hsl(${p.colorHue}, 100%, 70%)`;
-                tCtx.globalAlpha = p.alpha;
-                tCtx.fill();
-                tCtx.restore();
-            });
-            requestAnimationFrame(renderTopParticles);
         }
 
         window.addEventListener('resize', initTopCanvas);
@@ -692,6 +587,215 @@
             initPermanentDeviceAccount();
             checkBackgroundRoomState();
         });
+
+        /* ------------------ MUSIC GROUP UI SYSTEM ------------------ */
+        function openMusicGroupUI() {
+            document.getElementById('mainLandingView').classList.add('hidden');
+            document.getElementById('musicGroupPageView').classList.remove('hidden');
+            document.getElementById('mgMenuState').classList.remove('hidden');
+            document.getElementById('mgServerState').classList.add('hidden');
+            document.getElementById('mgScannerState').classList.add('hidden');
+        }
+
+        function promptMusicGroupExit() {
+            if (!document.getElementById('mgMenuState').classList.contains('hidden')) {
+                closeMusicGroupUI();
+            } else {
+                document.getElementById('mgExitDialog').classList.remove('hidden');
+            }
+        }
+
+        function closeMgExitDialog() {
+            document.getElementById('mgExitDialog').classList.add('hidden');
+        }
+
+        function confirmMgExit() {
+            document.getElementById('mgExitDialog').classList.add('hidden');
+            stopMgScanner();
+            document.getElementById('mgServerState').classList.add('hidden');
+            document.getElementById('mgScannerState').classList.add('hidden');
+            document.getElementById('mgMenuState').classList.remove('hidden');
+            stopAllMedia('none');
+            updatePlayPauseUI(false);
+            if (ws) { ws.close(); ws = null; }
+        }
+
+        function closeMusicGroupUI() {
+            document.getElementById('musicGroupPageView').classList.add('hidden');
+            document.getElementById('mainLandingView').classList.remove('hidden');
+        }
+
+        function startMusicGroupServerCreation() {
+            isOfflineGroupMode = true;
+            isHosting = true;
+            currentRoomCode = 'MG-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+            document.getElementById('mgMenuState').classList.add('hidden');
+            document.getElementById('mgServerState').classList.remove('hidden');
+
+            const qrContainer = document.getElementById('mgQrCodeContainer');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: currentRoomCode,
+                width: 180,
+                height: 180,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({
+                    type: 'CREATE_MUSIC_GROUP',
+                    code: currentRoomCode,
+                    name: currentUserName,
+                    accountId: currentAccountId
+                }));
+                startHostSyncLoop();
+                showToast("Server created! Others can scan to join.");
+            });
+        }
+
+        function startMusicGroupCameraScanner() {
+            isOfflineGroupMode = true;
+            isHosting = false;
+
+            document.getElementById('mgMenuState').classList.add('hidden');
+            document.getElementById('mgScannerState').classList.remove('hidden');
+
+            navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: { ideal: "environment" } } 
+            }).then(stream => {
+                scannerStream = stream;
+                const video = document.getElementById('mgScannerVideo');
+                video.srcObject = stream;
+                video.play();
+                
+                mgScannerInterval = setInterval(() => {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        const canvas = document.getElementById('mgScannerCanvas');
+                        canvas.height = video.videoHeight;
+                        canvas.width = video.videoWidth;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+                        
+                        if (code && code.data.startsWith('MG-')) {
+                            stopMgScanner();
+                            joinScannedMusicGroup(code.data.trim().toUpperCase());
+                        }
+                    }
+                }, 250);
+            }).catch(() => {
+                showToast("Camera access required to scan Group.");
+                confirmMgExit();
+            });
+        }
+
+        function stopMgScanner() {
+            if (scannerStream) { scannerStream.getTracks().forEach(t => t.stop()); scannerStream = null; }
+            clearInterval(mgScannerInterval);
+        }
+
+        function joinScannedMusicGroup(roomCode) {
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({
+                    type: 'JOIN_MUSIC_GROUP',
+                    code: roomCode,
+                    name: currentUserName,
+                    accountId: currentAccountId
+                }));
+                document.getElementById('musicGroupPageView').classList.add('hidden');
+                document.getElementById('hostSessionView').classList.remove('hidden');
+                document.getElementById('interactionOverlay').classList.remove('hidden');
+                showToast("Joined Music Group successfully!");
+            });
+        }
+
+        function handleMgAudioFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            showToast(`Loading: ${file.name}...`);
+
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                broadcastMusicGroupAudio(base64Data, file.name);
+                playOfflineAudio(file.name, base64Data, 0);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function broadcastMusicGroupAudio(base64Data, filename) {
+            const CHUNK_SIZE = 250000;
+            const totalChunks = Math.ceil(base64Data.length / CHUNK_SIZE);
+
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = start + CHUNK_SIZE;
+                const chunk = base64Data.slice(start, end);
+
+                setTimeout(() => {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'OFFLINE_FILE_CHUNK',
+                            index: i,
+                            total: totalChunks,
+                            data: chunk,
+                            fileName: filename
+                        }));
+                    }
+                    if (i === totalChunks - 1) {
+                        showToast("✅ Audio synced to all connected devices!");
+                    }
+                }, i * 35);
+            }
+        }
+        /* ------------------ END MUSIC GROUP UI SYSTEM ------------------ */
+
+        function updatePlayPauseUI(isPlaying) {
+            isSessionPlaying = isPlaying;
+            const icon = isPlaying ? "⏸" : "▶";
+            
+            const mainBtn = document.getElementById('sessionPlayBtn');
+            if (mainBtn) mainBtn.textContent = icon;
+
+            const vfx = document.getElementById('vfxMusicSticker');
+            if (vfx) vfx.classList.toggle('hidden', !isPlaying);
+
+            if (isPlaying) {
+                startParticleAnimation();
+            } else {
+                stopParticleAnimation();
+            }
+        }
+
+        // STRICT RESTRICTION RULE: Only YouTube player active at a time
+        function stopAllMedia(newMode) {
+            currentActiveMode = newMode;
+            if (newMode !== 'youtube' && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                ytPlayer.pauseVideo();
+            }
+            if (newMode !== 'offline' && realAudio) {
+                realAudio.pause();
+                realAudio.src = '';
+            }
+        }
+
+        function unlockMediaContext() {
+            document.getElementById('interactionOverlay').classList.add('hidden');
+            if (realAudio) {
+                realAudio.muted = false;
+                realAudio.play().catch(()=>{});
+                realAudio.pause();
+            }
+            if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(100);
+            }
+            showToast("Media & Sound Activated!");
+        }
 
         function initPermanentDeviceAccount() {
             let permanentId = localStorage.getItem('syncbeat_permanent_device_id');
@@ -737,6 +841,7 @@
             const storageKey = `syncbeat_playlist_${currentAccountId}`;
             savedPlaylist = JSON.parse(localStorage.getItem(storageKey) || '[]');
             renderPlaylist();
+            renderQueue();
         }
 
         function saveDeviceStorage() {
@@ -766,12 +871,15 @@
             }
         }
 
+        /* ------------------ SEPARATE YOUTUBE PLAYLIST & QUEUE ------------------ */
         function renderPlaylist() {
             const container = document.getElementById('playlistContainer');
+            if (!container) return;
             container.innerHTML = '';
-            document.getElementById('playlistCount').textContent = savedPlaylist.length;
+            const countEl = document.getElementById('playlistCount');
+            if (countEl) countEl.textContent = savedPlaylist.length;
             if (savedPlaylist.length === 0) {
-                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No saved songs yet.</div>';
+                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">No saved videos yet.</div>';
                 return;
             }
             savedPlaylist.forEach((item, index) => {
@@ -789,17 +897,19 @@
 
         function renderQueue() {
             const container = document.getElementById('queueList');
+            if (!container) return;
             container.innerHTML = '';
-            document.getElementById('queueCount').textContent = upcomingQueue.length;
+            const countEl = document.getElementById('queueCount');
+            if (countEl) countEl.textContent = upcomingQueue.length;
             if (upcomingQueue.length === 0) {
-                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">Queue is empty.</div>';
+                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">Queue is empty.</div>';
                 return;
             }
             upcomingQueue.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'queue-item';
                 div.innerHTML = `
-                    <div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${item.title}</div>
+                    <div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${index + 1}. ${item.title}</div>
                     <button class="action-icon-btn" style="color:#ef4444;" onclick="removeQueueIndex(${index})">✕</button>
                 `;
                 container.appendChild(div);
@@ -811,9 +921,9 @@
                 savedPlaylist.push({ title, url });
                 saveDeviceStorage();
                 renderPlaylist();
-                showToast("Saved to playlist!");
+                showToast("Saved to YouTube playlist!");
             } else {
-                showToast("Song already in playlist.");
+                showToast("Video already in playlist.");
             }
         }
 
@@ -843,7 +953,7 @@
         function playNextQueueTrack() {
             if (!isHosting) { showToast("Only the host can control playback."); return; }
             if (upcomingQueue.length === 0) {
-                showToast("Upcoming queue is empty.");
+                showToast("YouTube upcoming queue is empty.");
                 return;
             }
             const nextTrack = upcomingQueue.shift();
@@ -855,9 +965,8 @@
             }
         }
 
-        let isFullScreen = false;
         function toggleFullScreenMode() {
-            isFullScreen = !isFullScreen;
+            isYouTubeFullScreen = !isYouTubeFullScreen;
             const sessionView = document.getElementById('hostSessionView');
             const hostUrlControls = document.getElementById('hostUrlControls');
             const wrapper = document.getElementById('ytEmbedWrapper');
@@ -868,14 +977,14 @@
             const children = sessionView.children;
             for (let child of children) {
                 if (child !== hostUrlControls) {
-                    child.classList.toggle('hidden', isFullScreen);
+                    child.classList.toggle('hidden', isYouTubeFullScreen);
                 }
             }
 
-            if (hostOnlyControls) hostOnlyControls.classList.toggle('hidden', isFullScreen);
-            if (cardHeader) cardHeader.classList.toggle('hidden', isFullScreen);
+            if (hostOnlyControls) hostOnlyControls.classList.toggle('hidden', isYouTubeFullScreen);
+            if (cardHeader) cardHeader.classList.toggle('hidden', isYouTubeFullScreen);
 
-            if (isFullScreen) {
+            if (isYouTubeFullScreen) {
                 hostUrlControls.style.position = 'fixed';
                 hostUrlControls.style.top = '0';
                 hostUrlControls.style.left = '0';
@@ -900,7 +1009,7 @@
                 hostUrlControls.style.width = 'auto';
                 hostUrlControls.style.height = 'auto';
                 hostUrlControls.style.zIndex = '1';
-                hostUrlControls.style.background = '#ffffff';
+                hostUrlControls.style.background = 'linear-gradient(145deg, #ffffff, #faf5ff)';
                 hostUrlControls.style.margin = '0 0 14px 0';
                 hostUrlControls.style.padding = '16px';
                 hostUrlControls.style.border = '1px solid #ede9fe';
@@ -938,197 +1047,23 @@
             input.value = "";
         }
 
-        /* Real Live Dynamic Music Search & Direct Audio Streaming Engine */
-        async function handleSpotifySearchPlay() {
-            const input = document.getElementById('spotifySearchInput');
-            const query = input.value.trim();
-            if (!query) { showToast("Enter a song name or artist."); return; }
-
-            const container = document.getElementById('spotifyTracksContainer');
-            container.innerHTML = '<div style="font-size: 11px; color: #1db954; text-align: center; padding: 14px;">Searching real music tracks...</div>';
-
-            try {
-                const ytId = extractYouTubeId(query);
-                if (ytId) {
-                    playYouTubeStream("Custom YouTube Video", ytId, 0);
-                    container.innerHTML = '<div style="font-size: 11px; color: #b3b3b3; text-align: center; padding: 14px;">Playing direct YouTube track</div>';
-                    input.value = "";
-                    return;
-                }
-
-                const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=15`);
-                const data = await res.json();
-
-                if (!data.results || data.results.length === 0) {
-                    container.innerHTML = '<div style="font-size: 11px; color: #ef4444; text-align: center; padding: 14px;">No matching songs found. Try another search.</div>';
-                    return;
-                }
-
-                container.innerHTML = '';
-                data.results.forEach(track => {
-                    const trackTitle = track.trackName || 'Unknown Title';
-                    const artistName = track.artistName || 'Unknown Artist';
-                    const artwork = (track.artworkUrl100 || '').replace('100x100bb', '300x300bb');
-                    const audioUrl = track.previewUrl || '';
-                    
-                    const div = document.createElement('div');
-                    div.className = 'spotify-track-item';
-                    div.innerHTML = `
-                        <div class="spotify-item-left">
-                            <img class="spotify-item-thumb" src="${artwork}" alt="Cover" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=80&h=80&fit=crop'">
-                            <div style="overflow: hidden;">
-                                <div style="font-size: 12px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">${escapeHtml(trackTitle)}</div>
-                                <div style="font-size: 10px; color: #b3b3b3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">${escapeHtml(artistName)}</div>
-                            </div>
-                        </div>
-                        <button class="spotify-play-btn" style="padding: 6px 12px; font-size: 11px;">▶ Play</button>
-                    `;
-                    const btn = div.querySelector('button');
-                    btn.onclick = () => {
-                        playDirectRealAudio(trackTitle, artistName, artwork, audioUrl);
-                    };
-                    container.appendChild(div);
-                });
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = '<div style="font-size: 11px; color: #ef4444; text-align: center; padding: 14px;">Failed to fetch songs. Check your connection.</div>';
-            }
-        }
-
-        function playDirectRealAudio(trackTitle, artistName, coverUrl, audioUrl, startTime = 0) {
-            if (!isHosting && !audioUrl) { showToast("Only the host can initiate playback."); return; }
-
-            currentActiveMode = 'audio';
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                ytPlayer.pauseVideo();
-            }
-
-            document.getElementById('spotifyCurrentTitle').textContent = trackTitle;
-            document.getElementById('spotifyCurrentArtist').textContent = artistName;
-            if (coverUrl) document.getElementById('spotifyCurrentCover').src = coverUrl;
-
-            document.getElementById('sessionTitle').textContent = trackTitle;
-            document.getElementById('sessionArtist').textContent = artistName;
-
-            isSessionPlaying = true;
-            document.getElementById('vfxMusicSticker').classList.remove('hidden');
-            document.getElementById('sessionPlayBtn').textContent = "⏸";
-            renderTopParticles();
-
-            if (audioUrl) {
-                realAudio.src = audioUrl;
-                realAudio.currentTime = startTime;
-                const volVal = parseInt(document.getElementById('sessionMasterVol').value || 100) / 100;
-                realAudio.volume = volVal;
-                realAudio.play().catch(e => console.error(e));
-            }
-            
-            startAudioProgressTracker();
-
-            if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'PLAY_REAL_SONG',
-                    title: trackTitle,
-                    artist: artistName,
-                    cover: coverUrl,
-                    audioUrl: audioUrl,
-                    currentTime: 0
-                }));
-            }
-            showToast("Playing: " + trackTitle);
-        }
-
-        function startAudioProgressTracker() {
-            clearInterval(progressInterval);
-            progressInterval = setInterval(() => {
-                if (currentActiveMode === 'audio' && realAudio) {
-                    const current = realAudio.currentTime;
-                    const total = realAudio.duration || 30;
-                    if (total > 0) {
-                        const pct = (current / total) * 100;
-                        document.getElementById('sessionFill').style.width = pct + '%';
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
-                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
-                    }
-                }
-            }, 500);
-        }
-
-        function startProgressTracker() {
-            clearInterval(progressInterval);
-            progressInterval = setInterval(() => {
-                if (currentActiveMode === 'youtube' && isSessionPlaying && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
-                    const current = ytPlayer.getCurrentTime();
-                    const total = ytPlayer.getDuration();
-                    if (total > 0) {
-                        const pct = (current / total) * 100;
-                        document.getElementById('sessionFill').style.width = pct + '%';
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
-                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
-                    }
-                }
-            }, 500);
-        }
-
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-
-        function seekTrack(event) {
-            if (!isHosting) { 
-                showToast("Only the host can control playback scrubbing."); 
-                return; 
-            }
-
-            const track = event.currentTarget;
-            const rect = track.getBoundingClientRect();
-            const clickX = event.clientX - rect.left;
-            const width = rect.width;
-            const percentage = Math.max(0, Math.min(1, clickX / width));
-
-            if (currentActiveMode === 'audio' && realAudio && realAudio.duration) {
-                const newTime = percentage * realAudio.duration;
-                realAudio.currentTime = newTime;
-                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
-                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
-                }
-            } else if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                const duration = ytPlayer.getDuration();
-                const newTime = percentage * duration;
-                ytPlayer.seekTo(newTime, true);
-                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
-                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
-                }
-            }
-        }
-
         function playYouTubeStream(title, ytId, startTime = 0) {
-            currentActiveMode = 'youtube';
-            if (realAudio) realAudio.pause();
+            stopAllMedia('youtube');
 
             document.getElementById('sessionTitle').textContent = title;
-            document.getElementById('sessionArtist').textContent = "Synchronized Stream";
-            document.getElementById('spotifyCurrentTitle').textContent = title;
-            isSessionPlaying = true;
-            document.getElementById('vfxMusicSticker').classList.remove('hidden');
-            document.getElementById('sessionPlayBtn').textContent = "⏸";
-            renderTopParticles();
-
+            document.getElementById('sessionArtist').textContent = "YouTube Video Stream";
+            document.getElementById('sessionArt').textContent = "🎬";
+            
+            updatePlayPauseUI(true);
             loadYouTubePlayer(ytId, startTime);
             startProgressTracker();
 
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ 
-                    type: 'PLAY_TRACK', 
+                    type: 'PLAY_YOUTUBE', 
                     title: title, 
-                    artist: currentUserName, 
-                    currentTime: ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0 
+                    ytId: ytId,
+                    currentTime: startTime 
                 }));
             }
         }
@@ -1137,6 +1072,8 @@
             applyRoleUI();
 
             if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(100);
                 ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
                 if (!isHosting && typeof ytPlayer.seekTo === 'function') {
                     ytPlayer.seekTo(startTime, true);
@@ -1155,46 +1092,141 @@
                     },
                     events: {
                         'onReady': (e) => { 
+                            e.target.unMute();
+                            e.target.setVolume(100);
                             e.target.seekTo(startTime, true);
                             e.target.playVideo(); 
+                        },
+                        'onStateChange': (e) => {
+                            if (e.data === YT.PlayerState.ENDED) {
+                                if (isHosting && upcomingQueue.length > 0) {
+                                    playNextQueueTrack();
+                                } else {
+                                    updatePlayPauseUI(false);
+                                }
+                            }
                         }
                     }
                 });
             }
         }
 
+        function playOfflineAudio(title, dataUrl, startTime = 0) {
+            stopAllMedia('offline');
+
+            document.getElementById('sessionTitle').textContent = title;
+            document.getElementById('sessionArtist').textContent = "Music Group Local Broadcast";
+            document.getElementById('sessionArt').textContent = "🎵";
+
+            updatePlayPauseUI(true);
+            renderTopParticles();
+
+            if (dataUrl) {
+                realAudio.src = dataUrl;
+                realAudio.currentTime = startTime;
+                realAudio.muted = false;
+                const volSlider = document.getElementById('sessionMasterVol');
+                realAudio.volume = parseInt(volSlider ? volSlider.value : 100) / 100;
+                realAudio.play().catch(()=>{
+                    document.getElementById('interactionOverlay').classList.remove('hidden');
+                });
+            }
+            startProgressTracker();
+        }
+
+        /* Unified Progress Tracker */
+        function startProgressTracker() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (currentActiveMode === 'youtube' && isSessionPlaying && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
+                    const current = ytPlayer.getCurrentTime();
+                    const total = ytPlayer.getDuration();
+                    if (total > 0) {
+                        const pct = (current / total) * 100;
+                        document.getElementById('sessionFill').style.width = pct + '%';
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
+                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
+                    }
+                } else if ((currentActiveMode === 'offline') && realAudio && realAudio.duration) {
+                    const current = realAudio.currentTime;
+                    const total = realAudio.duration;
+                    const pct = (current / total) * 100;
+                    document.getElementById('sessionFill').style.width = pct + '%';
+                    document.getElementById('sessionCurrentTime').textContent = formatTime(current);
+                    document.getElementById('sessionTotalDuration').textContent = formatTime(total);
+                }
+            }, 500);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function seekTrack(event) {
+            if (!isHosting) { showToast("Only the host can control playback scrubbing."); return; }
+
+            const track = event.currentTarget;
+            const rect = track.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = Math.max(0, Math.min(1, clickX / width));
+
+            if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
+                const duration = ytPlayer.getDuration();
+                const newTime = percentage * duration;
+                ytPlayer.seekTo(newTime, true);
+                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
+                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
+                }
+            } else if (currentActiveMode === 'offline' && realAudio && realAudio.duration) {
+                const newTime = percentage * realAudio.duration;
+                realAudio.currentTime = newTime;
+                document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
+                document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
+                }
+            }
+        }
+
+        function getActiveTime() {
+            if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') return ytPlayer.getCurrentTime();
+            if (currentActiveMode === 'offline' && realAudio) return realAudio.currentTime;
+            return 0;
+        }
+
         function togglePlaySession() {
             if (!isHosting) { showToast("Only the host can control playback."); return; }
-            isSessionPlaying = !isSessionPlaying;
-            document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
-            document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
+            const newState = !isSessionPlaying;
             
-            let currentTime = 0;
-            if (currentActiveMode === 'audio' && realAudio) {
-                if (isSessionPlaying) {
-                    realAudio.play().catch(() => {});
-                    startAudioProgressTracker();
-                } else {
-                    realAudio.pause();
-                    clearInterval(progressInterval);
-                }
-                currentTime = realAudio.currentTime;
-            } else if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                currentTime = ytPlayer.getCurrentTime();
-                if (isSessionPlaying) {
+            if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                if (newState) {
+                    ytPlayer.unMute();
                     ytPlayer.playVideo();
-                    startProgressTracker();
                 } else {
                     ytPlayer.pauseVideo();
-                    clearInterval(progressInterval);
+                }
+            } else if (currentActiveMode === 'offline') {
+                if (realAudio) {
+                    if (newState) {
+                        realAudio.muted = false;
+                        realAudio.play().catch(()=>{});
+                    } else {
+                        realAudio.pause();
+                    }
                 }
             }
 
+            updatePlayPauseUI(newState);
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ 
                     type: 'CONTROL', 
-                    action: isSessionPlaying ? 'play' : 'pause', 
-                    time: currentTime 
+                    action: newState ? 'play' : 'pause', 
+                    time: getActiveTime() 
                 }));
             }
         }
@@ -1204,79 +1236,30 @@
             document.getElementById('sessionVolPct').textContent = val + "%";
             const numericVol = parseInt(val);
 
-            if (realAudio) realAudio.volume = numericVol / 100;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(numericVol);
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                ytPlayer.unMute();
+                ytPlayer.setVolume(numericVol);
+            }
+            if (realAudio) {
+                realAudio.muted = false;
+                realAudio.volume = numericVol / 100;
+            }
 
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
             }
         }
 
-        function handleIncomingControl(data) {
-            if (data.type === 'PLAY_TRACK') {
-                const ytId = extractYouTubeId(data.title) || '34Na4j8AVgA';
-                playYouTubeStream(data.title, ytId, data.currentTime || 0);
-            } else if (data.type === 'PLAY_REAL_SONG') {
-                playDirectRealAudio(data.title, data.artist, data.cover, data.audioUrl, data.currentTime || 0);
-            } else if (data.type === 'CONTROL') {
-                isSessionPlaying = (data.action === 'play' || data.action === 'seek');
-                document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
-                document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
-                
-                if (currentActiveMode === 'audio' && realAudio) {
-                    if (typeof data.time === 'number') {
-                        realAudio.currentTime = data.time;
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
-                    }
-                    if (data.action === 'play' || data.action === 'seek') {
-                        realAudio.play().catch(() => {});
-                        startAudioProgressTracker();
-                    }
-                    if (data.action === 'pause') {
-                        realAudio.pause();
-                        clearInterval(progressInterval);
-                    }
-                } else if (currentActiveMode === 'youtube' && ytPlayer) {
-                    if (typeof data.time === 'number') {
-                        ytPlayer.seekTo(data.time, true);
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
-                    }
-                    if (data.action === 'play' || data.action === 'seek') {
-                        ytPlayer.playVideo();
-                        startProgressTracker();
-                    }
-                    if (data.action === 'pause') {
-                        ytPlayer.pauseVideo();
-                        clearInterval(progressInterval);
-                    }
+        function startHostSyncLoop() {
+            clearInterval(syncBroadcastInterval);
+            syncBroadcastInterval = setInterval(() => {
+                if (isHosting && isSessionPlaying && ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'SYNC_TIME', time: getActiveTime() }));
                 }
-            } else if (data.type === 'VOLUME') {
-                const volInput = document.getElementById('sessionMasterVol');
-                const volPctEl = document.getElementById('sessionVolPct');
-                if (volInput) volInput.value = data.volume;
-                if (volPctEl) volPctEl.textContent = data.volume + "%";
-                const num = parseInt(data.volume);
-                if (realAudio) realAudio.volume = num / 100;
-                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                    ytPlayer.setVolume(num);
-                }
-            }
+            }, 1500);
         }
 
-        function sendReaction(emoji) {
-            showFloatingReaction(emoji, currentUserName);
-            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
-        }
-
-        function showFloatingReaction(emoji, sender) {
-            const el = document.createElement('div');
-            el.className = 'floating-reaction';
-            el.textContent = emoji;
-            el.style.left = (Math.random() * (window.innerWidth - 60) + 20) + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 2200);
-        }
-
+        /* ------------------ RESTORED CHAT & REACTION FUNCTIONS ------------------ */
         function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
@@ -1313,9 +1296,86 @@
             }
         }
 
+        function sendReaction(emoji) {
+            showFloatingReaction(emoji, currentUserName);
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
+        }
+
+        function showFloatingReaction(emoji, sender) {
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.textContent = emoji;
+            el.style.left = (Math.random() * (window.innerWidth - 60) + 20) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2200);
+        }
+
         function escapeHtml(text) {
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        /* ------------------ RESTORED ROOM CONTROL & SYNC EVENT DISPATCHER ------------------ */
+        function handleIncomingControl(data) {
+            if (data.type === 'PLAY_YOUTUBE') {
+                playYouTubeStream(data.title, data.ytId, data.currentTime || 0);
+            } else if (data.type === 'CHAT_MESSAGE') {
+                appendChatMessage(data.name || 'User', data.message);
+            } else if (data.type === 'REACTION') {
+                showFloatingReaction(data.emoji, data.name || 'Peer');
+            } else if (data.type === 'OFFLINE_FILE_CHUNK' && !isHosting) {
+                offlineFileChunks[data.index] = data.data;
+                if (data.index === data.total - 1) {
+                    const completeData = offlineFileChunks.join('');
+                    playOfflineAudio(data.fileName, completeData, 0);
+                }
+            } else if (data.type === 'SYNC_TIME' && !isHosting) {
+                if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                    const diff = Math.abs(ytPlayer.getCurrentTime() - data.time);
+                    if (diff > 1.5) ytPlayer.seekTo(data.time, true); 
+                } else if (currentActiveMode === 'offline' && realAudio && realAudio.duration) {
+                    const diff = Math.abs(realAudio.currentTime - data.time);
+                    if (diff > 1.5) realAudio.currentTime = data.time;
+                }
+            } else if (data.type === 'CONTROL') {
+                const isPlayingState = (data.action === 'play' || data.action === 'seek');
+                updatePlayPauseUI(isPlayingState);
+                
+                if (currentActiveMode === 'youtube' && ytPlayer) {
+                    if (typeof data.time === 'number') {
+                        ytPlayer.seekTo(data.time, true);
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
+                    }
+                    if (data.action === 'play' || data.action === 'seek') {
+                        ytPlayer.unMute();
+                        ytPlayer.playVideo();
+                    }
+                    if (data.action === 'pause') ytPlayer.pauseVideo();
+                } else if (currentActiveMode === 'offline' && realAudio) {
+                    if (typeof data.time === 'number') realAudio.currentTime = data.time;
+                    if (data.action === 'play' || data.action === 'seek') {
+                        realAudio.muted = false;
+                        realAudio.play().catch(() => {
+                            document.getElementById('interactionOverlay').classList.remove('hidden');
+                        });
+                    }
+                    if (data.action === 'pause') realAudio.pause();
+                }
+            } else if (data.type === 'VOLUME') {
+                const volInput = document.getElementById('sessionMasterVol');
+                const volPctEl = document.getElementById('sessionVolPct');
+                if (volInput) volInput.value = data.volume;
+                if (volPctEl) volPctEl.textContent = data.volume + "%";
+                const num = parseInt(data.volume);
+                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                    ytPlayer.unMute();
+                    ytPlayer.setVolume(num);
+                }
+                if (realAudio) {
+                    realAudio.muted = false;
+                    realAudio.volume = num / 100;
+                }
+            }
         }
 
         function toggleQrScanner() {
@@ -1374,14 +1434,7 @@
             const isHost = isHosting;
 
             const hostOnlyControls = document.getElementById('hostOnlyControls');
-            if (hostOnlyControls) {
-                hostOnlyControls.classList.toggle('hidden', !isHost);
-            }
-
-            const spotifyHostControls = document.getElementById('spotifyHostOnlyControls');
-            if (spotifyHostControls) {
-                spotifyHostControls.classList.toggle('hidden', !isHost);
-            }
+            if (hostOnlyControls) hostOnlyControls.classList.toggle('hidden', !isHost);
 
             const cardTitle = document.getElementById('controllerCardTitle');
             if (cardTitle) {
@@ -1403,12 +1456,11 @@
                 return;
             }
 
-            showToast("Waking up cloud server...");
+            showToast("Connecting to network...");
 
             fetch('https://syncbeat-backend2.onrender.com/')
                 .catch(() => {})
                 .finally(() => {
-                    showToast("Connecting to room...");
                     ws = new WebSocket(BACKEND_WS);
 
                     ws.onopen = () => {
@@ -1417,7 +1469,7 @@
                             if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
                         }, 20000);
 
-                        if (currentRoomCode) {
+                        if (currentRoomCode && !isOfflineGroupMode) {
                             if (isHosting) {
                                 ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
                             } else {
@@ -1432,6 +1484,9 @@
                         const data = JSON.parse(event.data);
                         if (data.type === 'ROOM_HOSTED_SUCCESS') {
                             showToast("Room re-hosted successfully!");
+                            startHostSyncLoop();
+                        } else if (data.type === 'OFFLINE_MESH_CONNECTED') {
+                            showToast("Connected to Local Music Group!");
                         } else if (data.type === 'ROOM_JOIN_SUCCESS') {
                             isHosting = false;
                             currentRoomCode = data.code;
@@ -1448,43 +1503,51 @@
 
                             document.getElementById('mainLandingView').classList.add('hidden');
                             document.getElementById('hostSessionView').classList.remove('hidden');
+                            
+                            document.getElementById('interactionOverlay').classList.remove('hidden');
                             showToast("Reconnected to room: " + data.code);
                         } else if (data.type === 'PEER_LIST') {
                             const container = document.getElementById('peerListContainer');
-                            container.innerHTML = '';
-                            
-                            if (!data.peers || data.peers.length === 0) {
-                                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
-                                return;
+                            if (container) {
+                                container.innerHTML = '';
+                                if (!data.peers || data.peers.length === 0) {
+                                    container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
+                                } else {
+                                    data.peers.forEach(peer => {
+                                        const div = document.createElement('div');
+                                        div.className = 'peer-item';
+                                        div.innerHTML = `
+                                            <div class="peer-info">
+                                                <div class="peer-icon">👤</div>
+                                                <div>
+                                                    <div class="peer-name">${peer.name || 'User'}</div>
+                                                    <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
+                                                </div>
+                                            </div>
+                                            <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
+                                        `;
+                                        container.appendChild(div);
+                                    });
+                                }
                             }
-
-                            data.peers.forEach(peer => {
-                                const div = document.createElement('div');
-                                div.className = 'peer-item';
-                                div.innerHTML = `
-                                    <div class="peer-info">
-                                        <div class="peer-icon">👤</div>
-                                        <div>
-                                            <div class="peer-name">${peer.name || 'User'}</div>
-                                            <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
-                                        </div>
-                                    </div>
-                                    <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
-                                `;
-                                container.appendChild(div);
-                            });
+                            const mgLimit = document.getElementById('mgPeerLimitBadge');
+                            if (mgLimit && data.count) {
+                                mgLimit.textContent = `${data.count} Device(s) Connected to this Server`;
+                            }
                         } else if (data.type === 'NOTIFICATION') {
                             showToast(data.message);
                         } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
                             showToast(data.message || "Room expired or closed.");
-                        } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
+                        } else if (
+                            data.type === 'CONTROL' || 
+                            data.type === 'PLAY_YOUTUBE' || 
+                            data.type === 'VOLUME' || 
+                            data.type === 'SYNC_TIME' ||
+                            data.type === 'OFFLINE_FILE_CHUNK' ||
+                            data.type === 'CHAT_MESSAGE' ||
+                            data.type === 'REACTION'
+                        ) {
                             handleIncomingControl(data);
-                        } else if (data.type === 'PLAY_REAL_SONG') {
-                            handleIncomingControl(data);
-                        } else if (data.type === 'REACTION') {
-                            showFloatingReaction(data.emoji, data.name || 'Peer');
-                        } else if (data.type === 'CHAT_MESSAGE') {
-                            appendChatMessage(data.name || 'User', data.message);
                         } else if (data.type === 'ROOM_CLOSED') {
                             exitHostSession();
                             clearChatBox();
@@ -1495,6 +1558,7 @@
                     ws.onerror = () => { if (onError) onError(); };
                     ws.onclose = () => { 
                         clearInterval(heartbeatInterval);
+                        clearInterval(syncBroadcastInterval);
                         if (currentRoomCode) {
                             setTimeout(() => connectWebSocket(), 3000);
                         }
@@ -1572,8 +1636,7 @@
             localStorage.removeItem('syncbeat_active_room');
             checkBackgroundRoomState();
             clearChatBox();
-            if (realAudio) { realAudio.pause(); realAudio.src = ''; }
-            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            stopAllMedia('none');
             if (ws) { ws.close(); ws = null; }
             showToast("Force closed active hosting session.");
         }
@@ -1586,9 +1649,9 @@
         }
 
         function exitHostSession() {
-            if (realAudio) { realAudio.pause(); realAudio.src = ''; }
-            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            stopAllMedia('none');
             if (ws) { ws.close(); ws = null; }
+            clearInterval(syncBroadcastInterval);
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
         }
