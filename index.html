@@ -157,7 +157,7 @@
             background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px;
             text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px;
         }
-        .code-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .code-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .code-action-btn {
             background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px;
             padding: 10px 4px; border-radius: 12px; text-align: center;
@@ -175,7 +175,7 @@
         .progress-track { background: #f3e8ff; height: 5px; border-radius: 3px; cursor: pointer; margin-bottom: 4px; }
         .progress-fill { background: #7c3aed; width: 0%; height: 100%; border-radius: 3px; }
         .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-bottom: 12px; }
-        .player-controls { display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 15px; }
+        .player-controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
         .control-btn { background: none; border: none; font-size: 18px; color: #4c1d95; cursor: pointer; }
         .play-pause-lg {
             background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%;
@@ -204,6 +204,7 @@
             100% { transform: translateY(-360px); opacity: 0; }
         }
         .peer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3e8ff; }
+        .peer-item:last-child { border-bottom: none; }
         .peer-info { display: flex; align-items: center; gap: 10px; }
         .peer-icon { width: 32px; height: 32px; background: #ede9fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         .peer-name { font-size: 13px; font-weight: 700; color: #1e1b4b; }
@@ -238,17 +239,17 @@
                 </div>
                 <div class="status-pills">
                     <div class="pill active" id="wifiPill">📶 Wi-Fi</div>
-                    <div class="pill active" id="btPill">⚡ BT</div>
+                    <div class="pill active" id="btPill">⚡ Cloud</div>
                 </div>
             </div>
-            <div class="subtitle">Multi-Device Real-Time Room Synchronization</div>
+            <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
 
             <div class="card">
                 <div class="card-header-sm"><span>👤 Your Profile & Role</span></div>
                 <input type="text" id="userNameInput" class="code-input" placeholder="Enter your name to join or host rooms" style="padding: 10px 14px; font-size: 13px;">
             </div>
 
-            <!-- Active Room Return Banner (Appears when room is running in background) -->
+            <!-- Active Room Return Banner -->
             <div class="card banner-card hidden" id="returnHostingBanner" onclick="returnToHostingSession()">
                 <div class="banner-icon" style="background: #10b981;">🚀</div>
                 <div class="banner-content">
@@ -277,18 +278,15 @@
                 <div class="banner-arrow">→</div>
             </div>
 
+            <!-- Connect Only Through Code (IP Removed) -->
             <div class="card" id="connectMemberCard">
-                <div class="card-header-sm"><span>Connect Through Code</span></div>
-                <div style="margin-bottom: 10px;">
-                    <input type="text" id="hostIpInput" class="code-input" placeholder="Host IP (e.g., 192.168.43.1)" style="padding: 10px 14px; font-size: 13px;">
-                </div>
+                <div class="card-header-sm"><span>Connect Through Room Code</span></div>
                 <div style="margin-bottom: 10px;">
                     <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g., SYNC-4B9X)" maxlength="10" style="padding: 10px 14px; font-size: 13px;">
                 </div>
                 <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
             </div>
 
-            <!-- Force Close Active Hosting Control matching video details -->
             <div class="card" id="forceCloseCard" style="background: #fff5f5; border-color: #fed7d7;">
                 <div class="card-header-sm" style="color: #e53e3e;"><span>⚠️ Active Room / Hosting Control</span></div>
                 <div style="font-size: 11px; color: #718096; margin-bottom: 10px;">Shut down or reset running background host server or active session</div>
@@ -315,8 +313,6 @@
                 <div class="code-box">
                     <span id="displayRoomCode">SYNC-0000</span>
                 </div>
-
-                <div style="font-size: 11px; color: #6b7280; margin-bottom: 6px;">Host IP: <span id="hostIpDisplay">192.168.43.1</span></div>
 
                 <div class="code-actions">
                     <button class="code-action-btn" onclick="copyCode()">📋 Copy Code</button>
@@ -497,7 +493,6 @@
         }
 
         function checkBackgroundRoomState() {
-            // Check if user has an active room session running in background
             const activeRoom = localStorage.getItem('syncbeat_active_room');
             const returnBanner = document.getElementById('returnHostingBanner');
             if (activeRoom && returnBanner) {
@@ -616,13 +611,22 @@
                         heartbeatInterval = setInterval(() => {
                             if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
                         }, 20000);
+
+                        if (currentRoomCode) {
+                            if (isHosting) {
+                                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
+                            } else {
+                                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: currentRoomCode, name: currentUserName }));
+                            }
+                        }
+
                         if (onSuccess) onSuccess();
                     };
 
                     ws.onmessage = (event) => {
                         const data = JSON.parse(event.data);
                         if (data.type === 'ROOM_HOSTED_SUCCESS') {
-                            showToast("Room hosted successfully!");
+                            showToast("Room re-hosted successfully!");
                         } else if (data.type === 'ROOM_JOIN_SUCCESS') {
                             isHosting = false;
                             currentRoomCode = data.code;
@@ -636,9 +640,27 @@
                             document.getElementById('sessionMasterVol').disabled = true;
                             document.getElementById('mainLandingView').classList.add('hidden');
                             document.getElementById('hostSessionView').classList.remove('hidden');
-                            showToast("Joined room: " + data.code);
+                            showToast("Reconnected to room: " + data.code);
+                        } else if (data.type === 'PEER_LIST') {
+                            const container = document.getElementById('peerListContainer');
+                            container.innerHTML = '';
+                            data.peers.forEach(peer => {
+                                const div = document.createElement('div');
+                                div.className = 'peer-item';
+                                div.innerHTML = `
+                                    <div class="peer-info">
+                                        <div class="peer-icon">👤</div>
+                                        <div>
+                                            <div class="peer-name">${peer.name}</div>
+                                            <div class="peer-meta">Active • Synchronized</div>
+                                        </div>
+                                    </div>
+                                    <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
+                                `;
+                                container.appendChild(div);
+                            });
                         } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                            showToast(data.message || "Room not found or action restricted to host.");
+                            showToast(data.message || "Room expired or closed.");
                         } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
                             handleIncomingControl(data);
                         } else if (data.type === 'REACTION') {
@@ -649,8 +671,13 @@
                         }
                     };
 
-                    ws.onerror = () => { showToast("Connection error. Tap again."); if (onError) onError(); };
-                    ws.onclose = () => { clearInterval(heartbeatInterval); };
+                    ws.onerror = () => { if (onError) onError(); };
+                    ws.onclose = () => { 
+                        clearInterval(heartbeatInterval);
+                        if (currentRoomCode) {
+                            setTimeout(() => connectWebSocket(), 3000);
+                        }
+                    };
                 });
         }
 
@@ -678,7 +705,6 @@
         }
 
         function returnToHostingSession() {
-            // Jump back to active session view without destroying background room
             document.getElementById('mainLandingView').classList.add('hidden');
             document.getElementById('hostSessionView').classList.remove('hidden');
             showToast("Returned to room session.");
@@ -887,7 +913,6 @@
         }
 
         function goBackToHome() {
-            // Back arrow click: hides session view locally, leaving the room running in background and displaying the return banner
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
             checkBackgroundRoomState();
