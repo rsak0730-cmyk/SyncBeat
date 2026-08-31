@@ -195,8 +195,26 @@
         }
         .action-btn-custom { background: #7c3aed; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
         .action-btn-custom:disabled { background: #d8b4fe !important; cursor: not-allowed; opacity: 0.7; }
-        .reactions-grid { display: flex; justify-content: space-around; background: #faf8ff; padding: 10px; border-radius: 14px; }
-        .reaction-btn { background: none; border: none; font-size: 20px; cursor: pointer; }
+        .reactions-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 6px; 
+            background: #faf8ff; 
+            padding: 10px; 
+            border-radius: 14px; 
+        }
+        .reaction-btn { 
+            background: none; 
+            border: none; 
+            font-size: 22px; 
+            cursor: pointer; 
+            padding: 6px; 
+            border-radius: 8px; 
+            transition: background 0.2s; 
+        }
+        .reaction-btn:hover { 
+            background: #ede9fe; 
+        }
         .floating-reaction {
             position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none;
         }
@@ -397,23 +415,28 @@
                     </div>
                 </div>
 
-                <!-- Video Wrapper -->
+                <!-- Video Wrapper with Native Player Controls (Quality & Settings enabled for all devices) -->
                 <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
-                    <!-- Member View-Only Click Blocker -->
-                    <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; background: rgba(0,0,0,0.01); pointer-events: auto; cursor: not-allowed;"></div>
                     <!-- Back to Room Button (Appears only in Full-Screen Mode) -->
                     <button id="exitFullScreenBtn" class="hidden" style="position: fixed; top: 20px; left: 20px; z-index: 100000000; background: rgba(0,0,0,0.85); color: white; border: 1px solid rgba(255,255,255,0.6); padding: 10px 18px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; pointer-events: auto;" onclick="toggleFullScreenMode()">← Back to Room</button>
                 </div>
             </div>
 
+            <!-- Room Reactions & Stickers Card -->
             <div class="card">
-                <div class="card-header-sm"><span>Room Reactions</span></div>
+                <div class="card-header-sm"><span>Room Reactions & Stickers</span></div>
                 <div class="reactions-grid">
                     <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
                     <button class="reaction-btn" onclick="sendReaction('🎵')">🎵</button>
                     <button class="reaction-btn" onclick="sendReaction('⚡')">⚡</button>
                     <button class="reaction-btn" onclick="sendReaction('🎉')">🎉</button>
+                    <button class="reaction-btn" onclick="sendReaction('💖')">💖</button>
+                    <button class="reaction-btn" onclick="sendReaction('🚀')">🚀</button>
+                    <button class="reaction-btn" onclick="sendReaction('💎')">💎</button>
+                    <button class="reaction-btn" onclick="sendReaction('✨')">✨</button>
+                    <button class="reaction-btn" onclick="sendReaction('🎸')">🎸</button>
+                    <button class="reaction-btn" onclick="sendReaction('💥')">💥</button>
                 </div>
             </div>
 
@@ -430,6 +453,18 @@
                         </div>
                         <span class="sync-tag" id="peerRoleTag">PEER</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Live Room Chat System (Auto-clears when room is closed/left) -->
+            <div class="card">
+                <div class="card-header-sm"><span>💬 Live Room Chat</span></div>
+                <div id="chatMessagesContainer" style="height: 140px; overflow-y: auto; background: #faf8ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 8px; margin-bottom: 8px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="color: #9ca3af; text-align: center; font-style: italic;">No messages yet. Say hello!</div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <input type="text" id="chatInput" class="search-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button class="action-btn-custom" style="padding: 10px 14px;" onclick="sendChatMessage()">Send</button>
                 </div>
             </div>
         </div>
@@ -461,12 +496,12 @@
             topCanvas.width = window.innerWidth;
             topCanvas.height = window.innerHeight;
             topParticles = [];
-            for (let i = 0; i < 40; i++) {
+            for (let i = 0; i < 45; i++) {
                 topParticles.push({
                     x: Math.random() * topCanvas.width,
                     y: Math.random() * topCanvas.height,
-                    size: 1.5 + Math.random() * 2.5,
-                    speed: 0.2 + Math.random() * 0.3,
+                    size: 1.5 + Math.random() * 3,
+                    speed: 0.3 + Math.random() * 0.5,
                     colorHue: Math.random() * 360,
                     alpha: Math.random()
                 });
@@ -481,7 +516,18 @@
             tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
             topParticles.forEach(p => {
                 p.y += p.speed;
-                if (p.y > topCanvas.height) { p.y = -10; p.x = Math.random() * topCanvas.width; }
+                if (p.y > topCanvas.height) { 
+                    p.y = -10; 
+                    p.x = Math.random() * topCanvas.width; 
+                }
+                
+                // Slowed down blinking effect and subtle random color shifts
+                p.alpha += (Math.random() - 0.5) * 0.01;
+                if (p.alpha < 0.15) p.alpha = 0.15;
+                if (p.alpha > 0.85) p.alpha = 0.85;
+
+                p.colorHue = (p.colorHue + (Math.random() - 0.5) * 1.5) % 360;
+
                 tCtx.save();
                 tCtx.beginPath();
                 tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -672,7 +718,6 @@
             const hostOnlyControls = document.getElementById('hostOnlyControls');
             const cardHeader = document.getElementById('controllerCardHeader');
 
-            // Hide/Show all other room cards for full-screen immersion
             const children = sessionView.children;
             for (let child of children) {
                 if (child !== hostUrlControls) {
@@ -720,6 +765,47 @@
 
                 exitBtn.classList.add('hidden');
             }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'CHAT_MESSAGE',
+                    message: msg,
+                    name: currentUserName
+                }));
+                appendChatMessage(currentUserName, msg);
+            }
+            input.value = '';
+        }
+
+        function appendChatMessage(sender, message) {
+            const container = document.getElementById('chatMessagesContainer');
+            const placeholder = container.querySelector('div[style*="text-align: center"]');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            const div = document.createElement('div');
+            div.style.wordBreak = 'break-all';
+            div.innerHTML = `<b style="color: #7c3aed;">${escapeHtml(sender)}:</b> ${escapeHtml(message)}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearChatBox() {
+            const container = document.getElementById('chatMessagesContainer');
+            if (container) {
+                container.innerHTML = '<div style="color: #9ca3af; text-align: center; font-style: italic;">No messages yet. Say hello!</div>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
 
         function toggleQrScanner() {
@@ -794,11 +880,6 @@
             if (playPauseBtn) playPauseBtn.disabled = !isHost;
             if (nextBtn) nextBtn.disabled = !isHost;
             if (masterVol) masterVol.disabled = !isHost;
-
-            const blocker = document.getElementById('memberPlayerBlocker');
-            if (blocker) {
-                blocker.classList.toggle('hidden', isHost);
-            }
         }
 
         function connectWebSocket(onSuccess, onError) {
@@ -885,8 +966,11 @@
                             handleIncomingControl(data);
                         } else if (data.type === 'REACTION') {
                             showFloatingReaction(data.emoji, data.name || 'Peer');
+                        } else if (data.type === 'CHAT_MESSAGE') {
+                            appendChatMessage(data.name || 'User', data.message);
                         } else if (data.type === 'ROOM_CLOSED') {
                             exitHostSession();
+                            clearChatBox();
                             showToast("Host closed the room session.");
                         }
                     };
@@ -1069,7 +1153,7 @@
                     videoId: ytId,
                     playerVars: { 
                         'autoplay': 1, 
-                        'controls': isHosting ? 1 : 0, 
+                        'controls': 1, // Enabled for all users so they can access native player quality and settings
                         'disablekb': 1,               
                         'modestbranding': 1,
                         'start': startTime 
@@ -1176,12 +1260,14 @@
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
             localStorage.removeItem('syncbeat_active_room');
             checkBackgroundRoomState();
+            clearChatBox();
             exitHostSession();
         }
 
         function forceCloseActiveHosting() {
             localStorage.removeItem('syncbeat_active_room');
             checkBackgroundRoomState();
+            clearChatBox();
             if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
             if (ws) { ws.close(); ws = null; }
             showToast("Force closed active hosting session.");
