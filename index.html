@@ -222,6 +222,28 @@
         .profile-btn-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
         }
+        /* True Edge-to-Edge Full Screen Mode matching reference layout */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999999 !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #000 !important;
+        }
+        .fullscreen-mode #ytPlayerDiv,
+        .fullscreen-mode iframe {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            border: none !important;
+        }
         #toastModal {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px;
@@ -378,8 +400,12 @@
                 <div id="queueList"></div>
             </div>
 
+            <!-- YouTube Controller / Video View Card with Full Screen Toggle Button -->
             <div class="card" id="hostUrlControls">
-                <div class="card-header-sm"><span id="controllerCardTitle">YouTube Controller</span></div>
+                <div class="card-header-sm" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span id="controllerCardTitle">YouTube Controller</span>
+                    <button class="code-action-btn" style="background: #7c3aed; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;" onclick="toggleFullScreenMode()">📺 FULL SCREEN MODE</button>
+                </div>
                 
                 <!-- Host-Only Search URL Bar and Action Buttons -->
                 <div id="hostOnlyControls">
@@ -393,10 +419,13 @@
                     </div>
                 </div>
 
-                <!-- View-Only Unclickable Video Wrapper for Members / Interactive for Host -->
+                <!-- Video Wrapper with Fullscreen and Member Blocker Overlays -->
                 <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
+                    <!-- Member View-Only Click Blocker -->
                     <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; background: rgba(0,0,0,0.01); pointer-events: auto; cursor: not-allowed;"></div>
+                    <!-- Back to Room Button (Top Corner Overlay) -->
+                    <button id="exitFullScreenBtn" class="hidden" style="position: absolute; top: 20px; left: 20px; z-index: 10000000; background: rgba(0,0,0,0.7); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;" onclick="toggleFullScreenMode()">← Back to Room</button>
                 </div>
             </div>
 
@@ -655,6 +684,27 @@
             }
         }
 
+        let isFullScreen = false;
+        function toggleFullScreenMode() {
+            const wrapper = document.getElementById('ytEmbedWrapper');
+            const exitBtn = document.getElementById('exitFullScreenBtn');
+            isFullScreen = !isFullScreen;
+
+            if (isFullScreen) {
+                wrapper.classList.add('fullscreen-mode');
+                exitBtn.classList.remove('hidden');
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                }
+            } else {
+                wrapper.classList.remove('fullscreen-mode');
+                exitBtn.classList.add('hidden');
+                if (document.exitFullscreen && document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }
+        }
+
         function toggleQrScanner() {
             const container = document.getElementById('scannerViewContainer');
             if (container.classList.contains('hidden')) {
@@ -710,19 +760,16 @@
         function applyRoleUI() {
             const isHost = isHosting;
 
-            // Hide URL Controller and action buttons entirely for members
             const hostOnlyControls = document.getElementById('hostOnlyControls');
             if (hostOnlyControls) {
                 hostOnlyControls.classList.toggle('hidden', !isHost);
             }
 
-            // Change card title header based on role
             const cardTitle = document.getElementById('controllerCardTitle');
             if (cardTitle) {
                 cardTitle.textContent = isHost ? "YouTube Controller" : "Live Stream View";
             }
 
-            // Main Player Controls & Volume
             const playPauseBtn = document.getElementById('sessionPlayBtn');
             const nextBtn = document.getElementById('sessionNextBtn');
             const masterVol = document.getElementById('sessionMasterVol');
@@ -731,7 +778,6 @@
             if (nextBtn) nextBtn.disabled = !isHost;
             if (masterVol) masterVol.disabled = !isHost;
 
-            // Video Player Blocker Overlay for members
             const blocker = document.getElementById('memberPlayerBlocker');
             if (blocker) {
                 blocker.classList.toggle('hidden', isHost);
