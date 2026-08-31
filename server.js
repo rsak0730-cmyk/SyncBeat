@@ -1,116 +1,114 @@
-const express = require('express');
-const http = require('http');
 const WebSocket = require('ws');
+const http = require('http');
 
-const app = express();
-const server = http.createServer(app);
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('SyncBeat Backend Running\n');
+});
+
 const wss = new WebSocket.Server({ server });
-
-app.get('/', (req, res) => res.send('SyncBeat Server is Active'));
-
-const rooms = new Map();
+const rooms = {}; // Format: { roomCode: { host: ws, peers: [{ ws, name, accountId, role }] } }
 
 wss.on('connection', (ws) => {
-    let currentRoomCode = null;
-    ws.isAlive = true;
-
-    ws.on('pong', () => { ws.isAlive = true; });
+    let currentRoom = null;
+    let clientRole = null;
 
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
 
-            if (data.type === 'PING') {
-                ws.send(JSON.stringify({ type: 'PONG' }));
-                return;
-            }
-
             if (data.type === 'HOST_ROOM') {
-                currentRoomCode = data.code;
-                rooms.set(currentRoomCode, { host: ws, members: new Set() });
-                ws.send(JSON.stringify({ type: 'ROOM_HOSTED_SUCCESS', code: data.code }));
-            } 
-            else if (data.type === 'JOIN_ROOM') {
-                const room = rooms.get(data.code);
-                if (room) {
-                    currentRoomCode = data.code;
-                    room.members.add(ws);
-                    ws.send(JSON.stringify({ type: 'ROOM_JOIN_SUCCESS', code: data.code }));
+                currentRoom = data.code;
+                clientRole = 'HOST';
+                ws.clientName = data.name || 'Host';
+                ws.clientAccountId = data.accountId || 'SYNC-0000';
+
+                if (!rooms[currentRoom]) {
+                    rooms[currentRoom] = { host: ws, peers: [] };
                 } else {
-                    ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND' }));
+                    rooms[currentRoom].host = ws;
                 }
-            } 
-            else if (['CONTROL', 'PLAY_TRACK', 'VOLUME'].includes(data.type)) {
-                if (currentRoomCode && rooms.has(currentRoomCode)) {
-                    const room = rooms.get(currentRoomCode);
-                    if (room.host === ws) {
-                        const payload = JSON.stringify(data);
-                        room.members.forEach(member => {
-                            if (member.readyState === WebSocket.OPEN) {
-                                member.send(payload);
-                            }
-                        });
-                    }
+
+                updateRoomPeers(currentRoom);
+                ws.send(JSON.stringify({ type: 'ROOM_HOSTED_SUCCESS', code: currentRoom }));
+
+            } else if (data.type === 'JOIN_ROOM') {
+                currentRoom = data.code;
+                clientRole = 'MEMBER';
+                ws.clientName = data.name || 'Member';
+                ws.clientAccountId = data.accountId || 'SYNC-0000';
+
+                if (!rooms[currentRoom]) {
+                    ws.send(JSON.stringify({ type: 'ROOM_NOT_FOUND', message: 'Room does not exist or expired.' }));
+                    return;
                 }
-            }
-            else if (data.type === 'REACTION') {
-                if (currentRoomCode && rooms.has(currentRoomCode)) {
-                    const room = rooms.get(currentRoomCode);
-                    const payload = JSON.stringify(data);
-                    if (room.host && room.host !== ws && room.host.readyState === WebSocket.OPEN) {
-                        room.host.send(payload);
-                    }
-                    room.members.forEach(member => {
-                        if (member !== ws && member.readyState === WebSocket.OPEN) {
-                            member.send(payload);
-                        }
-                    });
-                }
-            }
-            else if (data.type === 'ROOM_CLOSED') {
-                if (currentRoomCode && rooms.has(currentRoomCode)) {
-                    const room = rooms.get(currentRoomCode);
-                    if (room.host === ws) {
-                        room.members.forEach(member => {
-                            if (member.readyState === WebSocket.OPEN) {
-                                member.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
-                            }
-                        });
-                        rooms.delete(currentRoomCode);
-                    }
+
+                rooms[currentRoom].peers = rooms[currentRoom].peers.filter(p => p.accountId !== ws.clientAccountId);
+                rooms[currentRoom].peers.push({ ws, name: ws.clientName, accountId: ws.clientAccountId, role: 'MEMBER' });
+
+                ws.send(JSON.stringify({ type: 'ROOM_JOIN_SUCCESS', code: currentRoom }));
+                updateRoomPeers(currentRoom);
+                broadcastToRoom(currentRoom, { type: 'NOTIFICATION', message: `${ws.clientName} joined the room` }, ws);
+
+            } else if (['CONTROL', 'PLAY_TRACK', 'VOLUME', 'REACTION'].includes(data.type)) {
+                broadcastToRoom(currentRoom, data, ws);
+            } else if (data.type === 'ROOM_CLOSED') {
+                broadcastToRoom(currentRoom, { type: 'ROOM_CLOSED' });
+                broadcastToRoom(currentRoom, { type: 'NOTIFICATION', message: `${ws.clientName || 'Host'} closed the room` });
+                if (currentRoom && rooms[currentRoom]) {
+                    delete rooms[currentRoom];
                 }
             }
-        } catch (err) {
-            console.error('Error:', err);
+        } catch (e) {
+            console.error('Error handling message:', e);
         }
     });
 
     ws.on('close', () => {
-        if (currentRoomCode && rooms.has(currentRoomCode)) {
-            const room = rooms.get(currentRoomCode);
+        if (currentRoom && rooms[currentRoom]) {
+            const room = rooms[currentRoom];
             if (room.host === ws) {
-                room.members.forEach(member => {
-                    if (member.readyState === WebSocket.OPEN) {
-                        member.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
-                    }
-                });
-                rooms.delete(currentRoomCode);
+                broadcastToRoom(currentRoom, { type: 'ROOM_CLOSED' });
+                broadcastToRoom(currentRoom, { type: 'NOTIFICATION', message: `Host left the room` });
+                delete rooms[currentRoom];
             } else {
-                room.members.delete(ws);
+                const leavingPeer = room.peers.find(p => p.ws === ws);
+                const leavingName = leavingPeer ? leavingPeer.name : 'A member';
+                room.peers = room.peers.filter(p => p.ws !== ws);
+                updateRoomPeers(currentRoom);
+                broadcastToRoom(currentRoom, { type: 'NOTIFICATION', message: `${leavingName} left the room` });
             }
         }
     });
 });
 
-setInterval(() => {
-    wss.clients.forEach((ws) => {
-        if (!ws.isAlive) return ws.terminate();
-        ws.isAlive = false;
-        ws.ping();
+function broadcastToRoom(roomCode, data, excludeWs = null) {
+    const room = rooms[roomCode];
+    if (!room) return;
+    const payload = JSON.stringify(data);
+    [room.host, ...room.peers.map(p => p.ws)].forEach(client => {
+        if (client && client !== excludeWs && client.readyState === WebSocket.OPEN) {
+            client.send(payload);
+        }
     });
-}, 25000);
+}
+
+function updateRoomPeers(roomCode) {
+    const room = rooms[roomCode];
+    if (!room) return;
+
+    const peerList = [];
+    if (room.host) {
+        peerList.push({ name: room.host.clientName || 'Host', accountId: room.host.clientAccountId || 'HOST-ID', role: 'HOST' });
+    }
+    room.peers.forEach(p => {
+        peerList.push({ name: p.name, accountId: p.accountId, role: 'MEMBER' });
+    });
+
+    broadcastToRoom(roomCode, { type: 'PEER_LIST', peers: peerList });
+}
 
 const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-    console.log(`SyncBeat server running on port ${PORT}`);
+    console.log(`SyncBeat Server running on port ${PORT}`);
 });

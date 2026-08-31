@@ -157,7 +157,7 @@
             background: #ffffff; border: 2px dashed #c4b5fd; border-radius: 14px; padding: 12px;
             text-align: center; font-size: 22px; font-weight: 900; color: #4c1d95; letter-spacing: 2px; margin-bottom: 12px;
         }
-        .code-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .code-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .code-action-btn {
             background: #f3e8ff; border: 1px solid #d8b4fe; color: #7c3aed; font-weight: 700; font-size: 11px;
             padding: 10px 4px; border-radius: 12px; text-align: center;
@@ -175,8 +175,8 @@
         .progress-track { background: #f3e8ff; height: 5px; border-radius: 3px; cursor: pointer; margin-bottom: 4px; }
         .progress-fill { background: #7c3aed; width: 0%; height: 100%; border-radius: 3px; }
         .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-bottom: 12px; }
-        .player-controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .control-btn { background: none; border: none; font-size: 18px; color: #4c1d95; cursor: pointer; }
+        .player-controls { display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 15px; }
+        .control-btn { background: none; border: none; font-size: 22px; color: #4c1d95; cursor: pointer; }
         .play-pause-lg {
             background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer;
@@ -218,6 +218,9 @@
             background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px;
             font-size: 14px; font-weight: 700; cursor: pointer;
         }
+        .profile-btn-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+        }
         #toastModal {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px;
@@ -235,7 +238,7 @@
             <div class="header">
                 <div class="logo-area">
                     <h1>SyncBeat</h1>
-                    <span class="room-badge">Room Sync</span>
+                    <span class="room-badge" id="loggedAccountBadge">ID: Loading...</span>
                 </div>
                 <div class="status-pills">
                     <div class="pill active" id="wifiPill">📶 Wi-Fi</div>
@@ -245,11 +248,17 @@
             <div class="subtitle">Multi-Device Real-Time Cloud Room Synchronization</div>
 
             <div class="card">
-                <div class="card-header-sm"><span>👤 Your Profile & Role</span></div>
-                <input type="text" id="userNameInput" class="code-input" placeholder="Enter your name to join or host rooms" style="padding: 10px 14px; font-size: 13px;">
+                <div class="card-header-sm"><span>👤 YOUR NAME & UNIQUE DEVICE ID</span></div>
+                <div style="font-size: 11px; color: #7c3aed; font-weight: 700; margin-bottom: 8px;" id="deviceAccountDisplay">Permanent ID: Generating...</div>
+                <div style="margin-bottom: 8px;">
+                    <input type="text" id="userNameInput" class="code-input" placeholder="Enter Your Name" style="padding: 10px 14px; font-size: 13px;" oninput="autoSaveProfileName()">
+                </div>
+                <div class="profile-btn-row">
+                    <button class="code-action-btn" onclick="saveProfileChanges()">💾 Save Profile</button>
+                    <button class="code-action-btn" style="background: #f3e8ff; color: #ef4444; border-color: #fca5a5;" onclick="resetDeviceProfile()">🔄 Reset ID</button>
+                </div>
             </div>
 
-            <!-- Active Room Return Banner -->
             <div class="card banner-card hidden" id="returnHostingBanner" onclick="returnToHostingSession()">
                 <div class="banner-icon" style="background: #10b981;">🚀</div>
                 <div class="banner-content">
@@ -260,7 +269,7 @@
             </div>
 
             <div class="card" id="scannerCard">
-                <div class="card-header-sm"><span>📸 Scan QR Code to Join</span></div>
+                <div class="card-header-sm"><span>📸 SCAN QR CODE</span></div>
                 <button class="btn-purple" id="scannerToggleBtn" onclick="toggleQrScanner()" style="margin-bottom: 8px;">🛸 OPEN CAMERA SCANNER</button>
                 <div id="scannerViewContainer" class="hidden" style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000;">
                     <video id="qrVideoElement" autoplay playsinline style="width: 100%; max-height: 200px; object-fit: cover;"></video>
@@ -273,16 +282,15 @@
                 <div class="banner-icon">🔮</div>
                 <div class="banner-content">
                     <div class="banner-title">Generate Code & Host Room</div>
-                    <div class="banner-desc">Full playback control as Room Host</div>
+                    <div class="banner-desc">Host controls music for everyone</div>
                 </div>
                 <div class="banner-arrow">→</div>
             </div>
 
-            <!-- Connect Only Through Code (IP Removed) -->
             <div class="card" id="connectMemberCard">
-                <div class="card-header-sm"><span>Connect Through Room Code</span></div>
-                <div style="margin-bottom: 10px;">
-                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g., SYNC-4B9X)" maxlength="10" style="padding: 10px 14px; font-size: 13px;">
+                <div class="card-header-sm"><span>CONNECT TO HOST</span></div>
+                <div style="margin: 10px 0;">
+                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Room Code (e.g. SYNC-4B9X)" maxlength="10">
                 </div>
                 <button class="btn-purple" id="connectMemberBtn" onclick="connectToRoom()">⚡ CONNECT AS MEMBER</button>
             </div>
@@ -306,7 +314,7 @@
 
             <div class="card hosting-banner">
                 <div class="hosting-top-row">
-                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">HOSTING ACTIVE</span></div>
+                    <div class="hosting-active-tag"><span class="dot"></span> <span id="sessionStatusText">ACTIVE</span></div>
                     <div style="font-size: 11px; font-weight: 700; color: #7c3aed;" id="roleIndicatorBadge">Role: Host</div>
                 </div>
                 
@@ -317,10 +325,9 @@
                 <div class="code-actions">
                     <button class="code-action-btn" onclick="copyCode()">📋 Copy Code</button>
                     <button class="code-action-btn" onclick="shareCode()">📡 Share</button>
-                    <button class="code-action-btn" onclick="showQrCodeModal()">🌐 QR Code</button>
                 </div>
 
-                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ CLOSE ROOM SESSION</button>
+                <button class="close-session-btn" id="closeSessionBtn" onclick="closeRoomAndReturnHome()">⚡ LEAVE ROOM</button>
             </div>
 
             <div class="inline-volume">
@@ -331,12 +338,12 @@
 
             <div class="card" style="position: relative;">
                 <div id="vfxMusicSticker" class="vfx-sticker hidden">🎶 LIVE PLAY 🎵</div>
-                <div class="card-header-sm"><span>● Direct Media Player (Universal Remote Control Enabled)</span></div>
+                <div class="card-header-sm"><span>● Direct Media Player</span></div>
                 <div class="player-info">
                     <div class="album-art" id="sessionArt">🎧</div>
                     <div style="overflow: hidden; flex: 1;">
                         <div class="track-title" id="sessionTitle">No Track Playing</div>
-                        <div class="track-artist" id="sessionArtist">Connected peers can control playback _</div>
+                        <div class="track-artist" id="sessionArtist">Waiting for Host...</div>
                     </div>
                 </div>
 
@@ -349,11 +356,8 @@
                 </div>
 
                 <div class="player-controls" id="hostPlayerControls">
-                    <button class="control-btn" onclick="rewindTrack(10)">⏪</button>
-                    <button class="control-btn" onclick="rewindTrack(5)">⏮</button>
                     <button class="play-pause-lg" id="sessionPlayBtn" onclick="togglePlaySession()">▶</button>
-                    <button class="control-btn" onclick="forwardTrack(5)">⏭</button>
-                    <button class="control-btn" onclick="forwardTrack(10)">⏩</button>
+                    <button class="control-btn" onclick="playNextQueueTrack()" title="Play Next from Queue">⏭️</button>
                 </div>
             </div>
 
@@ -374,44 +378,42 @@
             </div>
 
             <div class="card" id="hostUrlControls">
-                <div class="card-header-sm"><span>YouTube URL Controller</span></div>
-                <div style="font-size: 10px; color: #6b7280; margin-bottom: 6px;">Paste a valid YouTube URL below</div>
+                <div class="card-header-sm"><span>YouTube Controller</span></div>
                 <div style="margin-bottom: 8px;">
-                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL (e.g., youtu.be/...)">
+                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
                     <button class="action-btn-custom" onclick="handleUrlAction('play')">💫 Play</button>
-                    <button class="action-btn-custom" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Queue</button>
+                    <button class="action-btn-custom" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
                     <button class="action-btn-custom" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
                 </div>
-                <div id="ytEmbedWrapper" style="margin-top: 12px; width: 100%; height: 160px; border-radius: 12px; overflow: hidden; background: #000;">
+                <div id="ytEmbedWrapper" style="margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header-sm"><span>Broadcast Room Signal / Reaction</span></div>
+                <div class="card-header-sm"><span>Room Reactions</span></div>
                 <div class="reactions-grid">
                     <button class="reaction-btn" onclick="sendReaction('🔥')">🔥</button>
                     <button class="reaction-btn" onclick="sendReaction('🎵')">🎵</button>
                     <button class="reaction-btn" onclick="sendReaction('⚡')">⚡</button>
                     <button class="reaction-btn" onclick="sendReaction('🎉')">🎉</button>
-                    <button class="reaction-btn" onclick="sendReaction('🙌')">🙌</button>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-header-sm"><span>Connected Peer Devices <span class="sync-tag" style="background:#dcfce7; color:#16a34a; margin-left:4px;">● P2P ACTIVE</span></span></div>
+                <div class="card-header-sm"><span>IN THIS ROOM</span></div>
                 <div id="peerListContainer">
                     <div class="peer-item">
                         <div class="peer-info">
                             <div class="peer-icon">👤</div>
                             <div>
-                                <div class="peer-name" id="peerSelfDisplay">Local User (Host)</div>
-                                <div class="peer-meta">Active • Synchronized</div>
+                                <div class="peer-name" id="initialPeerName">User</div>
+                                <div class="peer-meta" id="initialPeerId">ID: SYNC-0000</div>
                             </div>
                         </div>
-                        <span class="sync-tag" id="peerRoleTag">HOST</span>
+                        <span class="sync-tag" id="peerRoleTag">PEER</span>
                     </div>
                 </div>
             </div>
@@ -426,13 +428,15 @@
         let isHosting = false;
         let currentRoomCode = "";
         let currentUserName = "User";
+        let currentAccountId = "";
         let isSessionPlaying = false;
         let progressInterval = null;
         let heartbeatInterval = null;
         let ytPlayer = null;
         let scannerStream = null;
         let scannerInterval = null;
-        let savedPlaylist = JSON.parse(localStorage.getItem('syncbeat_playlist') || '[]');
+        let savedPlaylist = [];
+        let upcomingQueue = [];
 
         const topCanvas = document.getElementById('topParticleCanvas');
         const tCtx = topCanvas.getContext('2d');
@@ -475,11 +479,62 @@
         }
 
         window.addEventListener('resize', initTopCanvas);
-        window.addEventListener('DOMContentLoaded', () => { 
-            initTopCanvas(); 
-            renderPlaylist(); 
+        window.addEventListener('DOMContentLoaded', () => {
+            initTopCanvas();
+            initPermanentDeviceAccount();
             checkBackgroundRoomState();
         });
+
+        function initPermanentDeviceAccount() {
+            let permanentId = localStorage.getItem('syncbeat_permanent_device_id');
+            if (!permanentId) {
+                permanentId = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                localStorage.setItem('syncbeat_permanent_device_id', permanentId);
+            }
+            currentAccountId = permanentId;
+
+            let savedName = localStorage.getItem('syncbeat_device_name') || '';
+            currentUserName = savedName;
+
+            document.getElementById('userNameInput').value = currentUserName;
+            document.getElementById('loggedAccountBadge').textContent = `ID: ${currentAccountId}`;
+            document.getElementById('deviceAccountDisplay').textContent = `Permanent Device ID: ${currentAccountId}`;
+
+            loadDeviceStorage();
+        }
+
+        function autoSaveProfileName() {
+            const nameInput = document.getElementById('userNameInput').value.trim();
+            if (nameInput) {
+                currentUserName = nameInput;
+                localStorage.setItem('syncbeat_device_name', currentUserName);
+            }
+        }
+
+        function saveProfileChanges() {
+            autoSaveProfileName();
+            showToast("Profile saved successfully!");
+        }
+
+        function resetDeviceProfile() {
+            if (confirm("Are you sure you want to reset your permanent Device ID? This will create a fresh separate profile storage.")) {
+                localStorage.removeItem('syncbeat_permanent_device_id');
+                localStorage.removeItem('syncbeat_device_name');
+                initPermanentDeviceAccount();
+                showToast("Profile and ID reset!");
+            }
+        }
+
+        function loadDeviceStorage() {
+            const storageKey = `syncbeat_playlist_${currentAccountId}`;
+            savedPlaylist = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            renderPlaylist();
+        }
+
+        function saveDeviceStorage() {
+            const storageKey = `syncbeat_playlist_${currentAccountId}`;
+            localStorage.setItem(storageKey, JSON.stringify(savedPlaylist));
+        }
 
         function showToast(msg) {
             const toast = document.getElementById('toastModal');
@@ -489,7 +544,8 @@
         }
 
         function getUserInputName() {
-            return document.getElementById('userNameInput').value.trim() || "User";
+            autoSaveProfileName();
+            return currentUserName || "User";
         }
 
         function checkBackgroundRoomState() {
@@ -523,10 +579,29 @@
             });
         }
 
+        function renderQueue() {
+            const container = document.getElementById('queueList');
+            container.innerHTML = '';
+            document.getElementById('queueCount').textContent = upcomingQueue.length;
+            if (upcomingQueue.length === 0) {
+                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">Queue is empty.</div>';
+                return;
+            }
+            upcomingQueue.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'queue-item';
+                div.innerHTML = `
+                    <div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${item.title}</div>
+                    <button class="action-icon-btn" style="color:#ef4444;" onclick="removeQueueIndex(${index})">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         function saveSongToPlaylist(title, url) {
             if (!savedPlaylist.some(item => item.url === url)) {
                 savedPlaylist.push({ title, url });
-                localStorage.setItem('syncbeat_playlist', JSON.stringify(savedPlaylist));
+                saveDeviceStorage();
                 renderPlaylist();
                 showToast("Saved to playlist!");
             } else {
@@ -535,7 +610,7 @@
         }
 
         function playPlaylistIndex(index) {
-            if (!isHosting) { showToast("Only the host can play songs."); return; }
+            if (!isHosting) { showToast("Only the host can control playback."); return; }
             const item = savedPlaylist[index];
             if (item) {
                 const ytId = extractYouTubeId(item.url);
@@ -544,10 +619,32 @@
         }
 
         function removePlaylistIndex(index) {
+            if (!isHosting) { showToast("Only the host can modify playlist."); return; }
             savedPlaylist.splice(index, 1);
-            localStorage.setItem('syncbeat_playlist', JSON.stringify(savedPlaylist));
+            saveDeviceStorage();
             renderPlaylist();
             showToast("Removed from playlist.");
+        }
+
+        function removeQueueIndex(index) {
+            upcomingQueue.splice(index, 1);
+            renderQueue();
+            showToast("Removed from queue.");
+        }
+
+        function playNextQueueTrack() {
+            if (!isHosting) { showToast("Only the host can control playback."); return; }
+            if (upcomingQueue.length === 0) {
+                showToast("Upcoming queue is empty.");
+                return;
+            }
+            const nextTrack = upcomingQueue.shift();
+            renderQueue();
+            const ytId = extractYouTubeId(nextTrack.url);
+            if (ytId) {
+                playYouTubeStream(nextTrack.title, ytId, 0);
+                showToast("Playing next from queue!");
+            }
         }
 
         function toggleQrScanner() {
@@ -588,8 +685,18 @@
             document.getElementById('scannerToggleBtn').textContent = "🛸 OPEN CAMERA SCANNER";
         }
 
-        function showQrCodeModal() {
-            showToast("Room QR Code ready to scan!");
+        function updateLocalPeerDisplay(role) {
+            const nameDisplay = document.getElementById('initialPeerName');
+            const idDisplay = document.getElementById('initialPeerId');
+            const roleTag = document.getElementById('peerRoleTag');
+            
+            if (nameDisplay) nameDisplay.textContent = currentUserName || "User";
+            if (idDisplay) idDisplay.textContent = `ID: ${currentAccountId}`;
+            if (roleTag) {
+                roleTag.textContent = role;
+                roleTag.style.background = role === 'HOST' ? '#dcfce7' : '#ede9fe';
+                roleTag.style.color = role === 'HOST' ? '#16a34a' : '#7c3aed';
+            }
         }
 
         function connectWebSocket(onSuccess, onError) {
@@ -614,9 +721,9 @@
 
                         if (currentRoomCode) {
                             if (isHosting) {
-                                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
+                                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
                             } else {
-                                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: currentRoomCode, name: currentUserName }));
+                                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
                             }
                         }
 
@@ -631,19 +738,31 @@
                             isHosting = false;
                             currentRoomCode = data.code;
                             document.getElementById('displayRoomCode').textContent = data.code;
-                            document.getElementById('sessionSubtitle').textContent = "Member: " + currentUserName;
+                            document.getElementById('sessionSubtitle').textContent = `Member: ${currentUserName} (${currentAccountId})`;
                             document.getElementById('sessionHeaderTitle').textContent = "Member Session";
                             document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
-                            document.getElementById('peerRoleTag').textContent = "MEMBER";
-                            document.getElementById('hostUrlControls').style.display = "none";
-                            document.getElementById('hostPlayerControls').style.display = "none";
+                            
+                            updateLocalPeerDisplay('MEMBER');
+                            
+                            document.getElementById('hostUrlControls').style.display = "block";
+                            document.getElementById('queueUrlInput').disabled = true;
+                            document.getElementById('queueUrlInput').placeholder = "Controlled by Host (View Only)";
+                            document.getElementById('hostPlayerControls').style.display = "flex";
+                            document.querySelectorAll('#hostPlayerControls button').forEach(btn => btn.disabled = true);
                             document.getElementById('sessionMasterVol').disabled = true;
+
                             document.getElementById('mainLandingView').classList.add('hidden');
                             document.getElementById('hostSessionView').classList.remove('hidden');
                             showToast("Reconnected to room: " + data.code);
                         } else if (data.type === 'PEER_LIST') {
                             const container = document.getElementById('peerListContainer');
                             container.innerHTML = '';
+                            
+                            if (!data.peers || data.peers.length === 0) {
+                                container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
+                                return;
+                            }
+
                             data.peers.forEach(peer => {
                                 const div = document.createElement('div');
                                 div.className = 'peer-item';
@@ -651,14 +770,16 @@
                                     <div class="peer-info">
                                         <div class="peer-icon">👤</div>
                                         <div>
-                                            <div class="peer-name">${peer.name}</div>
-                                            <div class="peer-meta">Active • Synchronized</div>
+                                            <div class="peer-name">${peer.name || 'User'}</div>
+                                            <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
                                         </div>
                                     </div>
                                     <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
                                 `;
                                 container.appendChild(div);
                             });
+                        } else if (data.type === 'NOTIFICATION') {
+                            showToast(data.message);
                         } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
                             showToast(data.message || "Room expired or closed.");
                         } else if (data.type === 'CONTROL' || data.type === 'PLAY_TRACK' || data.type === 'VOLUME') {
@@ -687,17 +808,22 @@
             
             connectWebSocket(() => {
                 isHosting = true;
-                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName }));
+                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
                 localStorage.setItem('syncbeat_active_room', currentRoomCode);
                 checkBackgroundRoomState();
 
                 document.getElementById('displayRoomCode').textContent = currentRoomCode;
-                document.getElementById('sessionSubtitle').textContent = "Host: " + currentUserName;
+                document.getElementById('sessionSubtitle').textContent = `Host: ${currentUserName} (${currentAccountId})`;
                 document.getElementById('sessionHeaderTitle').textContent = "Host Session";
                 document.getElementById('roleIndicatorBadge').textContent = "Role: Host";
-                document.getElementById('peerRoleTag').textContent = "HOST";
+                
+                updateLocalPeerDisplay('HOST');
+
                 document.getElementById('hostUrlControls').style.display = "block";
+                document.getElementById('queueUrlInput').disabled = false;
+                document.getElementById('queueUrlInput').placeholder = "Paste YouTube URL";
                 document.getElementById('hostPlayerControls').style.display = "flex";
+                document.querySelectorAll('#hostPlayerControls button').forEach(btn => btn.disabled = false);
                 document.getElementById('sessionMasterVol').disabled = false;
                 document.getElementById('mainLandingView').classList.add('hidden');
                 document.getElementById('hostSessionView').classList.remove('hidden');
@@ -716,7 +842,7 @@
             if (code.length < 4) { showToast("Enter a valid room code."); return; }
 
             connectWebSocket(() => {
-                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName }));
+                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName, accountId: currentAccountId }));
             });
         }
 
@@ -743,12 +869,64 @@
             if (type === 'save') {
                 saveSongToPlaylist(val, val);
             } else if (type === 'queue') {
+                upcomingQueue.push({ title: val, url: val });
+                renderQueue();
                 showToast("Added to upcoming queue!");
             } else {
                 if (!isHosting) { showToast("Only the host can play songs."); return; }
                 playYouTubeStream(val, ytId, 0);
             }
             input.value = "";
+        }
+
+        function startProgressTracker() {
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                if (isSessionPlaying && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && typeof ytPlayer.getDuration === 'function') {
+                    const current = ytPlayer.getCurrentTime();
+                    const total = ytPlayer.getDuration();
+                    if (total > 0) {
+                        const pct = (current / total) * 100;
+                        document.getElementById('sessionFill').style.width = pct + '%';
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(current);
+                        document.getElementById('sessionTotalDuration').textContent = formatTime(total);
+                    }
+                }
+            }, 500);
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function seekTrack(event) {
+            if (!isHosting) { 
+                showToast("Only the host can control playback scrubbing."); 
+                return; 
+            }
+            if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
+
+            const track = event.currentTarget;
+            const rect = track.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const width = rect.width;
+            const percentage = Math.max(0, Math.min(1, clickX / width));
+            const duration = ytPlayer.getDuration();
+            const newTime = percentage * duration;
+
+            ytPlayer.seekTo(newTime, true);
+            document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
+            document.getElementById('sessionCurrentTime').textContent = formatTime(newTime);
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ 
+                    type: 'CONTROL', 
+                    action: 'seek', 
+                    time: newTime 
+                }));
+            }
         }
 
         function playYouTubeStream(title, ytId, startTime = 0) {
@@ -760,12 +938,13 @@
             renderTopParticles();
 
             loadYouTubePlayer(ytId, startTime);
+            startProgressTracker();
 
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ 
                     type: 'PLAY_TRACK', 
                     title: title, 
-                    artist: 'Host', 
+                    artist: currentUserName, 
                     currentTime: ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0 
                 }));
             }
@@ -799,7 +978,13 @@
             let currentTime = 0;
             if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
                 currentTime = ytPlayer.getCurrentTime();
-                if (isSessionPlaying) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
+                if (isSessionPlaying) {
+                    ytPlayer.playVideo();
+                    startProgressTracker();
+                } else {
+                    ytPlayer.pauseVideo();
+                    clearInterval(progressInterval);
+                }
             }
 
             if (ws && ws.readyState === WebSocket.OPEN) {
@@ -808,42 +993,6 @@
                     action: isSessionPlaying ? 'play' : 'pause', 
                     time: currentTime 
                 }));
-            }
-        }
-
-        function rewindTrack(sec) {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
-            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                const target = Math.max(0, ytPlayer.getCurrentTime() - sec);
-                ytPlayer.seekTo(target, true);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
-                }
-            }
-        }
-
-        function forwardTrack(sec) {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
-            if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                const target = ytPlayer.getCurrentTime() + sec;
-                ytPlayer.seekTo(target, true);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: target }));
-                }
-            }
-        }
-
-        function seekTrack(event) {
-            if (!isHosting) { showToast("Only the host can seek tracks."); return; }
-            const rect = event.currentTarget.getBoundingClientRect();
-            const pct = (event.clientX - rect.left) / rect.width;
-            if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                const duration = ytPlayer.getDuration();
-                const targetTime = pct * duration;
-                ytPlayer.seekTo(targetTime, true);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: targetTime }));
-                }
             }
         }
 
@@ -862,15 +1011,26 @@
                 const ytId = extractYouTubeId(data.title);
                 if (ytId) playYouTubeStream(data.title, ytId, data.currentTime || 0);
             } else if (data.type === 'CONTROL') {
-                isSessionPlaying = (data.action === 'play');
+                isSessionPlaying = (data.action === 'play' || data.action === 'seek');
                 document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isSessionPlaying);
                 document.getElementById('sessionPlayBtn').textContent = isSessionPlaying ? "⏸" : "▶";
                 if (ytPlayer) {
                     if (typeof data.time === 'number') {
                         ytPlayer.seekTo(data.time, true);
+                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
+                        if (ytPlayer.getDuration && ytPlayer.getDuration() > 0) {
+                            const pct = (data.time / ytPlayer.getDuration()) * 100;
+                            document.getElementById('sessionFill').style.width = pct + '%';
+                        }
                     }
-                    if (data.action === 'play') ytPlayer.playVideo();
-                    if (data.action === 'pause') ytPlayer.pauseVideo();
+                    if (data.action === 'play' || data.action === 'seek') {
+                        ytPlayer.playVideo();
+                        startProgressTracker();
+                    }
+                    if (data.action === 'pause') {
+                        ytPlayer.pauseVideo();
+                        clearInterval(progressInterval);
+                    }
                 }
             } else if (data.type === 'VOLUME') {
                 const volInput = document.getElementById('sessionMasterVol');
@@ -885,7 +1045,7 @@
 
         function sendReaction(emoji) {
             showFloatingReaction(emoji, currentUserName);
-            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: currentUserName }));
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
         }
 
         function showFloatingReaction(emoji, sender) {
@@ -920,6 +1080,8 @@
         }
 
         function exitHostSession() {
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') ytPlayer.stopVideo();
+            if (ws) { ws.close(); ws = null; }
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
         }
