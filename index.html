@@ -379,17 +379,22 @@
             </div>
 
             <div class="card" id="hostUrlControls">
-                <div class="card-header-sm"><span>YouTube Controller</span></div>
-                <div style="margin-bottom: 8px;">
-                    <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
+                <div class="card-header-sm"><span id="controllerCardTitle">YouTube Controller</span></div>
+                
+                <!-- Host-Only Search URL Bar and Action Buttons -->
+                <div id="hostOnlyControls">
+                    <div style="margin-bottom: 8px;">
+                        <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube URL">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+                        <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play</button>
+                        <button class="action-btn-custom" id="actionQueueBtn" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
+                        <button class="action-btn-custom" id="actionSaveBtn" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
+                    </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play</button>
-                    <button class="action-btn-custom" id="actionQueueBtn" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
-                    <button class="action-btn-custom" id="actionSaveBtn" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
-                </div>
-                <!-- View-Only Unclickable Wrapper with Absolute Transparent Blocker Overlay -->
-                <div id="ytEmbedWrapper" style="position: relative; margin-top: 12px; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
+
+                <!-- View-Only Unclickable Video Wrapper for Members / Interactive for Host -->
+                <div id="ytEmbedWrapper" style="position: relative; width: 100%; height: 180px; border-radius: 12px; overflow: hidden; background: #000;">
                     <div id="ytPlayerDiv" style="width:100%; height:100%;"></div>
                     <div id="memberPlayerBlocker" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; background: rgba(0,0,0,0.01); pointer-events: auto; cursor: not-allowed;"></div>
                 </div>
@@ -705,17 +710,17 @@
         function applyRoleUI() {
             const isHost = isHosting;
 
-            // URL Controller & Action Buttons
-            const urlInput = document.getElementById('queueUrlInput');
-            const playBtn = document.getElementById('actionPlayBtn');
-            const queueBtn = document.getElementById('actionQueueBtn');
-            
-            if (urlInput) {
-                urlInput.disabled = !isHost;
-                urlInput.placeholder = isHost ? "Paste YouTube URL" : "Controlled by Host (View Only)";
+            // Hide URL Controller and action buttons entirely for members
+            const hostOnlyControls = document.getElementById('hostOnlyControls');
+            if (hostOnlyControls) {
+                hostOnlyControls.classList.toggle('hidden', !isHost);
             }
-            if (playBtn) playBtn.disabled = !isHost;
-            if (queueBtn) queueBtn.disabled = !isHost;
+
+            // Change card title header based on role
+            const cardTitle = document.getElementById('controllerCardTitle');
+            if (cardTitle) {
+                cardTitle.textContent = isHost ? "YouTube Controller" : "Live Stream View";
+            }
 
             // Main Player Controls & Volume
             const playPauseBtn = document.getElementById('sessionPlayBtn');
