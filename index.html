@@ -137,7 +137,7 @@
             justify-content: center;
             border: 3px solid #ff2200;
             box-shadow: 0 0 20px rgba(255, 34, 0, 0.8), inset 0 0 15px rgba(255, 180, 0, 0.7);
-            transition: transform 0.03s cubic-bezier(0.1, 0.9, 0.2, 1), border-radius 0.04s ease-in-out;
+            transition: transform 0.03s cubic-bezier(0.1, 0.9, 0.2, 1), border-radius 0.05s ease-in-out;
             cursor: pointer;
         }
         .globe-low-bass-ring {
@@ -509,7 +509,7 @@
                 </div>
 
                 <div class="player-controls-row">
-                    <!-- TRIPLE BASS-LAYERED GLOBE (MB LOGO) -->
+                    <!-- TRIPLE BASS GLOBE -->
                     <div class="audio-globe-container" id="audioBeatGlobe" title="Triple Bass-Layered Audio Globe">
                         <div class="globe-low-bass-ring"></div>
                         <div class="globe-mid-bass-ring"></div>
@@ -665,7 +665,6 @@
         let activeYtId = null;
         let previousPeersList = [];
 
-        // Gyroscope tracking for snow particle tilt drift
         let gyroX = 0;
         let gyroY = 0;
 
@@ -829,9 +828,9 @@
                 topParticles.push({
                     x: Math.random() * topCanvas.width,
                     y: Math.random() * topCanvas.height,
-                    size: 2.2 + Math.random() * 3.5,
-                    vx: (Math.random() - 0.5) * 0.4,
-                    vy: 1.0 + Math.random() * 1.8,
+                    size: 1.2 + Math.random() * 2.0, // Small snow particles
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: 0.6 + Math.random() * 1.2,
                     colorHue: Math.random() * 360,
                     alpha: 0.5 + Math.random() * 0.5
                 });
@@ -842,15 +841,15 @@
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.fillStyle = `hsl(${hue}, 100%, 90%)`;
-            ctx.shadowBlur = 18;
+            ctx.shadowBlur = 12;
             ctx.shadowColor = `hsl(${hue}, 100%, 80%)`;
 
             ctx.beginPath();
-            ctx.moveTo(x, y - size * 3);
-            ctx.quadraticCurveTo(x, y, x + size * 3, y);
-            ctx.quadraticCurveTo(x, y, x, y + size * 3);
-            ctx.quadraticCurveTo(x, y, x - size * 3, y);
-            ctx.quadraticCurveTo(x, y, x, y - size * 3);
+            ctx.moveTo(x, y - size * 2.5);
+            ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
+            ctx.quadraticCurveTo(x, y, x, y + size * 2.5);
+            ctx.quadraticCurveTo(x, y, x - size * 2.5, y);
+            ctx.quadraticCurveTo(x, y, x, y - size * 2.5);
             ctx.fill();
 
             ctx.restore();
@@ -895,7 +894,7 @@
                     p.alpha += (Math.random() - 0.5) * 0.04;
                     p.alpha = Math.max(0.3, Math.min(1.0, p.alpha));
 
-                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.7) : 1.0);
+                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.5) : 1.0);
                     drawStarGlint(tCtx, p.x, p.y, currentSize, p.alpha, p.colorHue);
                 });
 
@@ -1035,17 +1034,21 @@
 
         function unlockMediaContext() {
             document.getElementById('interactionOverlay').classList.add('hidden');
-            if (realAudio) {
+            
+            if (realAudio && realAudio.src) {
                 realAudio.muted = false;
-                realAudio.play().catch(()=>{});
-                realAudio.pause();
+                realAudio.play().then(() => {
+                    if (!isHosting && realAudio.duration) {
+                        realAudio.currentTime = getActiveTime();
+                    }
+                }).catch(()=>{});
             }
             if (ytPlayer && typeof ytPlayer.unMute === 'function') {
                 ytPlayer.unMute();
                 ytPlayer.setVolume(100);
+                ytPlayer.playVideo();
             }
-            applyRoleUI();
-            showToast("Media & Sound Activated!");
+            showToast("Live Audio & Video Synced!");
         }
 
         function initPermanentDeviceAccount() {
@@ -1748,7 +1751,15 @@
         }
 
         function handlePeerListUpdate(newPeers) {
-            newPeers.forEach(newPeer => {
+            const uniqueMap = new Map();
+            newPeers.forEach(peer => {
+                if (peer && peer.accountId) {
+                    uniqueMap.set(peer.accountId, peer);
+                }
+            });
+            const dedupedPeers = Array.from(uniqueMap.values());
+
+            dedupedPeers.forEach(newPeer => {
                 const foundOld = previousPeersList.find(p => p.accountId === newPeer.accountId);
                 if (!foundOld && newPeer.accountId !== currentAccountId) {
                     showToast(`'${newPeer.name} (${newPeer.accountId})' is connected`);
@@ -1756,13 +1767,41 @@
             });
 
             previousPeersList.forEach(oldPeer => {
-                const foundNew = newPeers.find(p => p.accountId === oldPeer.accountId);
+                const foundNew = dedupedPeers.find(p => p.accountId === oldPeer.accountId);
                 if (!foundNew && oldPeer.accountId !== currentAccountId) {
                     showToast(`'${oldPeer.name} (${oldPeer.accountId})' is disconnected`);
                 }
             });
 
-            previousPeersList = newPeers;
+            previousPeersList = dedupedPeers;
+
+            const container = document.getElementById('peerListContainer');
+            if (container) {
+                container.innerHTML = '';
+                if (dedupedPeers.length === 0) {
+                    container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
+                } else {
+                    dedupedPeers.forEach(peer => {
+                        const div = document.createElement('div');
+                        div.className = 'peer-item';
+                        div.innerHTML = `
+                            <div class="peer-info">
+                                <div class="peer-icon">👤</div>
+                                <div>
+                                    <div class="peer-name">${peer.name || 'User'}</div>
+                                    <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
+                                </div>
+                            </div>
+                            <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            }
+            const mgLimit = document.getElementById('mgPeerLimitBadge');
+            if (mgLimit && dedupedPeers.length) {
+                mgLimit.textContent = `${dedupedPeers.length} Device(s) Connected to this Server`;
+            }
         }
 
         function connectWebSocket(onSuccess, onError) {
@@ -1825,33 +1864,6 @@
                             showToast("Reconnected to room: " + data.code);
                         } else if (data.type === 'PEER_LIST') {
                             handlePeerListUpdate(data.peers || []);
-                            const container = document.getElementById('peerListContainer');
-                            if (container) {
-                                container.innerHTML = '';
-                                if (!data.peers || data.peers.length === 0) {
-                                    container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
-                                } else {
-                                    data.peers.forEach(peer => {
-                                        const div = document.createElement('div');
-                                        div.className = 'peer-item';
-                                        div.innerHTML = `
-                                            <div class="peer-info">
-                                                <div class="peer-icon">👤</div>
-                                                <div>
-                                                    <div class="peer-name">${peer.name || 'User'}</div>
-                                                    <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
-                                                </div>
-                                            </div>
-                                            <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
-                                        `;
-                                        container.appendChild(div);
-                                    });
-                                }
-                            }
-                            const mgLimit = document.getElementById('mgPeerLimitBadge');
-                            if (mgLimit && data.count) {
-                                mgLimit.textContent = `${data.count} Device(s) Connected to this Server`;
-                            }
                         } else if (data.type === 'NOTIFICATION') {
                             showToast(data.message);
                         } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
@@ -1935,6 +1947,116 @@
             connectWebSocket(() => {
                 ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName, accountId: currentAccountId }));
             });
+        }
+
+        function openMusicGroupUI() {
+            isOfflineGroupMode = true;
+            document.getElementById('mainLandingView').classList.add('hidden');
+            document.getElementById('musicGroupPageView').classList.remove('hidden');
+            document.getElementById('mgMenuState').classList.remove('hidden');
+            document.getElementById('mgServerState').classList.add('hidden');
+            document.getElementById('mgScannerState').classList.add('hidden');
+        }
+
+        function promptMusicGroupExit() {
+            document.getElementById('mgExitDialog').classList.remove('hidden');
+        }
+
+        function closeMgExitDialog() {
+            document.getElementById('mgExitDialog').classList.add('hidden');
+        }
+
+        function confirmMgExit() {
+            document.getElementById('mgExitDialog').classList.add('hidden');
+            document.getElementById('musicGroupPageView').classList.add('hidden');
+            document.getElementById('mainLandingView').classList.remove('hidden');
+            isOfflineGroupMode = false;
+        }
+
+        function startMusicGroupServerCreation() {
+            document.getElementById('mgMenuState').classList.add('hidden');
+            document.getElementById('mgServerState').classList.remove('hidden');
+            
+            const qrContainer = document.getElementById('mgQrCodeContainer');
+            qrContainer.innerHTML = '';
+            const meshCode = "SYNC_MESH_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            new QRCode(qrContainer, {
+                text: meshCode,
+                width: 160,
+                height: 160,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            connectWebSocket(() => {
+                ws.send(JSON.stringify({ type: 'JOIN_OFFLINE_MESH', name: currentUserName, accountId: currentAccountId, isHost: true }));
+            });
+        }
+
+        function startMusicGroupCameraScanner() {
+            document.getElementById('mgMenuState').classList.add('hidden');
+            document.getElementById('mgScannerState').classList.remove('hidden');
+            
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+                scannerStream = stream;
+                const video = document.getElementById('mgScannerVideo');
+                video.srcObject = stream;
+                video.play();
+
+                mgScannerInterval = setInterval(() => {
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        const canvas = document.getElementById('mgScannerCanvas');
+                        canvas.height = video.videoHeight;
+                        canvas.width = video.videoWidth;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
+                        if (code) {
+                            stopMusicGroupScanner();
+                            connectWebSocket(() => {
+                                ws.send(JSON.stringify({ type: 'JOIN_OFFLINE_MESH', name: currentUserName, accountId: currentAccountId, isHost: false }));
+                            });
+                        }
+                    }
+                }, 300);
+            }).catch(() => showToast("Camera access denied."));
+        }
+
+        function stopMusicGroupScanner() {
+            if (scannerStream) { scannerStream.getTracks().forEach(t => t.stop()); scannerStream = null; }
+            clearInterval(mgScannerInterval);
+        }
+
+        function handleMgAudioFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showToast("Reading audio file to broadcast...");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                playOfflineAudio(file.name, base64Data, 0);
+
+                const chunkSize = 20000;
+                const totalChunks = Math.ceil(base64Data.length / chunkSize);
+                
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunk = base64Data.substring(i * chunkSize, (i + 1) * chunkSize);
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'OFFLINE_FILE_CHUNK',
+                            index: i,
+                            total: totalChunks,
+                            data: chunk,
+                            fileName: file.name
+                        }));
+                    }
+                }
+                showToast("Broadcasting music locally!");
+            };
+            reader.readAsDataURL(file);
         }
 
         function copyCode() {
