@@ -34,7 +34,6 @@
         button:hover, .btn-purple:hover, .action-btn-custom:hover { animation: vfxGlowPulse 1.4s infinite; }
         button:active, .btn-purple:active { transform: scale(0.95); }
         
-        /* FLOW ANIMATION BADGE */
         @keyframes badgeFlowAnim {
             0% { transform: translateY(0px) scale(1); filter: brightness(1); }
             50% { transform: translateY(-3px) scale(1.03); filter: brightness(1.15); box-shadow: 0 0 15px rgba(0, 255, 102, 0.8); }
@@ -67,7 +66,6 @@
         .pill.active { background: #7c3aed; color: white; border-color: #7c3aed; }
         .card { background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; padding: 16px; margin-bottom: 14px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05); }
         
-        /* DYNAMIC THUMBNAIL BACKGROUND PLAYER BOX WITH CONDITIONAL PLAY/PAUSE */
         .card.black-player-box {
             background-color: #000000 !important;
             background-size: cover !important;
@@ -88,10 +86,7 @@
             z-index: 1;
             pointer-events: none;
         }
-        .card.black-player-box > * {
-            position: relative;
-            z-index: 2;
-        }
+        .card.black-player-box > * { position: relative; z-index: 2; }
         .card.black-player-box .card-header-sm { color: #a78bfa !important; }
         .card.black-player-box .track-title { color: #ffffff !important; }
         .card.black-player-box .track-artist { color: #94a3b8 !important; }
@@ -125,7 +120,6 @@
         .control-btn { background: none; border: none; font-size: 22px; color: #4c1d95; cursor: pointer; }
         .play-pause-lg { background: #7c3aed; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: none; cursor: pointer; }
 
-        /* TRIPLE BASS-LAYERED PHONK GLOBE */
         .audio-globe-container {
             width: 70px;
             height: 70px;
@@ -140,15 +134,9 @@
             transition: transform 0.03s cubic-bezier(0.1, 0.9, 0.2, 1), border-radius 0.05s ease-in-out;
             cursor: pointer;
         }
-        .globe-low-bass-ring {
-            position: absolute; width: 104%; height: 104%; border-radius: 50%; border: 2px dashed #ff3300; animation: spinGlobeWave 5s linear infinite; transition: transform 0.04s ease-out;
-        }
-        .globe-mid-bass-ring {
-            position: absolute; width: 86%; height: 86%; border-radius: 50%; border: 1.8px solid #ffbb00; animation: spinGlobeWaveRev 4s linear infinite; transition: transform 0.03s ease-out;
-        }
-        .globe-high-bass-ring {
-            position: absolute; width: 68%; height: 68%; border-radius: 50%; border: 2px dotted #ffffff; animation: spinGlobeWave 2.5s linear infinite; transition: transform 0.02s ease-out;
-        }
+        .globe-low-bass-ring { position: absolute; width: 104%; height: 104%; border-radius: 50%; border: 2px dashed #ff3300; animation: spinGlobeWave 5s linear infinite; }
+        .globe-mid-bass-ring { position: absolute; width: 86%; height: 86%; border-radius: 50%; border: 1.8px solid #ffbb00; animation: spinGlobeWaveRev 4s linear infinite; }
+        .globe-high-bass-ring { position: absolute; width: 68%; height: 68%; border-radius: 50%; border: 2px dotted #ffffff; animation: spinGlobeWave 2.5s linear infinite; }
         @keyframes spinGlobeWave { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes spinGlobeWaveRev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         .globe-mesh-core {
@@ -167,33 +155,23 @@
         .action-btn-custom:disabled { background: #d8b4fe !important; cursor: not-allowed; opacity: 0.7; }
         
         .emoji-keyboard-container { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 16px; padding: 12px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .keyboard-tabs-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px 2px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-        .keyboard-tabs-row::-webkit-scrollbar { height: 4px; }
-        .keyboard-tabs-row::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
-        .kb-tab-btn { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; color: #475569; transition: all 0.2s; }
+        .keyboard-tabs-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px 2px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px; scroll-behavior: smooth; }
+        .kb-tab-btn { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0; color: #475569; }
         .kb-tab-btn.active { background: #7c3aed; color: white; border-color: #7c3aed; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3); }
-        .emoji-grid-box { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; max-height: 210px; overflow-y: auto; padding: 8px 4px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; scroll-behavior: smooth; }
-        .emoji-key { background: none; border: none; font-size: 26px; cursor: pointer; padding: 8px; border-radius: 8px; text-align: center; display: flex; align-items: center; justify-content: center; transition: transform 0.1s, background 0.1s; }
+        .emoji-grid-box { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; max-height: 210px; overflow-y: auto; padding: 8px 4px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .emoji-key { background: none; border: none; font-size: 26px; cursor: pointer; padding: 8px; border-radius: 8px; text-align: center; display: flex; align-items: center; justify-content: center; }
         .emoji-key:hover { background: #f3e8ff; transform: scale(1.18); }
 
-        .gif-grid-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 200px; overflow-y: auto; padding: 6px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .gif-thumb { width: 100%; height: 75px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s, border-color 0.2s; }
-        .gif-thumb:hover { transform: scale(1.05); border-color: #7c3aed; }
-
         #roomPopupContainer { position: fixed; top: 25px; left: 50%; transform: translateX(-50%); z-index: 999999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: 90%; max-width: 380px; }
-        .room-popup-card { background: rgba(76, 29, 149, 0.95); backdrop-filter: blur(8px); color: white; padding: 12px 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); animation: popupFadeIn 0.3s ease-out forwards; width: 100%; box-sizing: border-box; pointer-events: auto; }
-        @keyframes popupFadeIn { 0% { opacity: 0; transform: translateY(-15px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        .room-popup-card { background: rgba(76, 29, 149, 0.95); backdrop-filter: blur(8px); color: white; padding: 12px 18px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.2); width: 100%; box-sizing: border-box; pointer-events: auto; }
         .popup-sender { font-size: 11px; font-weight: 700; color: #c4b5fd; margin-bottom: 2px; }
         .popup-content { font-size: 13px; font-weight: 800; word-break: break-all; }
-        .popup-content img { max-width: 100%; height: 110px; object-fit: contain; border-radius: 8px; margin-top: 4px; display: block; }
 
         #liveChatFloatingContainer { position: fixed; bottom: 25px; right: 20px; z-index: 99999; display: flex; flex-direction: column; align-items: flex-end; }
         .live-chat-launcher { background: #7c3aed; color: white; border: none; border-radius: 30px; padding: 12px 20px; font-size: 13px; font-weight: 800; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4); cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .floating-chat-window { width: 310px; background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; box-shadow: 0 15px 35px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; overflow: hidden; margin-bottom: 10px; animation: slideUpChat 0.25s ease-out forwards; }
-        @keyframes slideUpChat { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .floating-chat-window { width: 310px; background: #ffffff; border: 1px solid #ede9fe; border-radius: 20px; box-shadow: 0 15px 35px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; overflow: hidden; margin-bottom: 10px; }
         .floating-chat-header { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; }
-        .floating-minimize-btn { background: rgba(255, 255, 255, 0.2); border: none; color: white; border-radius: 8px; width: 26px; height: 26px; font-weight: 900; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .floating-minimize-btn:hover { background: rgba(255, 255, 255, 0.35); }
+        .floating-minimize-btn { background: rgba(255, 255, 255, 0.2); border: none; color: white; border-radius: 8px; width: 26px; height: 26px; font-weight: 900; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .floating-reaction { position: fixed; bottom: 100px; font-size: 38px; animation: floatUp 2.2s ease-out forwards; z-index: 3000; pointer-events: none; }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-360px); opacity: 0; } }
@@ -211,70 +189,9 @@
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
 
-        .youtube-card {
-            background: linear-gradient(145deg, #ffffff, #faf5ff);
-            border: 1px solid #ede9fe;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05);
-        }
-        .youtube-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        .youtube-logo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 800;
-            font-size: 15px;
-            color: #ef4444;
-        }
-
-        .music-group-page { width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; min-height: 90vh; }
-        .mg-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .mg-title { font-size: 19px; font-weight: 900; color: #000000; }
-        .mg-help-btn { display: flex; flex-direction: column; align-items: center; background: none; border: none; cursor: pointer; font-size: 10px; font-weight: bold; color: #000000; }
-        .mg-help-icon { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; margin-bottom: 2px; }
-        
-        .mg-create-card { width: 100%; background: linear-gradient(135deg, #ff7a18, #ff5400); border-radius: 24px; padding: 22px; box-sizing: border-box; position: relative; box-shadow: 0 12px 28px rgba(255, 84, 0, 0.35); color: #ffffff; z-index: 2; }
-        .mg-create-text { font-size: 15px; font-weight: 900; max-width: 65%; line-height: 1.35; margin-bottom: 20px; }
-        .mg-create-btn { background: #ffffff; color: #000000; border: none; border-radius: 30px; padding: 12px 24px; font-size: 13px; font-weight: 900; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-        .mg-play-badge { position: absolute; right: 20px; top: 24px; width: 75px; height: 75px; background: rgba(255, 255, 255, 0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .mg-play-triangle { width: 0; height: 0; border-top: 14px solid transparent; border-bottom: 14px solid transparent; border-left: 24px solid rgba(255, 122, 24, 0.85); margin-left: 5px; }
-
-        .mg-track-wrapper { width: 100%; height: 260px; position: relative; display: flex; align-items: center; justify-content: center; margin: -10px 0; z-index: 1; }
-        .mg-svg-path { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-        .mg-signal-circle { width: 60px; height: 60px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1); z-index: 3; position: relative; }
-
-        .mg-join-card { width: 100%; background: #ffffff; border-radius: 24px; padding: 20px; box-sizing: border-box; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); border: 1px solid #f1f5f9; z-index: 2; }
-        .mg-speaker-icon { width: 65px; height: 80px; border: 4px solid #94a3b8; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 6px 0; box-sizing: border-box; flex-shrink: 0; }
-        .mg-speaker-top-dot { width: 14px; height: 14px; border-radius: 50%; background: #94a3b8; }
-        .mg-speaker-bottom-circle { width: 28px; height: 28px; border-radius: 50%; border: 4px solid #94a3b8; }
-        .mg-join-content { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-        .mg-join-text { font-size: 13px; font-weight: 900; color: #000000; line-height: 1.35; }
-        .mg-join-btn { background: linear-gradient(135deg, #ff7a18, #ff5400); color: #ffffff; border: none; border-radius: 25px; padding: 12px 20px; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 84, 0, 0.3); }
-
-        .mg-server-card { width: 100%; background: #ffffff; border-radius: 24px; padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); border: 1px solid #f1f5f9; text-align: center; }
-        .mg-server-badge { background: #fed7aa; color: #9a3412; font-size: 11px; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; }
-        .mg-qr-wrapper { padding: 12px; background: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 16px; display: flex; justify-content: center; }
-
-        .mg-scanner-wrapper { position: relative; width: 100%; height: 480px; max-height: 70vh; background: #000000; border-radius: 24px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
-        #mgScannerVideo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-        .mg-viewfinder-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 220px; pointer-events: none; z-index: 10; }
-        .mg-corner { position: absolute; width: 32px; height: 32px; border: 4px solid #ffffff; }
-        .mg-corner-tl { top: 0; left: 0; border-right: none; border-bottom: none; }
-        .mg-corner-tr { top: 0; right: 0; border-left: none; border-bottom: none; }
-        .mg-corner-bl { bottom: 0; left: 0; border-right: none; border-top: none; }
-        .mg-corner-br { bottom: 0; right: 0; border-left: none; border-top: none; }
-
-        .mg-dialog-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .mg-dialog-box { background: #ffffff; border-radius: 20px; padding: 24px; width: 85%; max-width: 320px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); }
-        .mg-dialog-title { font-size: 16px; font-weight: 800; color: #000; margin-bottom: 20px; }
-        .mg-dialog-actions { display: flex; justify-content: flex-end; gap: 20px; font-weight: 900; font-size: 13px; }
+        .youtube-card { background: linear-gradient(145deg, #ffffff, #faf5ff); border: 1px solid #ede9fe; border-radius: 20px; padding: 16px; margin-bottom: 14px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.05); }
+        .youtube-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .youtube-logo { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px; color: #ef4444; }
     </style>
 </head>
 <body>
@@ -286,9 +203,7 @@
     </div>
 
     <div id="roomPopupContainer"></div>
-
     <canvas id="topParticleCanvas"></canvas>
-    <audio id="realAudioPlayer" preload="auto" playsinline></audio>
 
     <div class="container">
         <!-- 1. Main Landing View -->
@@ -315,15 +230,6 @@
                     <button class="code-action-btn" onclick="saveProfileChanges()">💾 Save Profile</button>
                     <button class="code-action-btn" style="background: #f3e8ff; color: #ef4444; border-color: #fca5a5;" onclick="resetDeviceProfile()">🔄 Reset ID</button>
                 </div>
-            </div>
-
-            <div class="card banner-card" style="background: linear-gradient(135deg, #fff7ed, #ffedd5); border: 2px solid #fed7aa;" onclick="openMusicGroupUI()">
-                <div class="banner-icon" style="background: #ff5400;">📻</div>
-                <div class="banner-content">
-                    <div class="banner-title" style="color: #c2410c;">Music Group (Offline Local Sync)</div>
-                    <div class="banner-desc" style="color: #ea580c;">Wi-Fi & Bluetooth Local 0ms P2P Sharing</div>
-                </div>
-                <div class="banner-arrow" style="background: #ff5400;">→</div>
             </div>
 
             <div class="card banner-card hidden" id="returnHostingBanner" onclick="returnToHostingSession()">
@@ -369,87 +275,6 @@
             </div>
         </div>
 
-        <!-- 2. MUSIC GROUP DESIGN -->
-        <div id="musicGroupPageView" class="music-group-page hidden">
-            <div class="mg-header">
-                <button class="back-btn" onclick="promptMusicGroupExit()">←</button>
-                <div class="mg-title">Music Group</div>
-                <button class="mg-help-btn" onclick="showToast('Create or Join via QR to sync local music with 0ms delay.')">
-                    <div class="mg-help-icon">?</div>
-                    <div>Help</div>
-                </button>
-            </div>
-
-            <div id="mgMenuState" style="width: 100%;">
-                <div class="mg-create-card">
-                    <div class="mg-create-text">Start a group and share your music with everyone</div>
-                    <button class="mg-create-btn" onclick="startMusicGroupServerCreation()">Create Music Group &nbsp;→</button>
-                    <div class="mg-play-badge"><div class="mg-play-triangle"></div></div>
-                </div>
-
-                <div class="mg-track-wrapper">
-                    <svg class="mg-svg-path" viewBox="0 0 400 260" preserveAspectRatio="none">
-                        <path d="M 80 0 C 80 130, 320 130, 320 260" fill="none" stroke="#000000" stroke-width="4.5" stroke-dasharray="8,8" />
-                    </svg>
-                    <div class="mg-signal-circle">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
-                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="mg-join-card">
-                    <div class="mg-speaker-icon">
-                        <div class="mg-speaker-top-dot"></div>
-                        <div class="mg-speaker-bottom-circle"></div>
-                    </div>
-                    <div class="mg-join-content">
-                        <div class="mg-join-text">Connect to a group and listen to music together</div>
-                        <button class="mg-join-btn" onclick="startMusicGroupCameraScanner()">Join a Music Group &nbsp;→</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mgServerState" class="hidden" style="width: 100%;">
-                <div class="mg-server-card">
-                    <div class="mg-server-badge" id="mgPeerLimitBadge">Up to 3 device can connect to this Server</div>
-                    <div class="mg-qr-wrapper" id="mgQrCodeContainer"></div>
-                    <div style="font-weight: 800; font-size: 14px; margin-bottom: 20px;">Scan this to Join</div>
-                    
-                    <input type="file" id="mgLocalAudioInput" accept="audio/*" style="display: none;" onchange="handleMgAudioFile(event)">
-                    <button class="mg-join-btn" style="width: 100%; border-radius: 14px; margin-bottom: 12px;" onclick="document.getElementById('mgLocalAudioInput').click()">📂 Select Local Audio File to Broadcast</button>
-                    <div style="font-size: 12px; color: #64748b; font-weight: bold; cursor: pointer;" onclick="showToast('Ensure all phones are on the same Wi-Fi / Hotspot.')">Not Connecting.?</div>
-                </div>
-            </div>
-
-            <div id="mgScannerState" class="hidden" style="width: 100%;">
-                <div class="mg-scanner-wrapper">
-                    <video id="mgScannerVideo" autoplay playsinline muted></video>
-                    <canvas id="mgScannerCanvas" style="display: none;"></canvas>
-                    <div class="mg-viewfinder-box">
-                        <div class="mg-corner mg-corner-tl"></div>
-                        <div class="mg-corner mg-corner-tr"></div>
-                        <div class="mg-corner mg-corner-bl"></div>
-                        <div class="mg-corner mg-corner-br"></div>
-                    </div>
-                </div>
-                <div style="text-align: center; margin-top: 15px; font-weight: 800; font-size: 13px; color: #475569;">Point camera at Host's QR Code to connect</div>
-            </div>
-        </div>
-
-        <div id="mgExitDialog" class="mg-dialog-backdrop hidden">
-            <div class="mg-dialog-box">
-                <div class="mg-dialog-title">Do you want to Exit?</div>
-                <div class="mg-dialog-actions">
-                    <span style="color: #0284c7; cursor: pointer;" onclick="closeMgExitDialog()">CANCEL</span>
-                    <span style="color: #0284c7; cursor: pointer;" onclick="confirmMgExit()">EXIT</span>
-                </div>
-            </div>
-        </div>
-
         <!-- 3. Standard Online Room Session View -->
         <div id="hostSessionView" class="hidden">
             <div class="header">
@@ -484,7 +309,6 @@
                 <span class="volume-pct" id="sessionVolPct">100%</span>
             </div>
 
-            <!-- Active Room Player with Conditional Live Thumbnail & Flow Badge -->
             <div class="card black-player-box dynamic-player-box" id="activePlayerCardBox" style="position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <div class="card-header-sm" style="margin-bottom: 0;"><span>● Active Room Player</span></div>
@@ -499,7 +323,6 @@
                     </div>
                 </div>
 
-                <!-- Finger-Slideable Progress Track & Thumb -->
                 <div class="progress-track" id="progressTrackScrubber" onmousedown="startScrubbing(event)" ontouchstart="startScrubbing(event)" onclick="seekTrack(event)">
                     <div class="progress-fill" id="sessionFill"><div class="progress-thumb"></div></div>
                 </div>
@@ -509,7 +332,6 @@
                 </div>
 
                 <div class="player-controls-row">
-                    <!-- TRIPLE BASS GLOBE -->
                     <div class="audio-globe-container" id="audioBeatGlobe" title="Triple Bass-Layered Audio Globe">
                         <div class="globe-low-bass-ring"></div>
                         <div class="globe-mid-bass-ring"></div>
@@ -522,19 +344,19 @@
                 </div>
             </div>
 
-            <!-- SEPARATE YOUTUBE UI PLAYER -->
+            <!-- YOUTUBE UI CONTROLLER WITH PLAYLIST SUPPORT -->
             <div class="youtube-card" id="hostUrlControls">
                 <div class="youtube-header" id="controllerCardHeader">
-                    <div class="youtube-logo"><span>🔴</span> YouTube Controller & Video Stream</div>
+                    <div class="youtube-logo"><span>🔴</span> YouTube Playlist & Video Stream</div>
                     <button class="code-action-btn" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;" onclick="toggleFullScreenMode()">📺 FULL SCREEN</button>
                 </div>
                 
                 <div id="hostOnlyControls">
                     <div style="margin-bottom: 8px;">
-                        <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube Video URL (e.g. https://youtu.be/...)">
+                        <input type="text" class="search-input" id="queueUrlInput" placeholder="Paste YouTube Video or Playlist URL (e.g. ...?list=PL...)">
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                        <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play</button>
+                        <button class="action-btn-custom" id="actionPlayBtn" onclick="handleUrlAction('play')">💫 Play / Playlist</button>
                         <button class="action-btn-custom" id="actionQueueBtn" style="background:#3b82f6;" onclick="handleUrlAction('queue')">📋 Add Queue</button>
                         <button class="action-btn-custom" id="actionSaveBtn" style="background:#f59e0b;" onclick="handleUrlAction('save')">💎 Save</button>
                     </div>
@@ -592,7 +414,6 @@
                         <button class="kb-tab-btn" onclick="switchEmojiCategory('ios_hearts')">🍏 iOS Hearts & Love</button>
                         <button class="kb-tab-btn" onclick="switchEmojiCategory('ios_symbols')">🍏 iOS Symbols & Weather</button>
                         <button class="kb-tab-btn" onclick="switchEmojiCategory('ios_activities')">🍏 iOS Activities</button>
-                        <button class="kb-tab-btn" onclick="switchEmojiCategory('gifs')">🎬 GIFs</button>
                     </div>
                     <div class="emoji-grid-box" id="kbEmojiGrid"></div>
                 </div>
@@ -616,7 +437,6 @@
         </div>
     </div>
 
-    <!-- FLOATING LIVE_CHAT COMPONENT -->
     <div id="liveChatFloatingContainer" class="hidden">
         <div id="liveChatWindow" class="floating-chat-window hidden">
             <div class="floating-chat-header">
@@ -628,7 +448,7 @@
                     <div style="color: #9ca3af; text-align: center; font-style: italic;">No messages yet. Say hello!</div>
                 </div>
                 <div style="display: flex; gap: 6px;">
-                    <input type="text" id="chatInput" class="search-input" placeholder="Type a message or send GIF..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <input type="text" id="chatInput" class="search-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
                     <button class="action-btn-custom" style="padding: 10px 14px;" onclick="sendChatMessage()">Send</button>
                 </div>
             </div>
@@ -645,7 +465,6 @@
         const BACKEND_WS = 'wss://syncbeat-backend2.onrender.com';
         let ws = null;
         let isHosting = false;
-        let isOfflineGroupMode = false;
         let currentRoomCode = "";
         let currentUserName = "User";
         let currentAccountId = "";
@@ -658,7 +477,6 @@
         let savedPlaylist = [];
         let upcomingQueue = [];
         let syncBroadcastInterval = null;
-        let mgScannerInterval = null;
         let particleAnimationId = null;
         let globeBeatInterval = null;
         let isScrubbing = false;
@@ -668,10 +486,8 @@
         let gyroX = 0;
         let gyroY = 0;
 
-        const realAudio = document.getElementById('realAudioPlayer');
         let currentActiveMode = 'none';
         let isYouTubeFullScreen = false;
-        let offlineFileChunks = [];
 
         const topCanvas = document.getElementById('topParticleCanvas');
         const tCtx = topCanvas.getContext('2d');
@@ -685,45 +501,25 @@
             ios_smileys: ["🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑", "🥦", "🥬", "🥒", "🌶️", "🫑", "🌽", "🥕", "🫒", "🧄", "🧅", "🥔", "🍠"],
             ios_hearts: ["💖", "💗", "💓", "💞", "💕", "💘", "💔", "❤️‍🔥", "❤️‍🩹", "❤️", "🧡", "💛", "💚", "💙", "💜", "🤎", "🖤", "🤍", "💯", "💢", "💥", "💫", "💦", "💨", "🕳️", "💬", "👁️‍🗨️", "🗨️", "🗯️", "💭", "💤", "👑"],
             ios_symbols: ["⭐", "🌟", "✨", "⚡", "🔥", "☄️", "💥", "☀️", "🌤️", "⛅", "🌥️", "☁️", "🌦️", "🌧️", "⛈️", "🌩️", "🌨️", "❄️", "🌪️", "🌫️", "🌬️", "🌀", "🌈", "🌂", "☂️", "☔", "⛱️", "⚡", "❄️", "☃️", "⛄", "🔥"],
-            ios_activities: ["⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳", "🪁", "🏹", "🎣", "🤿", "boxing", "martial arts", "skateboarding", "roller skating", "sled", "ice skate", "curling", "ski"]
+            ios_activities: ["⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳", "🪁", "🏹", "🎣", "🤿"]
         };
-
-        const sampleGifs = [
-            "https://media.giphy.com/media/3oKIPnAiaMCws8nOsE/giphy.gif",
-            "https://media.giphy.com/media/l0HlBO7EYXzSZk7ss/giphy.gif",
-            "https://media.giphy.com/media/xT9IgzoKnwFNmISR5I/giphy.gif",
-            "https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif",
-            "https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif",
-            "https://media.giphy.com/media/5GoVL4DAbCCXK/giphy.gif"
-        ];
 
         let activeEmojiCategory = 'android_smileys';
 
-        /* AUDIO-HEARABLE GUARD */
         function isAudioActuallyHearable() {
             if (!isSessionPlaying) return false;
-            
             const volSlider = document.getElementById('sessionMasterVol');
             const volVal = volSlider ? parseInt(volSlider.value) : 100;
             if (volVal <= 0) return false;
-
             if (currentActiveMode === 'youtube' && ytPlayer) {
                 try {
                     if (typeof ytPlayer.isMuted === 'function' && ytPlayer.isMuted()) return false;
-                    if (typeof ytPlayer.getPlayerState === 'function') {
-                        if (ytPlayer.getPlayerState() !== 1) return false;
-                    }
+                    if (typeof ytPlayer.getPlayerState === 'function' && ytPlayer.getPlayerState() !== 1) return false;
                 } catch(e) {}
             }
-
-            if (currentActiveMode === 'offline' && realAudio) {
-                if (realAudio.muted || realAudio.paused || realAudio.volume <= 0) return false;
-            }
-
             return true;
         }
 
-        /* TRIPLE BASS GLOBE EFFECT */
         function startGlobeBeatEffect() {
             if (globeBeatInterval) return;
             const globe = document.getElementById('audioBeatGlobe');
@@ -741,31 +537,15 @@
                     if (highBassRing) highBassRing.style.transform = 'scale(1)';
                     return;
                 }
-
                 const t = Date.now() * 0.015;
                 const lowBassFn = Math.pow(Math.abs(Math.sin(t * 3.5)), 4);
                 const midBassFn = Math.abs(Math.sin(t * 7.0));
                 const highBassFn = Math.pow(Math.abs(Math.cos(t * 11.0)), 2);
 
-                const coreScale = 1.0 + (midBassFn * 0.18);
-                const lowBassScale = 1.0 + (lowBassFn * 0.30);
-                const midBassScale = 1.0 + (midBassFn * 0.22);
-                const highBassScale = 1.0 + (highBassFn * 0.26);
-
-                const rx1 = 45 + Math.sin(t * 3) * 8;
-                const rx2 = 55 + Math.cos(t * 4) * 8;
-                const rx3 = 50 + Math.sin(t * 6) * 10;
-                const rx4 = 48 + Math.cos(t * 3) * 6;
-                const morphRadius = `${rx1}% ${rx2}% ${rx3}% ${rx4}% / ${rx4}% ${rx3}% ${rx2}% ${rx1}%`;
-
-                globe.style.transform = `scale(${coreScale})`;
-                globe.style.borderRadius = morphRadius;
-
-                if (lowBassRing) lowBassRing.style.transform = `scale(${lowBassScale})`;
-                if (midBassRing) midBassRing.style.transform = `scale(${midBassScale})`;
-                if (highBassRing) highBassRing.style.transform = `scale(${highBassScale})`;
-
-                globe.style.boxShadow = `0 0 ${20 + (lowBassFn * 25)}px rgba(255, 34, 0, ${0.7 + lowBassFn * 0.3}), inset 0 0 ${12 + (lowBassFn * 10)}px rgba(255, 180, 0, 0.8)`;
+                globe.style.transform = `scale(${1.0 + (midBassFn * 0.18)})`;
+                if (lowBassRing) lowBassRing.style.transform = `scale(${1.0 + (lowBassFn * 0.30)})`;
+                if (midBassRing) midBassRing.style.transform = `scale(${1.0 + (midBassFn * 0.22)})`;
+                if (highBassRing) highBassRing.style.transform = `scale(${1.0 + (highBassFn * 0.26)})`;
             }, 20);
         }
 
@@ -776,20 +556,16 @@
             if (globe) {
                 globe.style.transform = 'scale(1)';
                 globe.style.borderRadius = '50%';
-                const rings = globe.querySelectorAll('.globe-low-bass-ring, .globe-mid-bass-ring, .globe-high-bass-ring');
-                rings.forEach(r => r.style.transform = 'scale(1)');
-                globe.style.boxShadow = '0 0 20px rgba(255, 34, 0, 0.8), inset 0 0 15px rgba(255, 180, 0, 0.7)';
+                globe.querySelectorAll('.globe-low-bass-ring, .globe-mid-bass-ring, .globe-high-bass-ring').forEach(r => r.style.transform = 'scale(1)');
             }
         }
 
         function updatePlayerBoxThumbnail(ytId) {
             const playerCardBox = document.getElementById('activePlayerCardBox');
             if (!playerCardBox) return;
-
             activeYtId = ytId;
             if (ytId && isSessionPlaying) {
-                const thumbUrl = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-                playerCardBox.style.backgroundImage = `url('${thumbUrl}')`;
+                playerCardBox.style.backgroundImage = `url('https://img.youtube.com/vi/${ytId}/hqdefault.jpg')`;
             } else {
                 playerCardBox.style.backgroundImage = 'none';
             }
@@ -799,14 +575,8 @@
             const windowEl = document.getElementById('liveChatWindow');
             const launcherBtn = document.getElementById('liveChatLauncherBtn');
             const isHidden = windowEl.classList.contains('hidden');
-
-            if (isHidden) {
-                windowEl.classList.remove('hidden');
-                launcherBtn.classList.add('hidden');
-            } else {
-                windowEl.classList.add('hidden');
-                launcherBtn.classList.remove('hidden');
-            }
+            windowEl.classList.toggle('hidden', !isHidden);
+            launcherBtn.classList.toggle('hidden', isHidden);
         }
 
         function showLiveChatFloatingUI(show) {
@@ -828,7 +598,7 @@
                 topParticles.push({
                     x: Math.random() * topCanvas.width,
                     y: Math.random() * topCanvas.height,
-                    size: 1.2 + Math.random() * 2.0, // Small snow particles
+                    size: 1.2 + Math.random() * 2.0,
                     vx: (Math.random() - 0.5) * 0.3,
                     vy: 0.6 + Math.random() * 1.2,
                     colorHue: Math.random() * 360,
@@ -841,9 +611,6 @@
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.fillStyle = `hsl(${hue}, 100%, 90%)`;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = `hsl(${hue}, 100%, 80%)`;
-
             ctx.beginPath();
             ctx.moveTo(x, y - size * 2.5);
             ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
@@ -851,78 +618,39 @@
             ctx.quadraticCurveTo(x, y, x - size * 2.5, y);
             ctx.quadraticCurveTo(x, y, x, y - size * 2.5);
             ctx.fill();
-
             ctx.restore();
-        }
-
-        function initGyroscope() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission().catch(() => {});
-            }
-            window.addEventListener('deviceorientation', (e) => {
-                gyroX = (e.gamma || 0) * 0.15;
-                gyroY = (e.beta || 0) * 0.10;
-            });
         }
 
         function startParticleAnimation() {
             if (particleAnimationId) return;
-
             function loop() {
                 tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-                
-                if (!isSessionPlaying) {
-                    particleAnimationId = null;
-                    return;
-                }
-
-                const hearable = isAudioActuallyHearable();
-                const bassPunch = hearable ? Math.pow(Math.abs(Math.sin(Date.now() * 0.015 * 3.5)), 4) : 0;
-                const fallMultiplier = 1.0 + (bassPunch * 2.0) + Math.max(0, gyroY);
-
+                if (!isSessionPlaying) { particleAnimationId = null; return; }
                 topParticles.forEach(p => {
-                    p.x += p.vx + gyroX;
-                    p.y += p.vy * fallMultiplier;
-
-                    if (p.x < 0) p.x = topCanvas.width;
-                    if (p.x > topCanvas.width) p.x = 0;
-                    if (p.y > topCanvas.height) {
-                        p.y = -20;
-                        p.x = Math.random() * topCanvas.width;
-                    }
-
-                    p.alpha += (Math.random() - 0.5) * 0.04;
-                    p.alpha = Math.max(0.3, Math.min(1.0, p.alpha));
-
-                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.5) : 1.0);
-                    drawStarGlint(tCtx, p.x, p.y, currentSize, p.alpha, p.colorHue);
+                    p.y += p.vy;
+                    if (p.y > topCanvas.height) { p.y = -20; p.x = Math.random() * topCanvas.width; }
+                    drawStarGlint(tCtx, p.x, p.y, p.size, p.alpha, p.colorHue);
                 });
-
                 particleAnimationId = requestAnimationFrame(loop);
             }
             particleAnimationId = requestAnimationFrame(loop);
         }
 
         function stopParticleAnimation() {
-            if (particleAnimationId) {
-                cancelAnimationFrame(particleAnimationId);
-                particleAnimationId = null;
-            }
+            if (particleAnimationId) { cancelAnimationFrame(particleAnimationId); particleAnimationId = null; }
             tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
         }
 
         window.addEventListener('resize', initTopCanvas);
         window.addEventListener('DOMContentLoaded', () => {
             initTopCanvas();
-            initGyroscope();
             initPermanentDeviceAccount();
             checkBackgroundRoomState();
             renderEmojiGrid();
         });
 
         function toggleEmojiKeyboard() {
-            const kb = document.getElementById('phoneEmojiKeyboardSection');
-            kb.classList.toggle('hidden');
+            document.getElementById('phoneEmojiKeyboardSection').classList.toggle('hidden');
         }
 
         function switchEmojiCategory(categoryKey) {
@@ -936,82 +664,33 @@
             const grid = document.getElementById('kbEmojiGrid');
             if (!grid) return;
             grid.innerHTML = '';
-
-            if (activeEmojiCategory === 'gifs') {
-                grid.className = 'gif-grid-box';
-                sampleGifs.forEach(gifUrl => {
-                    const img = document.createElement('img');
-                    img.src = gifUrl;
-                    img.className = 'gif-thumb';
-                    img.onclick = () => sendGifMessage(gifUrl);
-                    grid.appendChild(img);
-                });
-            } else {
-                grid.className = 'emoji-grid-box';
-                const emojis = emojiCategories[activeEmojiCategory] || [];
-                emojis.forEach(emoji => {
-                    const btn = document.createElement('button');
-                    btn.className = 'emoji-key';
-                    btn.textContent = emoji;
-                    btn.onclick = () => sendReaction(emoji);
-                    grid.appendChild(btn);
-                });
-            }
+            grid.className = 'emoji-grid-box';
+            (emojiCategories[activeEmojiCategory] || []).forEach(emoji => {
+                const btn = document.createElement('button');
+                btn.className = 'emoji-key'; btn.textContent = emoji;
+                btn.onclick = () => sendReaction(emoji);
+                grid.appendChild(btn);
+            });
         }
 
-        function sendGifMessage(gifUrl) {
-            const htmlContent = `<img src="${gifUrl}" alt="GIF">`;
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'CHAT_MESSAGE',
-                    message: htmlContent,
-                    name: currentUserName,
-                    isHtml: true
-                }));
-                appendChatMessage(currentUserName, htmlContent, true);
-                showRoomPopup(currentUserName, htmlContent, true);
-            }
-        }
-
-        function showRoomPopup(senderName, content, isHtml = false) {
+        function showRoomPopup(senderName, content) {
             const container = document.getElementById('roomPopupContainer');
             if (!container) return;
-
             const card = document.createElement('div');
             card.className = 'room-popup-card';
-            
-            if (isHtml) {
-                card.innerHTML = `<div class="popup-sender">💬 ${escapeHtml(senderName)} sent a GIF:</div><div class="popup-content">${content}</div>`;
-            } else {
-                card.innerHTML = `<div class="popup-sender">💬 ${escapeHtml(senderName)}:</div><div class="popup-content">${escapeHtml(content)}</div>`;
-            }
-
+            card.innerHTML = `<div class="popup-sender">💬 ${escapeHtml(senderName)}:</div><div class="popup-content">${escapeHtml(content)}</div>`;
             container.appendChild(card);
-
-            setTimeout(() => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(-10px)';
-                card.style.transition = 'all 0.3s ease';
-                setTimeout(() => card.remove(), 300);
-            }, 3000);
+            setTimeout(() => card.remove(), 3000);
         }
 
         function updatePlayPauseUI(isPlaying) {
             isSessionPlaying = isPlaying;
-            const icon = isPlaying ? "⏸" : "▶";
-            
-            const mainBtn = document.getElementById('sessionPlayBtn');
-            if (mainBtn) mainBtn.textContent = icon;
-
-            const vfx = document.getElementById('vfxMusicSticker');
-            if (vfx) vfx.classList.toggle('hidden', !isPlaying);
-
+            document.getElementById('sessionPlayBtn').textContent = isPlaying ? "⏸" : "▶";
+            document.getElementById('vfxMusicSticker').classList.toggle('hidden', !isPlaying);
             if (isPlaying) {
                 startParticleAnimation();
                 startGlobeBeatEffect();
-                if (activeYtId) {
-                    updatePlayerBoxThumbnail(activeYtId);
-                }
+                if (activeYtId) updatePlayerBoxThumbnail(activeYtId);
             } else {
                 stopParticleAnimation();
                 stopGlobeBeatEffect();
@@ -1021,33 +700,14 @@
 
         function stopAllMedia(newMode) {
             currentActiveMode = newMode;
-            if (newMode !== 'youtube' && ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                ytPlayer.pauseVideo();
-            }
-            if (newMode !== 'offline' && realAudio) {
-                realAudio.pause();
-                realAudio.src = '';
-            }
+            if (newMode !== 'youtube' && ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
             activeYtId = null;
             updatePlayerBoxThumbnail(null);
         }
 
         function unlockMediaContext() {
             document.getElementById('interactionOverlay').classList.add('hidden');
-            
-            if (realAudio && realAudio.src) {
-                realAudio.muted = false;
-                realAudio.play().then(() => {
-                    if (!isHosting && realAudio.duration) {
-                        realAudio.currentTime = getActiveTime();
-                    }
-                }).catch(()=>{});
-            }
-            if (ytPlayer && typeof ytPlayer.unMute === 'function') {
-                ytPlayer.unMute();
-                ytPlayer.setVolume(100);
-                ytPlayer.playVideo();
-            }
+            if (ytPlayer && typeof ytPlayer.unMute === 'function') { ytPlayer.unMute(); ytPlayer.setVolume(100); ytPlayer.playVideo(); }
             showToast("Live Audio & Video Synced!");
         }
 
@@ -1058,79 +718,54 @@
                 localStorage.setItem('syncbeat_permanent_device_id', permanentId);
             }
             currentAccountId = permanentId;
-
-            let savedName = localStorage.getItem('syncbeat_device_name') || '';
-            currentUserName = savedName;
-
+            currentUserName = localStorage.getItem('syncbeat_device_name') || '';
             document.getElementById('userNameInput').value = currentUserName;
             document.getElementById('loggedAccountBadge').textContent = `ID: ${currentAccountId}`;
             document.getElementById('deviceAccountDisplay').textContent = `Permanent Device ID: ${currentAccountId}`;
-
             loadDeviceStorage();
         }
 
         function autoSaveProfileName() {
             const nameInput = document.getElementById('userNameInput').value.trim();
-            if (nameInput) {
-                currentUserName = nameInput;
-                localStorage.setItem('syncbeat_device_name', currentUserName);
-            }
+            if (nameInput) { currentUserName = nameInput; localStorage.setItem('syncbeat_device_name', currentUserName); }
         }
 
-        function saveProfileChanges() {
-            autoSaveProfileName();
-            showToast("Profile saved successfully!");
-        }
-
+        function saveProfileChanges() { autoSaveProfileName(); showToast("Profile saved successfully!"); }
         function resetDeviceProfile() {
-            if (confirm("Are you sure you want to reset your permanent Device ID? This will create a fresh separate profile storage.")) {
+            if (confirm("Reset permanent Device ID?")) {
                 localStorage.removeItem('syncbeat_permanent_device_id');
                 localStorage.removeItem('syncbeat_device_name');
                 initPermanentDeviceAccount();
-                showToast("Profile and ID reset!");
+                showToast("Profile reset!");
             }
         }
 
         function loadDeviceStorage() {
-            const storageKey = `syncbeat_playlist_${currentAccountId}`;
-            savedPlaylist = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            renderPlaylist();
-            renderQueue();
+            savedPlaylist = JSON.parse(localStorage.getItem(`syncbeat_playlist_${currentAccountId}`) || '[]');
+            renderPlaylist(); renderQueue();
         }
 
         function saveDeviceStorage() {
-            const storageKey = `syncbeat_playlist_${currentAccountId}`;
-            localStorage.setItem(storageKey, JSON.stringify(savedPlaylist));
+            localStorage.setItem(`syncbeat_playlist_${currentAccountId}`, JSON.stringify(savedPlaylist));
         }
 
         function showToast(msg) {
             const toast = document.getElementById('toastModal');
-            toast.textContent = msg;
-            toast.classList.add('show');
+            toast.textContent = msg; toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        function getUserInputName() {
-            autoSaveProfileName();
-            return currentUserName || "User";
-        }
-
+        function getUserInputName() { autoSaveProfileName(); return currentUserName || "User"; }
         function checkBackgroundRoomState() {
             const activeRoom = localStorage.getItem('syncbeat_active_room');
-            const returnBanner = document.getElementById('returnHostingBanner');
-            if (activeRoom && returnBanner) {
-                returnBanner.classList.remove('hidden');
-            } else if (returnBanner) {
-                returnBanner.classList.add('hidden');
-            }
+            document.getElementById('returnHostingBanner').classList.toggle('hidden', !activeRoom);
         }
 
         function renderPlaylist() {
             const container = document.getElementById('playlistContainer');
             if (!container) return;
             container.innerHTML = '';
-            const countEl = document.getElementById('playlistCount');
-            if (countEl) countEl.textContent = savedPlaylist.length;
+            document.getElementById('playlistCount').textContent = savedPlaylist.length;
             if (savedPlaylist.length === 0) {
                 container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">No saved videos yet.</div>';
                 return;
@@ -1138,12 +773,7 @@
             savedPlaylist.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'queue-item';
-                div.innerHTML = `
-                    <div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${item.title}</div>
-                    <div style="display:flex; gap:4px;">
-                        <button class="action-icon-btn" onclick="playPlaylistIndex(${index})">▶</button>
-                        <button class="action-icon-btn" style="color:#ef4444;" onclick="removePlaylistIndex(${index})">✕</button>
-                    </div>`;
+                div.innerHTML = `<div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${item.title}</div><div style="display:flex; gap:4px;"><button class="action-icon-btn" onclick="playPlaylistIndex(${index})">▶</button><button class="action-icon-btn" style="color:#ef4444;" onclick="removePlaylistIndex(${index})">✕</button></div>`;
                 container.appendChild(div);
             });
         }
@@ -1152,8 +782,7 @@
             const container = document.getElementById('queueList');
             if (!container) return;
             container.innerHTML = '';
-            const countEl = document.getElementById('queueCount');
-            if (countEl) countEl.textContent = upcomingQueue.length;
+            document.getElementById('queueCount').textContent = upcomingQueue.length;
             if (upcomingQueue.length === 0) {
                 container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 6px;">Queue is empty.</div>';
                 return;
@@ -1161,10 +790,7 @@
             upcomingQueue.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'queue-item';
-                div.innerHTML = `
-                    <div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${index + 1}. ${item.title}</div>
-                    <button class="action-icon-btn" style="color:#ef4444;" onclick="removeQueueIndex(${index})">✕</button>
-                `;
+                div.innerHTML = `<div style="font-size: 12px; font-weight: 700; overflow:hidden; flex:1;">${index + 1}. ${item.title}</div><button class="action-icon-btn" style="color:#ef4444;" onclick="removeQueueIndex(${index})">✕</button>`;
                 container.appendChild(div);
             });
         }
@@ -1172,50 +798,37 @@
         function saveSongToPlaylist(title, url) {
             if (!savedPlaylist.some(item => item.url === url)) {
                 savedPlaylist.push({ title, url });
-                saveDeviceStorage();
-                renderPlaylist();
+                saveDeviceStorage(); renderPlaylist();
                 showToast("Saved to YouTube playlist!");
-            } else {
-                showToast("Video already in playlist.");
-            }
+            } else { showToast("Already in playlist."); }
         }
 
         function playPlaylistIndex(index) {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
+            if (!isHosting) { showToast("Only host can control playback."); return; }
             const item = savedPlaylist[index];
             if (item) {
+                const playlistId = extractYouTubePlaylistId(item.url);
                 const ytId = extractYouTubeId(item.url);
-                if (ytId) playYouTubeStream(item.title, ytId, 0);
+                if (playlistId) loadYouTubePlaylistStream(item.title, playlistId, 0);
+                else if (ytId) playYouTubeStream(item.title, ytId, 0);
             }
         }
 
         function removePlaylistIndex(index) {
-            if (!isHosting) { showToast("Only the host can modify playlist."); return; }
+            if (!isHosting) return;
             savedPlaylist.splice(index, 1);
-            saveDeviceStorage();
-            renderPlaylist();
-            showToast("Removed from playlist.");
+            saveDeviceStorage(); renderPlaylist();
         }
 
-        function removeQueueIndex(index) {
-            upcomingQueue.splice(index, 1);
-            renderQueue();
-            showToast("Removed from queue.");
-        }
+        function removeQueueIndex(index) { upcomingQueue.splice(index, 1); renderQueue(); }
 
         function playNextQueueTrack() {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
-            if (upcomingQueue.length === 0) {
-                showToast("YouTube upcoming queue is empty.");
-                return;
-            }
+            if (!isHosting) return;
+            if (upcomingQueue.length === 0) { showToast("Queue is empty."); return; }
             const nextTrack = upcomingQueue.shift();
             renderQueue();
             const ytId = extractYouTubeId(nextTrack.url);
-            if (ytId) {
-                playYouTubeStream(nextTrack.title, ytId, 0);
-                showToast("Playing next from queue!");
-            }
+            if (ytId) playYouTubeStream(nextTrack.title, ytId, 0);
         }
 
         function toggleFullScreenMode() {
@@ -1224,54 +837,20 @@
             const hostUrlControls = document.getElementById('hostUrlControls');
             const wrapper = document.getElementById('ytEmbedWrapper');
             const exitBtn = document.getElementById('exitFullScreenBtn');
-            const hostOnlyControls = document.getElementById('hostOnlyControls');
-            const cardHeader = document.getElementById('controllerCardHeader');
 
-            const children = sessionView.children;
-            for (let child of children) {
-                if (child !== hostUrlControls) {
-                    child.classList.toggle('hidden', isYouTubeFullScreen);
-                }
+            for (let child of sessionView.children) {
+                if (child !== hostUrlControls) child.classList.toggle('hidden', isYouTubeFullScreen);
             }
-
-            if (hostOnlyControls) hostOnlyControls.classList.toggle('hidden', isYouTubeFullScreen);
-            if (cardHeader) cardHeader.classList.toggle('hidden', isYouTubeFullScreen);
+            document.getElementById('hostOnlyControls').classList.toggle('hidden', isYouTubeFullScreen);
+            document.getElementById('controllerCardHeader').classList.toggle('hidden', isYouTubeFullScreen);
 
             if (isYouTubeFullScreen) {
-                hostUrlControls.style.position = 'fixed';
-                hostUrlControls.style.top = '0';
-                hostUrlControls.style.left = '0';
-                hostUrlControls.style.width = '100vw';
-                hostUrlControls.style.height = '100vh';
-                hostUrlControls.style.zIndex = '999999';
-                hostUrlControls.style.background = '#000';
-                hostUrlControls.style.margin = '0';
-                hostUrlControls.style.padding = '0';
-                hostUrlControls.style.border = 'none';
-                hostUrlControls.style.boxShadow = 'none';
-
-                wrapper.style.width = '100vw';
-                wrapper.style.height = '100vh';
-                wrapper.style.borderRadius = '0';
-
+                hostUrlControls.style.cssText = "position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999999; background:#000; margin:0; padding:0; border:none; box-shadow:none;";
+                wrapper.style.cssText = "width:100vw; height:100vh; border-radius:0;";
                 exitBtn.classList.remove('hidden');
             } else {
-                hostUrlControls.style.position = 'relative';
-                hostUrlControls.style.top = 'auto';
-                hostUrlControls.style.left = 'auto';
-                hostUrlControls.style.width = 'auto';
-                hostUrlControls.style.height = 'auto';
-                hostUrlControls.style.zIndex = '1';
-                hostUrlControls.style.background = 'linear-gradient(145deg, #ffffff, #faf5ff)';
-                hostUrlControls.style.margin = '0 0 14px 0';
-                hostUrlControls.style.padding = '16px';
-                hostUrlControls.style.border = '1px solid #ede9fe';
-                hostUrlControls.style.boxShadow = '0 10px 25px -5px rgba(124, 58, 237, 0.05)';
-
-                wrapper.style.width = '100%';
-                wrapper.style.height = '180px';
-                wrapper.style.borderRadius = '12px';
-
+                hostUrlControls.style.cssText = "position:relative; background:linear-gradient(145deg, #ffffff, #faf5ff); margin:0 0 14px 0; padding:16px; border:1px solid #ede9fe;";
+                wrapper.style.cssText = "width:100%; height:180px; border-radius:12px;";
                 exitBtn.classList.add('hidden');
             }
         }
@@ -1281,12 +860,19 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        function extractYouTubePlaylistId(url) {
+            const match = url.match(/[?&]list=([^#&?]+)/);
+            return match ? match[1] : null;
+        }
+
         function handleUrlAction(type) {
             if (!isHosting) { showToast("Only the host can modify playback or queues."); return; }
             const input = document.getElementById('queueUrlInput');
             const val = input.value.trim();
+            if (!val) { showToast("Enter a valid YouTube URL."); return; }
+
+            const playlistId = extractYouTubePlaylistId(val);
             const ytId = extractYouTubeId(val);
-            if (!ytId) { showToast("Enter a valid YouTube URL."); return; }
 
             if (type === 'save') {
                 saveSongToPlaylist(val, val);
@@ -1295,97 +881,91 @@
                 renderQueue();
                 showToast("Added to upcoming queue!");
             } else {
-                playYouTubeStream(val, ytId, 0);
+                if (playlistId) {
+                    loadYouTubePlaylistStream("YouTube Playlist", playlistId, 0);
+                    showToast("Playing YouTube Playlist!");
+                } else if (ytId) {
+                    playYouTubeStream(val, ytId, 0);
+                } else {
+                    showToast("Invalid YouTube Video or Playlist URL.");
+                }
             }
             input.value = "";
         }
 
         function playYouTubeStream(title, ytId, startTime = 0) {
             stopAllMedia('youtube');
-
             document.getElementById('sessionTitle').textContent = title;
             document.getElementById('sessionArtist').textContent = "YouTube Video Stream";
             document.getElementById('sessionArt').textContent = "🎬";
-            
             updatePlayerBoxThumbnail(ytId);
             updatePlayPauseUI(true);
             loadYouTubePlayer(ytId, startTime);
             startProgressTracker();
 
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ 
-                    type: 'PLAY_YOUTUBE', 
-                    title: title, 
-                    ytId: ytId,
-                    currentTime: startTime 
-                }));
+                ws.send(JSON.stringify({ type: 'PLAY_YOUTUBE', title: title, ytId: ytId, currentTime: startTime }));
+            }
+        }
+
+        function loadYouTubePlaylistStream(title, playlistId, startIndex = 0) {
+            stopAllMedia('youtube');
+            document.getElementById('sessionTitle').textContent = title;
+            document.getElementById('sessionArtist').textContent = "YouTube Playlist Stream";
+            document.getElementById('sessionArt').textContent = "📜";
+            updatePlayPauseUI(true);
+            loadYouTubePlaylistPlayer(playlistId, startIndex);
+            startProgressTracker();
+
+            if (isHosting && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'PLAY_YOUTUBE_PLAYLIST', title: title, playlistId: playlistId, startIndex: startIndex }));
             }
         }
 
         function loadYouTubePlayer(ytId, startTime = 0) {
             applyRoleUI();
-
             if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-                ytPlayer.unMute();
-                ytPlayer.setVolume(100);
+                ytPlayer.unMute(); ytPlayer.setVolume(100);
                 ytPlayer.loadVideoById({ 'videoId': ytId, 'startSeconds': startTime });
-                if (!isHosting && typeof ytPlayer.seekTo === 'function') {
-                    ytPlayer.seekTo(startTime, true);
-                }
             } else {
                 ytPlayer = new YT.Player('ytPlayerDiv', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: ytId,
-                    playerVars: { 
-                        'autoplay': 1, 
-                        'controls': 1,
-                        'disablekb': 1,               
-                        'modestbranding': 1,
-                        'start': startTime 
-                    },
+                    height: '100%', width: '100%', videoId: ytId,
+                    playerVars: { 'autoplay': 1, 'controls': 1, 'start': startTime },
                     events: {
-                        'onReady': (e) => { 
-                            e.target.unMute();
-                            e.target.setVolume(100);
-                            e.target.seekTo(startTime, true);
-                            e.target.playVideo(); 
-                        },
+                        'onReady': (e) => { e.target.unMute(); e.target.setVolume(100); e.target.playVideo(); },
                         'onStateChange': (e) => {
-                            if (e.data === YT.PlayerState.ENDED) {
-                                if (isHosting && upcomingQueue.length > 0) {
-                                    playNextQueueTrack();
-                                } else {
-                                    updatePlayPauseUI(false);
-                                }
-                            }
+                            if (e.data === YT.PlayerState.ENDED && isHosting && upcomingQueue.length > 0) playNextQueueTrack();
                         }
                     }
                 });
             }
         }
 
-        function playOfflineAudio(title, dataUrl, startTime = 0) {
-            stopAllMedia('offline');
-
-            document.getElementById('sessionTitle').textContent = title;
-            document.getElementById('sessionArtist').textContent = "Music Group Local Broadcast";
-            document.getElementById('sessionArt').textContent = "🎵";
-
-            updatePlayerBoxThumbnail(null);
-            updatePlayPauseUI(true);
-
-            if (dataUrl) {
-                realAudio.src = dataUrl;
-                realAudio.currentTime = startTime;
-                realAudio.muted = false;
-                const volSlider = document.getElementById('sessionMasterVol');
-                realAudio.volume = parseInt(volSlider ? volSlider.value : 100) / 100;
-                realAudio.play().catch(()=>{
-                    document.getElementById('interactionOverlay').classList.remove('hidden');
+        function loadYouTubePlaylistPlayer(playlistId, startIndex = 0) {
+            applyRoleUI();
+            if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
+                ytPlayer.unMute(); ytPlayer.setVolume(100);
+                ytPlayer.loadPlaylist({
+                    list: playlistId,
+                    listType: 'playlist',
+                    index: startIndex,
+                    startSeconds: 0
+                });
+            } else {
+                ytPlayer = new YT.Player('ytPlayerDiv', {
+                    height: '100%', width: '100%',
+                    playerVars: {
+                        'autoplay': 1,
+                        'controls': 1,
+                        'listType': 'playlist',
+                        'list': playlistId,
+                        'index': startIndex
+                    },
+                    events: {
+                        'onReady': (e) => { e.target.unMute(); e.target.setVolume(100); e.target.playVideo(); }
+                    }
                 });
             }
-            startProgressTracker();
         }
 
         function startProgressTracker() {
@@ -1396,18 +976,10 @@
                     const current = ytPlayer.getCurrentTime();
                     const total = ytPlayer.getDuration();
                     if (total > 0) {
-                        const pct = (current / total) * 100;
-                        document.getElementById('sessionFill').style.width = pct + '%';
+                        document.getElementById('sessionFill').style.width = ((current / total) * 100) + '%';
                         document.getElementById('sessionCurrentTime').textContent = formatTime(current);
                         document.getElementById('sessionTotalDuration').textContent = formatTime(total);
                     }
-                } else if ((currentActiveMode === 'offline') && realAudio && realAudio.duration) {
-                    const current = realAudio.currentTime;
-                    const total = realAudio.duration;
-                    const pct = (current / total) * 100;
-                    document.getElementById('sessionFill').style.width = pct + '%';
-                    document.getElementById('sessionCurrentTime').textContent = formatTime(current);
-                    document.getElementById('sessionTotalDuration').textContent = formatTime(total);
                 }
             }, 500);
         }
@@ -1418,135 +990,64 @@
             return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
-        /* FINGER-SLIDEABLE PROGRESS SCRUBBING */
         function startScrubbing(event) {
-            if (!isHosting) { showToast("Only the host can scrub/seek playback."); return; }
+            if (!isHosting) { showToast("Only host can scrub."); return; }
             isScrubbing = true;
             updateSliderPosition(event);
-
-            function onTouchMove(e) { updateSliderPosition(e.touches ? e.touches[0] : e); }
-            function onMouseMove(e) { updateSliderPosition(e); }
-            function onEnd(e) {
+            const onTouch = (e) => updateSliderPosition(e.touches ? e.touches[0] : e);
+            const onMouse = (e) => updateSliderPosition(e);
+            const onEnd = (e) => {
                 isScrubbing = false;
-                window.removeEventListener('mousemove', onMouseMove);
-                window.removeEventListener('mouseup', onEnd);
-                window.removeEventListener('touchmove', onTouchMove);
-                window.removeEventListener('touchend', onEnd);
+                window.removeEventListener('mousemove', onMouse); window.removeEventListener('mouseup', onEnd);
+                window.removeEventListener('touchmove', onTouch); window.removeEventListener('touchend', onEnd);
                 finalizeSeek(e.clientX || (e.changedTouches ? e.changedTouches[0].clientX : 0));
-            }
-
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('mouseup', onEnd);
-            window.addEventListener('touchmove', onTouchMove);
-            window.addEventListener('touchend', onEnd);
+            };
+            window.addEventListener('mousemove', onMouse); window.addEventListener('mouseup', onEnd);
+            window.addEventListener('touchmove', onTouch); window.addEventListener('touchend', onEnd);
         }
 
         function updateSliderPosition(e) {
             if (!isHosting) return;
             const track = document.getElementById('progressTrackScrubber');
-            if (!track) return;
             const rect = track.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            const offsetX = clientX - rect.left;
-            const percentage = Math.max(0, Math.min(1, offsetX / rect.width));
-            
+            const percentage = Math.max(0, Math.min(1, (e.clientX || (e.touches ? e.touches[0].clientX : 0) - rect.left) / rect.width));
             document.getElementById('sessionFill').style.width = (percentage * 100) + '%';
-            
-            let total = 0;
-            if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                total = ytPlayer.getDuration();
-            } else if (currentActiveMode === 'offline' && realAudio && realAudio.duration) {
-                total = realAudio.duration;
-            }
-            if (total > 0) {
-                document.getElementById('sessionCurrentTime').textContent = formatTime(percentage * total);
-            }
         }
 
         function finalizeSeek(clientX) {
             if (!isHosting) return;
             const track = document.getElementById('progressTrackScrubber');
-            if (!track) return;
             const rect = track.getBoundingClientRect();
-            const offsetX = clientX - rect.left;
-            const percentage = Math.max(0, Math.min(1, offsetX / rect.width));
-
+            const percentage = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
             if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                const duration = ytPlayer.getDuration();
-                const newTime = percentage * duration;
+                const newTime = percentage * ytPlayer.getDuration();
                 ytPlayer.seekTo(newTime, true);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
-                }
-            } else if (currentActiveMode === 'offline' && realAudio && realAudio.duration) {
-                const newTime = percentage * realAudio.duration;
-                realAudio.currentTime = newTime;
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
-                }
+                if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'CONTROL', action: 'seek', time: newTime }));
             }
         }
 
-        function seekTrack(event) {
-            if (!isHosting) { showToast("Only the host can control playback scrubbing."); return; }
-            finalizeSeek(event.clientX);
-        }
-
+        function seekTrack(event) { if (!isHosting) return; finalizeSeek(event.clientX); }
         function getActiveTime() {
             if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') return ytPlayer.getCurrentTime();
-            if (currentActiveMode === 'offline' && realAudio) return realAudio.currentTime;
             return 0;
         }
 
         function togglePlaySession() {
-            if (!isHosting) { showToast("Only the host can control playback."); return; }
+            if (!isHosting) { showToast("Only host can control playback."); return; }
             const newState = !isSessionPlaying;
-            
-            if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                if (newState) {
-                    ytPlayer.unMute();
-                    ytPlayer.playVideo();
-                } else {
-                    ytPlayer.pauseVideo();
-                }
-            } else if (currentActiveMode === 'offline') {
-                if (realAudio) {
-                    if (newState) {
-                        realAudio.muted = false;
-                        realAudio.play().catch(()=>{});
-                    } else {
-                        realAudio.pause();
-                    }
-                }
+            if (currentActiveMode === 'youtube' && ytPlayer) {
+                if (newState) ytPlayer.playVideo(); else ytPlayer.pauseVideo();
             }
-
             updatePlayPauseUI(newState);
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ 
-                    type: 'CONTROL', 
-                    action: newState ? 'play' : 'pause', 
-                    time: getActiveTime() 
-                }));
-            }
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'CONTROL', action: newState ? 'play' : 'pause', time: getActiveTime() }));
         }
 
         function updateRealTimeMasterVol(val) {
             if (!isHosting) return;
             document.getElementById('sessionVolPct').textContent = val + "%";
-            const numericVol = parseInt(val);
-
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                ytPlayer.unMute();
-                ytPlayer.setVolume(numericVol);
-            }
-            if (realAudio) {
-                realAudio.muted = false;
-                realAudio.volume = numericVol / 100;
-            }
-
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
-            }
+            const num = parseInt(val);
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(num);
+            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'VOLUME', volume: val }));
         }
 
         function startHostSyncLoop() {
@@ -1562,55 +1063,37 @@
             const input = document.getElementById('chatInput');
             const msg = input.value.trim();
             if (!msg) return;
-
             if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'CHAT_MESSAGE',
-                    message: msg,
-                    name: currentUserName,
-                    isHtml: false
-                }));
-                appendChatMessage(currentUserName, msg, false);
-                showRoomPopup(currentUserName, msg, false);
+                ws.send(JSON.stringify({ type: 'CHAT_MESSAGE', message: msg, name: currentUserName }));
+                appendChatMessage(currentUserName, msg);
+                showRoomPopup(currentUserName, msg);
             }
             input.value = '';
         }
 
-        function appendChatMessage(sender, message, isHtml = false) {
+        function appendChatMessage(sender, message) {
             const container = document.getElementById('chatMessagesContainer');
             if (!container) return;
-            const placeholder = container.querySelector('div[style*="text-align: center"]');
-            if (placeholder) {
-                placeholder.remove();
-            }
+            if (container.querySelector('div[style*="text-align: center"]')) container.innerHTML = '';
             const div = document.createElement('div');
             div.style.wordBreak = 'break-all';
-            
-            if (isHtml) {
-                div.innerHTML = `<b style="color: #7c3aed;">${escapeHtml(sender)}:</b> ${message}`;
-            } else {
-                div.innerHTML = `<b style="color: #7c3aed;">${escapeHtml(sender)}:</b> ${escapeHtml(message)}`;
-            }
+            div.innerHTML = `<b style="color: #7c3aed;">${escapeHtml(sender)}:</b> ${escapeHtml(message)}`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
         function clearChatBox() {
-            const container = document.getElementById('chatMessagesContainer');
-            if (container) {
-                container.innerHTML = '<div style="color: #9ca3af; text-align: center; font-style: italic;">No messages yet. Say hello!</div>';
-            }
+            document.getElementById('chatMessagesContainer').innerHTML = '<div style="color: #9ca3af; text-align: center; font-style: italic;">No messages yet. Say hello!</div>';
         }
 
         function sendReaction(emoji) {
-            showFloatingReaction(emoji, currentUserName);
+            showFloatingReaction(emoji);
             if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'REACTION', emoji: emoji, name: `${currentUserName} (${currentAccountId})` }));
         }
 
-        function showFloatingReaction(emoji, sender) {
+        function showFloatingReaction(emoji) {
             const el = document.createElement('div');
-            el.className = 'floating-reaction';
-            el.textContent = emoji;
+            el.className = 'floating-reaction'; el.textContent = emoji;
             el.style.left = (Math.random() * (window.innerWidth - 60) + 20) + 'px';
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 2200);
@@ -1618,69 +1101,34 @@
 
         function escapeHtml(text) {
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
         function handleIncomingControl(data) {
             if (data.type === 'PLAY_YOUTUBE') {
                 playYouTubeStream(data.title, data.ytId, data.currentTime || 0);
+            } else if (data.type === 'PLAY_YOUTUBE_PLAYLIST') {
+                loadYouTubePlaylistStream(data.title, data.playlistId, data.startIndex || 0);
             } else if (data.type === 'CHAT_MESSAGE') {
-                appendChatMessage(data.name || 'User', data.message, data.isHtml || false);
-                showRoomPopup(data.name || 'User', data.message, data.isHtml || false);
+                appendChatMessage(data.name || 'User', data.message);
+                showRoomPopup(data.name || 'User', data.message);
             } else if (data.type === 'REACTION') {
-                showFloatingReaction(data.emoji, data.name || 'Peer');
-            } else if (data.type === 'OFFLINE_FILE_CHUNK' && !isHosting) {
-                offlineFileChunks[data.index] = data.data;
-                if (data.index === data.total - 1) {
-                    const completeData = offlineFileChunks.join('');
-                    playOfflineAudio(data.fileName, completeData, 0);
-                }
+                showFloatingReaction(data.emoji);
             } else if (data.type === 'SYNC_TIME' && !isHosting) {
                 if (currentActiveMode === 'youtube' && ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                    const diff = Math.abs(ytPlayer.getCurrentTime() - data.time);
-                    if (diff > 1.5) ytPlayer.seekTo(data.time, true); 
-                } else if (currentActiveMode === 'offline' && realAudio && realAudio.duration) {
-                    const diff = Math.abs(realAudio.currentTime - data.time);
-                    if (diff > 1.5) realAudio.currentTime = data.time;
+                    if (Math.abs(ytPlayer.getCurrentTime() - data.time) > 1.5) ytPlayer.seekTo(data.time, true);
                 }
             } else if (data.type === 'CONTROL') {
-                const isPlayingState = (data.action === 'play' || data.action === 'seek');
-                updatePlayPauseUI(isPlayingState);
-                
+                updatePlayPauseUI(data.action === 'play' || data.action === 'seek');
                 if (currentActiveMode === 'youtube' && ytPlayer) {
-                    if (typeof data.time === 'number') {
-                        ytPlayer.seekTo(data.time, true);
-                        document.getElementById('sessionCurrentTime').textContent = formatTime(data.time);
-                    }
-                    if (data.action === 'play' || data.action === 'seek') {
-                        ytPlayer.unMute();
-                        ytPlayer.playVideo();
-                    }
+                    if (typeof data.time === 'number') ytPlayer.seekTo(data.time, true);
+                    if (data.action === 'play' || data.action === 'seek') ytPlayer.playVideo();
                     if (data.action === 'pause') ytPlayer.pauseVideo();
-                } else if (currentActiveMode === 'offline' && realAudio) {
-                    if (typeof data.time === 'number') realAudio.currentTime = data.time;
-                    if (data.action === 'play' || data.action === 'seek') {
-                        realAudio.muted = false;
-                        realAudio.play().catch(() => {
-                            document.getElementById('interactionOverlay').classList.remove('hidden');
-                        });
-                    }
-                    if (data.action === 'pause') realAudio.pause();
                 }
             } else if (data.type === 'VOLUME') {
-                const volInput = document.getElementById('sessionMasterVol');
-                const volPctEl = document.getElementById('sessionVolPct');
-                if (volInput) volInput.value = data.volume;
-                if (volPctEl) volPctEl.textContent = data.volume + "%";
-                const num = parseInt(data.volume);
-                if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                    ytPlayer.unMute();
-                    ytPlayer.setVolume(num);
-                }
-                if (realAudio) {
-                    realAudio.muted = false;
-                    realAudio.volume = num / 100;
-                }
+                document.getElementById('sessionMasterVol').value = data.volume;
+                document.getElementById('sessionVolPct').textContent = data.volume + "%";
+                if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(parseInt(data.volume));
             }
         }
 
@@ -1692,27 +1140,19 @@
                 navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
                     scannerStream = stream;
                     const video = document.getElementById('qrVideoElement');
-                    video.srcObject = stream;
-                    video.play();
+                    video.srcObject = stream; video.play();
                     scannerInterval = setInterval(() => {
                         if (video.readyState === video.HAVE_ENOUGH_DATA) {
                             const canvas = document.getElementById('qrCanvasElement');
-                            canvas.height = video.videoHeight;
-                            canvas.width = video.videoWidth;
+                            canvas.height = video.videoHeight; canvas.width = video.videoWidth;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                             const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-                            if (code) {
-                                document.getElementById('roomCodeInput').value = code.data.trim().toUpperCase();
-                                stopQrScanner();
-                                connectToRoom();
-                            }
+                            if (code) { document.getElementById('roomCodeInput').value = code.data.trim().toUpperCase(); stopQrScanner(); connectToRoom(); }
                         }
                     }, 300);
-                }).catch(() => showToast("Camera access denied."));
-            } else {
-                stopQrScanner();
-            }
+                }).catch(() => showToast("Camera denied."));
+            } else { stopQrScanner(); }
         }
 
         function stopQrScanner() {
@@ -1723,12 +1163,9 @@
         }
 
         function updateLocalPeerDisplay(role) {
-            const nameDisplay = document.getElementById('initialPeerName');
-            const idDisplay = document.getElementById('initialPeerId');
+            document.getElementById('initialPeerName').textContent = currentUserName || "User";
+            document.getElementById('initialPeerId').textContent = `ID: ${currentAccountId}`;
             const roleTag = document.getElementById('peerRoleTag');
-            
-            if (nameDisplay) nameDisplay.textContent = currentUserName || "User";
-            if (idDisplay) idDisplay.textContent = `ID: ${currentAccountId}`;
             if (roleTag) {
                 roleTag.textContent = role;
                 roleTag.style.background = role === 'HOST' ? '#dcfce7' : '#16a34a';
@@ -1738,191 +1175,79 @@
 
         function applyRoleUI() {
             const isHost = isHosting;
-            const hostOnlyControls = document.getElementById('hostOnlyControls');
-            if (hostOnlyControls) hostOnlyControls.classList.toggle('hidden', !isHost);
-
-            const playPauseBtn = document.getElementById('sessionPlayBtn');
-            const nextBtn = document.getElementById('sessionNextBtn');
-            const masterVol = document.getElementById('sessionMasterVol');
-
-            if (playPauseBtn) playPauseBtn.disabled = !isHost;
-            if (nextBtn) nextBtn.disabled = !isHost;
-            if (masterVol) masterVol.disabled = !isHost;
+            document.getElementById('hostOnlyControls').classList.toggle('hidden', !isHost);
+            document.getElementById('sessionPlayBtn').disabled = !isHost;
+            document.getElementById('sessionNextBtn').disabled = !isHost;
+            document.getElementById('sessionMasterVol').disabled = !isHost;
         }
 
         function handlePeerListUpdate(newPeers) {
             const uniqueMap = new Map();
-            newPeers.forEach(peer => {
-                if (peer && peer.accountId) {
-                    uniqueMap.set(peer.accountId, peer);
-                }
-            });
+            newPeers.forEach(peer => { if (peer && peer.accountId) uniqueMap.set(peer.accountId, peer); });
             const dedupedPeers = Array.from(uniqueMap.values());
-
-            dedupedPeers.forEach(newPeer => {
-                const foundOld = previousPeersList.find(p => p.accountId === newPeer.accountId);
-                if (!foundOld && newPeer.accountId !== currentAccountId) {
-                    showToast(`'${newPeer.name} (${newPeer.accountId})' is connected`);
-                }
-            });
-
-            previousPeersList.forEach(oldPeer => {
-                const foundNew = dedupedPeers.find(p => p.accountId === oldPeer.accountId);
-                if (!foundNew && oldPeer.accountId !== currentAccountId) {
-                    showToast(`'${oldPeer.name} (${oldPeer.accountId})' is disconnected`);
-                }
-            });
-
             previousPeersList = dedupedPeers;
 
             const container = document.getElementById('peerListContainer');
             if (container) {
                 container.innerHTML = '';
-                if (dedupedPeers.length === 0) {
-                    container.innerHTML = '<div style="font-size: 11px; color: #9ca3af; text-align: center; padding: 8px;">No devices connected.</div>';
-                } else {
-                    dedupedPeers.forEach(peer => {
-                        const div = document.createElement('div');
-                        div.className = 'peer-item';
-                        div.innerHTML = `
-                            <div class="peer-info">
-                                <div class="peer-icon">👤</div>
-                                <div>
-                                    <div class="peer-name">${peer.name || 'User'}</div>
-                                    <div class="peer-meta">ID: ${peer.accountId || 'SYNC-0000'}</div>
-                                </div>
-                            </div>
-                            <span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>
-                        `;
-                        container.appendChild(div);
-                    });
-                }
-            }
-            const mgLimit = document.getElementById('mgPeerLimitBadge');
-            if (mgLimit && dedupedPeers.length) {
-                mgLimit.textContent = `${dedupedPeers.length} Device(s) Connected to this Server`;
+                dedupedPeers.forEach(peer => {
+                    const div = document.createElement('div');
+                    div.className = 'peer-item';
+                    div.innerHTML = `<div class="peer-info"><div class="peer-icon">👤</div><div><div class="peer-name">${peer.name || 'User'}</div><div class="peer-meta">ID: ${peer.accountId || ''}</div></div></div><span class="sync-tag" style="${peer.role === 'HOST' ? 'background:#dcfce7; color:#16a34a;' : 'background:#ede9fe; color:#7c3aed;'}">${peer.role}</span>`;
+                    container.appendChild(div);
+                });
             }
         }
 
-        function connectWebSocket(onSuccess, onError) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
+        function connectWebSocket(onSuccess) {
+            if (ws && ws.readyState === WebSocket.OPEN) { if (onSuccess) onSuccess(); return; }
+            ws = new WebSocket(BACKEND_WS);
+            ws.onopen = () => {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' })); }, 20000);
+                if (currentRoomCode) {
+                    ws.send(JSON.stringify({ type: isHosting ? 'HOST_ROOM' : 'JOIN_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
+                }
                 if (onSuccess) onSuccess();
-                return;
-            }
-
-            showToast("Connecting to network...");
-
-            fetch('https://syncbeat-backend2.onrender.com/')
-                .catch(() => {})
-                .finally(() => {
-                    ws = new WebSocket(BACKEND_WS);
-
-                    ws.onopen = () => {
-                        clearInterval(heartbeatInterval);
-                        heartbeatInterval = setInterval(() => {
-                            if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'PING' }));
-                        }, 20000);
-
-                        if (currentRoomCode && !isOfflineGroupMode) {
-                            if (isHosting) {
-                                ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
-                            } else {
-                                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
-                            }
-                        }
-
-                        if (onSuccess) onSuccess();
-                    };
-
-                    ws.onmessage = (event) => {
-                        const data = JSON.parse(event.data);
-                        if (data.type === 'ROOM_HOSTED_SUCCESS') {
-                            showToast("Room re-hosted successfully!");
-                            startHostSyncLoop();
-                        } else if (data.type === 'OFFLINE_MESH_CONNECTED') {
-                            showToast("Connected to Local Music Group!");
-                        } else if (data.type === 'ROOM_JOIN_SUCCESS') {
-                            isHosting = false;
-                            currentRoomCode = data.code;
-                            localStorage.setItem('syncbeat_active_room', currentRoomCode);
-                            checkBackgroundRoomState();
-
-                            document.getElementById('displayRoomCode').textContent = data.code;
-                            document.getElementById('sessionSubtitle').textContent = `Member: ${currentUserName} (${currentAccountId})`;
-                            document.getElementById('sessionHeaderTitle').textContent = "Member Session";
-                            document.getElementById('roleIndicatorBadge').textContent = "Role: Member";
-                            
-                            updateLocalPeerDisplay('MEMBER');
-                            applyRoleUI();
-
-                            document.getElementById('mainLandingView').classList.add('hidden');
-                            document.getElementById('hostSessionView').classList.remove('hidden');
-                            
-                            showLiveChatFloatingUI(true);
-
-                            document.getElementById('interactionOverlay').classList.remove('hidden');
-                            showToast("Reconnected to room: " + data.code);
-                        } else if (data.type === 'PEER_LIST') {
-                            handlePeerListUpdate(data.peers || []);
-                        } else if (data.type === 'NOTIFICATION') {
-                            showToast(data.message);
-                        } else if (data.type === 'ROOM_NOT_FOUND' || data.type === 'ERROR') {
-                            showToast(data.message || "Room expired or closed.");
-                        } else if (
-                            data.type === 'CONTROL' || 
-                            data.type === 'PLAY_YOUTUBE' || 
-                            data.type === 'VOLUME' || 
-                            data.type === 'SYNC_TIME' ||
-                            data.type === 'OFFLINE_FILE_CHUNK' ||
-                            data.type === 'CHAT_MESSAGE' ||
-                            data.type === 'REACTION'
-                        ) {
-                            handleIncomingControl(data);
-                        } else if (data.type === 'ROOM_CLOSED') {
-                            exitHostSession();
-                            clearChatBox();
-                            showLiveChatFloatingUI(false);
-                            showToast("Host closed the room session.");
-                        }
-                    };
-
-                    ws.onerror = () => { if (onError) onError(); };
-                    ws.onclose = () => { 
-                        clearInterval(heartbeatInterval);
-                        clearInterval(syncBroadcastInterval);
-                        if (currentRoomCode) {
-                            setTimeout(() => connectWebSocket(), 3000);
-                        }
-                    };
-                });
+            };
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'ROOM_HOSTED_SUCCESS') { showToast("Room re-hosted!"); startHostSyncLoop(); }
+                else if (data.type === 'ROOM_JOIN_SUCCESS') {
+                    isHosting = false; currentRoomCode = data.code;
+                    localStorage.setItem('syncbeat_active_room', currentRoomCode);
+                    checkBackgroundRoomState();
+                    document.getElementById('displayRoomCode').textContent = data.code;
+                    document.getElementById('sessionSubtitle').textContent = `Member: ${currentUserName}`;
+                    document.getElementById('sessionHeaderTitle').textContent = "Member Session";
+                    updateLocalPeerDisplay('MEMBER'); applyRoleUI();
+                    document.getElementById('mainLandingView').classList.add('hidden');
+                    document.getElementById('hostSessionView').classList.remove('hidden');
+                    showLiveChatFloatingUI(true);
+                    document.getElementById('interactionOverlay').classList.remove('hidden');
+                } else if (data.type === 'PEER_LIST') { handlePeerListUpdate(data.peers || []); }
+                else if (data.type === 'NOTIFICATION') { showToast(data.message); }
+                else if (data.type === 'ROOM_CLOSED') { exitHostSession(); clearChatBox(); showLiveChatFloatingUI(false); showToast("Host closed room."); }
+                else handleIncomingControl(data);
+            };
+            ws.onclose = () => { if (currentRoomCode) setTimeout(() => connectWebSocket(), 3000); };
         }
 
         function startHostingSession() {
-            if (localStorage.getItem('syncbeat_active_room')) {
-                showToast("You already have an active room! Please leave or close it first.");
-                return;
-            }
-
+            if (localStorage.getItem('syncbeat_active_room')) { showToast("Active room already running."); return; }
             currentUserName = getUserInputName();
             currentRoomCode = 'SYNC-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-            
             connectWebSocket(() => {
                 isHosting = true;
                 ws.send(JSON.stringify({ type: 'HOST_ROOM', code: currentRoomCode, name: currentUserName, accountId: currentAccountId }));
                 localStorage.setItem('syncbeat_active_room', currentRoomCode);
                 checkBackgroundRoomState();
-
                 document.getElementById('displayRoomCode').textContent = currentRoomCode;
-                document.getElementById('sessionSubtitle').textContent = `Host: ${currentUserName} (${currentAccountId})`;
+                document.getElementById('sessionSubtitle').textContent = `Host: ${currentUserName}`;
                 document.getElementById('sessionHeaderTitle').textContent = "Host Session";
-                document.getElementById('roleIndicatorBadge').textContent = "Role: Host";
-                
-                updateLocalPeerDisplay('HOST');
-                applyRoleUI();
-
+                updateLocalPeerDisplay('HOST'); applyRoleUI();
                 document.getElementById('mainLandingView').classList.add('hidden');
                 document.getElementById('hostSessionView').classList.remove('hidden');
-
                 showLiveChatFloatingUI(true);
             });
         }
@@ -1931,178 +1256,40 @@
             document.getElementById('mainLandingView').classList.add('hidden');
             document.getElementById('hostSessionView').classList.remove('hidden');
             showLiveChatFloatingUI(true);
-            showToast("Returned to room session.");
         }
 
         function connectToRoom() {
-            if (localStorage.getItem('syncbeat_active_room')) {
-                showToast("You already have an active room! Please leave or close it first.");
-                return;
-            }
-
+            if (localStorage.getItem('syncbeat_active_room')) { showToast("Active room already running."); return; }
             currentUserName = getUserInputName();
             const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
-            if (code.length < 4) { showToast("Enter a valid room code."); return; }
-
-            connectWebSocket(() => {
-                ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName, accountId: currentAccountId }));
-            });
+            if (code.length < 4) { showToast("Enter valid code."); return; }
+            connectWebSocket(() => ws.send(JSON.stringify({ type: 'JOIN_ROOM', code: code, name: currentUserName, accountId: currentAccountId })));
         }
 
-        function openMusicGroupUI() {
-            isOfflineGroupMode = true;
-            document.getElementById('mainLandingView').classList.add('hidden');
-            document.getElementById('musicGroupPageView').classList.remove('hidden');
-            document.getElementById('mgMenuState').classList.remove('hidden');
-            document.getElementById('mgServerState').classList.add('hidden');
-            document.getElementById('mgScannerState').classList.add('hidden');
-        }
-
-        function promptMusicGroupExit() {
-            document.getElementById('mgExitDialog').classList.remove('hidden');
-        }
-
-        function closeMgExitDialog() {
-            document.getElementById('mgExitDialog').classList.add('hidden');
-        }
-
-        function confirmMgExit() {
-            document.getElementById('mgExitDialog').classList.add('hidden');
-            document.getElementById('musicGroupPageView').classList.add('hidden');
-            document.getElementById('mainLandingView').classList.remove('hidden');
-            isOfflineGroupMode = false;
-        }
-
-        function startMusicGroupServerCreation() {
-            document.getElementById('mgMenuState').classList.add('hidden');
-            document.getElementById('mgServerState').classList.remove('hidden');
-            
-            const qrContainer = document.getElementById('mgQrCodeContainer');
-            qrContainer.innerHTML = '';
-            const meshCode = "SYNC_MESH_" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            new QRCode(qrContainer, {
-                text: meshCode,
-                width: 160,
-                height: 160,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            connectWebSocket(() => {
-                ws.send(JSON.stringify({ type: 'JOIN_OFFLINE_MESH', name: currentUserName, accountId: currentAccountId, isHost: true }));
-            });
-        }
-
-        function startMusicGroupCameraScanner() {
-            document.getElementById('mgMenuState').classList.add('hidden');
-            document.getElementById('mgScannerState').classList.remove('hidden');
-            
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
-                scannerStream = stream;
-                const video = document.getElementById('mgScannerVideo');
-                video.srcObject = stream;
-                video.play();
-
-                mgScannerInterval = setInterval(() => {
-                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                        const canvas = document.getElementById('mgScannerCanvas');
-                        canvas.height = video.videoHeight;
-                        canvas.width = video.videoWidth;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
-                        if (code) {
-                            stopMusicGroupScanner();
-                            connectWebSocket(() => {
-                                ws.send(JSON.stringify({ type: 'JOIN_OFFLINE_MESH', name: currentUserName, accountId: currentAccountId, isHost: false }));
-                            });
-                        }
-                    }
-                }, 300);
-            }).catch(() => showToast("Camera access denied."));
-        }
-
-        function stopMusicGroupScanner() {
-            if (scannerStream) { scannerStream.getTracks().forEach(t => t.stop()); scannerStream = null; }
-            clearInterval(mgScannerInterval);
-        }
-
-        function handleMgAudioFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            showToast("Reading audio file to broadcast...");
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64Data = e.target.result;
-                playOfflineAudio(file.name, base64Data, 0);
-
-                const chunkSize = 20000;
-                const totalChunks = Math.ceil(base64Data.length / chunkSize);
-                
-                for (let i = 0; i < totalChunks; i++) {
-                    const chunk = base64Data.substring(i * chunkSize, (i + 1) * chunkSize);
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        ws.send(JSON.stringify({
-                            type: 'OFFLINE_FILE_CHUNK',
-                            index: i,
-                            total: totalChunks,
-                            data: chunk,
-                            fileName: file.name
-                        }));
-                    }
-                }
-                showToast("Broadcasting music locally!");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function copyCode() {
-            navigator.clipboard.writeText(currentRoomCode);
-            showToast("Copied code!");
-        }
-
-        function shareCode() {
-            if (navigator.share) { navigator.share({ title: 'SyncBeat Room', text: 'Join my room: ' + currentRoomCode }); }
-        }
+        function copyCode() { navigator.clipboard.writeText(currentRoomCode); showToast("Copied!"); }
+        function shareCode() { if (navigator.share) navigator.share({ title: 'SyncBeat Room', text: currentRoomCode }); }
 
         function closeRoomAndReturnHome() {
             if (isHosting && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ROOM_CLOSED' }));
             localStorage.removeItem('syncbeat_active_room');
-            checkBackgroundRoomState();
-            
-            clearChatBox();
-            showLiveChatFloatingUI(false);
-            exitHostSession();
+            checkBackgroundRoomState(); clearChatBox(); showLiveChatFloatingUI(false); exitHostSession();
         }
 
         function forceCloseActiveHosting() {
             localStorage.removeItem('syncbeat_active_room');
-            checkBackgroundRoomState();
-            
-            clearChatBox();
-            showLiveChatFloatingUI(false);
-
-            stopAllMedia('none');
-            if (ws) { ws.close(); ws = null; }
-            showToast("Force closed active hosting session.");
+            checkBackgroundRoomState(); clearChatBox(); showLiveChatFloatingUI(false);
+            stopAllMedia('none'); if (ws) { ws.close(); ws = null; }
+            showToast("Force closed hosting.");
         }
 
         function goBackToHome() {
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
-            checkBackgroundRoomState();
-            
-            showLiveChatFloatingUI(false);
-            showToast("Returned to home. Room & music running in background.");
+            checkBackgroundRoomState(); showLiveChatFloatingUI(false);
         }
 
         function exitHostSession() {
-            stopAllMedia('none');
-            if (ws) { ws.close(); ws = null; }
-            clearInterval(syncBroadcastInterval);
+            stopAllMedia('none'); if (ws) { ws.close(); ws = null; }
             document.getElementById('hostSessionView').classList.add('hidden');
             document.getElementById('mainLandingView').classList.remove('hidden');
             showLiveChatFloatingUI(false);
