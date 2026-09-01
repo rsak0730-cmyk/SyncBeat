@@ -140,60 +140,21 @@
             transition: transform 0.03s cubic-bezier(0.1, 0.9, 0.2, 1), border-radius 0.04s ease-in-out;
             cursor: pointer;
         }
-        /* 3RD RING: LOW BASS */
         .globe-low-bass-ring {
-            position: absolute;
-            width: 104%;
-            height: 104%;
-            border-radius: 50%;
-            border: 2px dashed #ff3300;
-            animation: spinGlobeWave 5s linear infinite;
-            transition: transform 0.04s ease-out;
+            position: absolute; width: 104%; height: 104%; border-radius: 50%; border: 2px dashed #ff3300; animation: spinGlobeWave 5s linear infinite; transition: transform 0.04s ease-out;
         }
-        /* 2ND RING: MID BASS */
         .globe-mid-bass-ring {
-            position: absolute;
-            width: 86%;
-            height: 86%;
-            border-radius: 50%;
-            border: 1.8px solid #ffbb00;
-            animation: spinGlobeWaveRev 4s linear infinite;
-            transition: transform 0.03s ease-out;
+            position: absolute; width: 86%; height: 86%; border-radius: 50%; border: 1.8px solid #ffbb00; animation: spinGlobeWaveRev 4s linear infinite; transition: transform 0.03s ease-out;
         }
-        /* 1ST RING: HIGH BASS */
         .globe-high-bass-ring {
-            position: absolute;
-            width: 68%;
-            height: 68%;
-            border-radius: 50%;
-            border: 2px dotted #ffffff;
-            animation: spinGlobeWave 2.5s linear infinite;
-            transition: transform 0.02s ease-out;
+            position: absolute; width: 68%; height: 68%; border-radius: 50%; border: 2px dotted #ffffff; animation: spinGlobeWave 2.5s linear infinite; transition: transform 0.02s ease-out;
         }
-        @keyframes spinGlobeWave {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes spinGlobeWaveRev {
-            0% { transform: rotate(360deg); }
-            100% { transform: rotate(0deg); }
-        }
+        @keyframes spinGlobeWave { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinGlobeWaveRev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
         .globe-mesh-core {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, #ff2200, #ffbb00);
-            border-radius: 50%;
-            box-shadow: 0 0 14px #ff2200, 0 0 24px #ffbb00;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 900;
-            color: #000;
+            width: 24px; height: 24px; background: linear-gradient(135deg, #ff2200, #ffbb00); border-radius: 50%; box-shadow: 0 0 14px #ff2200, 0 0 24px #ffbb00; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; color: #000;
         }
-        .globe-mesh-core::after {
-            content: 'MB';
-        }
+        .globe-mesh-core::after { content: 'MB'; }
 
         .inline-volume { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 10px 14px; border-radius: 16px; border: 1px solid #ede9fe; margin-bottom: 14px; }
         .inline-volume input[type="range"] { flex: 1; accent-color: #7c3aed; cursor: pointer; }
@@ -704,7 +665,7 @@
         let activeYtId = null;
         let previousPeersList = [];
 
-        // Gyroscope orientation storage for snow drop tilt
+        // Gyroscope tracking for snow particle tilt drift
         let gyroX = 0;
         let gyroY = 0;
 
@@ -864,33 +825,32 @@
             topCanvas.width = window.innerWidth;
             topCanvas.height = window.innerHeight;
             topParticles = [];
-            for (let i = 0; i < 55; i++) {
+            for (let i = 0; i < 60; i++) {
                 topParticles.push({
                     x: Math.random() * topCanvas.width,
                     y: Math.random() * topCanvas.height,
-                    size: 2 + Math.random() * 3.5,
+                    size: 2.2 + Math.random() * 3.5,
                     vx: (Math.random() - 0.5) * 0.4,
-                    vy: 0.8 + Math.random() * 1.5, // Snow-like falling speed
+                    vy: 1.0 + Math.random() * 1.8,
                     colorHue: Math.random() * 360,
-                    alpha: 0.4 + Math.random() * 0.6
+                    alpha: 0.5 + Math.random() * 0.5
                 });
             }
         }
 
-        // Draw glowing 4-point star glint particle shape
         function drawStarGlint(ctx, x, y, size, alpha, hue) {
             ctx.save();
             ctx.globalAlpha = alpha;
-            ctx.fillStyle = `hsl(${hue}, 100%, 88%)`;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = `hsl(${hue}, 100%, 75%)`;
+            ctx.fillStyle = `hsl(${hue}, 100%, 90%)`;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = `hsl(${hue}, 100%, 80%)`;
 
             ctx.beginPath();
-            ctx.moveTo(x, y - size * 2.5);
-            ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
-            ctx.quadraticCurveTo(x, y, x, y + size * 2.5);
-            ctx.quadraticCurveTo(x, y, x - size * 2.5, y);
-            ctx.quadraticCurveTo(x, y, x, y - size * 2.5);
+            ctx.moveTo(x, y - size * 3);
+            ctx.quadraticCurveTo(x, y, x + size * 3, y);
+            ctx.quadraticCurveTo(x, y, x, y + size * 3);
+            ctx.quadraticCurveTo(x, y, x - size * 3, y);
+            ctx.quadraticCurveTo(x, y, x, y - size * 3);
             ctx.fill();
 
             ctx.restore();
@@ -901,8 +861,8 @@
                 DeviceOrientationEvent.requestPermission().catch(() => {});
             }
             window.addEventListener('deviceorientation', (e) => {
-                gyroX = (e.gamma || 0) * 0.12; // Left/Right tilt
-                gyroY = (e.beta || 0) * 0.08;  // Forward/Backward tilt
+                gyroX = (e.gamma || 0) * 0.15;
+                gyroY = (e.beta || 0) * 0.10;
             });
         }
 
@@ -912,7 +872,6 @@
             function loop() {
                 tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
                 
-                // Only animate and drop snow particles when music is actively playing
                 if (!isSessionPlaying) {
                     particleAnimationId = null;
                     return;
@@ -920,7 +879,7 @@
 
                 const hearable = isAudioActuallyHearable();
                 const bassPunch = hearable ? Math.pow(Math.abs(Math.sin(Date.now() * 0.015 * 3.5)), 4) : 0;
-                const fallMultiplier = 1.0 + (bassPunch * 1.8) + Math.max(0, gyroY);
+                const fallMultiplier = 1.0 + (bassPunch * 2.0) + Math.max(0, gyroY);
 
                 topParticles.forEach(p => {
                     p.x += p.vx + gyroX;
@@ -929,14 +888,14 @@
                     if (p.x < 0) p.x = topCanvas.width;
                     if (p.x > topCanvas.width) p.x = 0;
                     if (p.y > topCanvas.height) {
-                        p.y = -15;
+                        p.y = -20;
                         p.x = Math.random() * topCanvas.width;
                     }
 
                     p.alpha += (Math.random() - 0.5) * 0.04;
                     p.alpha = Math.max(0.3, Math.min(1.0, p.alpha));
 
-                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.6) : 1.0);
+                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.7) : 1.0);
                     drawStarGlint(tCtx, p.x, p.y, currentSize, p.alpha, p.colorHue);
                 });
 
