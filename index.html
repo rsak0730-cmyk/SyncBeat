@@ -140,7 +140,7 @@
             transition: transform 0.03s cubic-bezier(0.1, 0.9, 0.2, 1), border-radius 0.04s ease-in-out;
             cursor: pointer;
         }
-        /* 3RD RING: LOW BASS (Outer Layer - Deep Thump / Slow Heavy Surge) */
+        /* 3RD RING: LOW BASS */
         .globe-low-bass-ring {
             position: absolute;
             width: 104%;
@@ -150,7 +150,7 @@
             animation: spinGlobeWave 5s linear infinite;
             transition: transform 0.04s ease-out;
         }
-        /* 2ND RING: MID BASS (Middle Layer - Punchy Thump / Moderate Speed) */
+        /* 2ND RING: MID BASS */
         .globe-mid-bass-ring {
             position: absolute;
             width: 86%;
@@ -160,7 +160,7 @@
             animation: spinGlobeWaveRev 4s linear infinite;
             transition: transform 0.03s ease-out;
         }
-        /* 1ST RING: HIGH BASS (Inner Layer - Rapid Snappy Treble/Mid Thump) */
+        /* 1ST RING: HIGH BASS */
         .globe-high-bass-ring {
             position: absolute;
             width: 68%;
@@ -246,7 +246,7 @@
         .code-input { width: 100%; background: #faf8ff; border: 1px solid #ddd6fe; padding: 12px 16px; border-radius: 14px; font-size: 15px; font-weight: 700; color: #7c3aed; box-sizing: border-box; outline: none; }
         .btn-purple { background: #7c3aed; color: white; border: none; width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
         .profile-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 10px 20px; border-radius: 20px; font-size: 12px; font-weight: 700; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        #toastModal { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #4c1d95; color: white; padding: 12px 24px; border-radius: 20px; font-size: 13px; font-weight: 700; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         #toastModal.show { opacity: 1; }
         .hidden { display: none !important; }
 
@@ -702,6 +702,11 @@
         let globeBeatInterval = null;
         let isScrubbing = false;
         let activeYtId = null;
+        let previousPeersList = [];
+
+        // Gyroscope orientation storage for snow drop tilt
+        let gyroX = 0;
+        let gyroY = 0;
 
         const realAudio = document.getElementById('realAudioPlayer');
         let currentActiveMode = 'none';
@@ -758,7 +763,7 @@
             return true;
         }
 
-        /* TRIPLE BASS-ONLY INDEPENDENT RING FUNCTIONS (HIGH BASS, MID BASS, LOW BASS) */
+        /* TRIPLE BASS GLOBE EFFECT */
         function startGlobeBeatEffect() {
             if (globeBeatInterval) return;
             const globe = document.getElementById('audioBeatGlobe');
@@ -778,11 +783,9 @@
                 }
 
                 const t = Date.now() * 0.015;
-                
-                /* DISTINCT INDEPENDENT BASS FUNCTIONS */
-                const lowBassFn = Math.pow(Math.abs(Math.sin(t * 3.5)), 4);   // 3RD RING: Low Bass (Deep heavy slow surge)
-                const midBassFn = Math.abs(Math.sin(t * 7.0));                 // 2ND RING: Mid Bass (Punchy moderate pulse)
-                const highBassFn = Math.pow(Math.abs(Math.cos(t * 11.0)), 2);  // 1ST RING: High Bass (Snappy rapid treble-bass snap)
+                const lowBassFn = Math.pow(Math.abs(Math.sin(t * 3.5)), 4);
+                const midBassFn = Math.abs(Math.sin(t * 7.0));
+                const highBassFn = Math.pow(Math.abs(Math.cos(t * 11.0)), 2);
 
                 const coreScale = 1.0 + (midBassFn * 0.18);
                 const lowBassScale = 1.0 + (lowBassFn * 0.30);
@@ -861,47 +864,79 @@
             topCanvas.width = window.innerWidth;
             topCanvas.height = window.innerHeight;
             topParticles = [];
-            for (let i = 0; i < 45; i++) {
+            for (let i = 0; i < 55; i++) {
                 topParticles.push({
                     x: Math.random() * topCanvas.width,
                     y: Math.random() * topCanvas.height,
-                    size: 1.5 + Math.random() * 3,
-                    speed: 0.3 + Math.random() * 0.5,
+                    size: 2 + Math.random() * 3.5,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: 0.8 + Math.random() * 1.5, // Snow-like falling speed
                     colorHue: Math.random() * 360,
-                    alpha: Math.random()
+                    alpha: 0.4 + Math.random() * 0.6
                 });
             }
+        }
+
+        // Draw glowing 4-point star glint particle shape
+        function drawStarGlint(ctx, x, y, size, alpha, hue) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `hsl(${hue}, 100%, 88%)`;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = `hsl(${hue}, 100%, 75%)`;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y - size * 2.5);
+            ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
+            ctx.quadraticCurveTo(x, y, x, y + size * 2.5);
+            ctx.quadraticCurveTo(x, y, x - size * 2.5, y);
+            ctx.quadraticCurveTo(x, y, x, y - size * 2.5);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function initGyroscope() {
+            // Request permission for iOS 13+ devices if needed, standard event for Android/others
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission().catch(() => {});
+            }
+            window.addEventListener('deviceorientation', (e) => {
+                gyroX = (e.gamma || 0) * 0.12; // Left/Right phone tilt redirects snow drift
+                gyroY = (e.beta || 0) * 0.08;  // Forward/Backward tilt alters fall speed
+            });
         }
 
         function startParticleAnimation() {
             if (particleAnimationId) return;
 
             function loop() {
-                if (!isSessionPlaying) {
-                    tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-                    particleAnimationId = null;
-                    return;
-                }
                 tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
-                topParticles.forEach(p => {
-                    p.y += p.speed;
-                    if (p.y > topCanvas.height) { 
-                        p.y = -10; 
-                        p.x = Math.random() * topCanvas.width; 
-                    }
-                    p.alpha += (Math.random() - 0.5) * 0.01;
-                    if (p.alpha < 0.15) p.alpha = 0.15;
-                    if (p.alpha > 0.85) p.alpha = 0.85;
-                    p.colorHue = (p.colorHue + (Math.random() - 0.5) * 1.5) % 360;
+                
+                const hearable = isAudioActuallyHearable();
+                const bassPunch = hearable ? Math.pow(Math.abs(Math.sin(Date.now() * 0.015 * 3.5)), 4) : 0;
+                
+                // Snow drop velocity accelerated by bass drops and gyro tilt
+                const fallMultiplier = 1.0 + (bassPunch * 1.8) + Math.max(0, gyroY);
 
-                    tCtx.save();
-                    tCtx.beginPath();
-                    tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    tCtx.fillStyle = `hsl(${p.colorHue}, 100%, 70%)`;
-                    tCtx.globalAlpha = p.alpha;
-                    tCtx.fill();
-                    tCtx.restore();
+                topParticles.forEach(p => {
+                    p.x += p.vx + gyroX;
+                    p.y += p.vy * fallMultiplier;
+
+                    if (p.x < 0) p.x = topCanvas.width;
+                    if (p.x > topCanvas.width) p.x = 0;
+                    if (p.y > topCanvas.height) {
+                        p.y = -15;
+                        p.x = Math.random() * topCanvas.width;
+                    }
+
+                    p.alpha += (Math.random() - 0.5) * 0.04;
+                    p.alpha = Math.max(0.3, Math.min(1.0, p.alpha));
+
+                    const currentSize = p.size * (hearable ? (1.0 + bassPunch * 0.6) : 1.0);
+                    drawStarGlint(tCtx, p.x, p.y, currentSize, p.alpha, p.colorHue);
                 });
+
                 particleAnimationId = requestAnimationFrame(loop);
             }
             particleAnimationId = requestAnimationFrame(loop);
@@ -918,9 +953,11 @@
         window.addEventListener('resize', initTopCanvas);
         window.addEventListener('DOMContentLoaded', () => {
             initTopCanvas();
+            initGyroscope();
             initPermanentDeviceAccount();
             checkBackgroundRoomState();
             renderEmojiGrid();
+            startParticleAnimation(); // Always running background snow drop particle effect
         });
 
         function toggleEmojiKeyboard() {
@@ -1010,13 +1047,11 @@
             if (vfx) vfx.classList.toggle('hidden', !isPlaying);
 
             if (isPlaying) {
-                startParticleAnimation();
                 startGlobeBeatEffect();
                 if (activeYtId) {
                     updatePlayerBoxThumbnail(activeYtId);
                 }
             } else {
-                stopParticleAnimation();
                 stopGlobeBeatEffect();
                 updatePlayerBoxThumbnail(null);
             }
@@ -1046,6 +1081,7 @@
                 ytPlayer.unMute();
                 ytPlayer.setVolume(100);
             }
+            applyRoleUI();
             showToast("Media & Sound Activated!");
         }
 
@@ -1280,6 +1316,7 @@
         }
 
         function handleUrlAction(type) {
+            if (!isHosting) { showToast("Only the host can modify playback or queues."); return; }
             const input = document.getElementById('queueUrlInput');
             const val = input.value.trim();
             const ytId = extractYouTubeId(val);
@@ -1292,7 +1329,6 @@
                 renderQueue();
                 showToast("Added to upcoming queue!");
             } else {
-                if (!isHosting) { showToast("Only the host can play songs."); return; }
                 playYouTubeStream(val, ytId, 0);
             }
             input.value = "";
@@ -1440,6 +1476,7 @@
         }
 
         function updateSliderPosition(e) {
+            if (!isHosting) return;
             const track = document.getElementById('progressTrackScrubber');
             if (!track) return;
             const rect = track.getBoundingClientRect();
@@ -1461,6 +1498,7 @@
         }
 
         function finalizeSeek(clientX) {
+            if (!isHosting) return;
             const track = document.getElementById('progressTrackScrubber');
             if (!track) return;
             const rect = track.getBoundingClientRect();
@@ -1746,6 +1784,24 @@
             if (masterVol) masterVol.disabled = !isHost;
         }
 
+        function handlePeerListUpdate(newPeers) {
+            newPeers.forEach(newPeer => {
+                const foundOld = previousPeersList.find(p => p.accountId === newPeer.accountId);
+                if (!foundOld && newPeer.accountId !== currentAccountId) {
+                    showToast(`'${newPeer.name} (${newPeer.accountId})' is connected`);
+                }
+            });
+
+            previousPeersList.forEach(oldPeer => {
+                const foundNew = newPeers.find(p => p.accountId === oldPeer.accountId);
+                if (!foundNew && oldPeer.accountId !== currentAccountId) {
+                    showToast(`'${oldPeer.name} (${oldPeer.accountId})' is disconnected`);
+                }
+            });
+
+            previousPeersList = newPeers;
+        }
+
         function connectWebSocket(onSuccess, onError) {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 if (onSuccess) onSuccess();
@@ -1805,6 +1861,7 @@
                             document.getElementById('interactionOverlay').classList.remove('hidden');
                             showToast("Reconnected to room: " + data.code);
                         } else if (data.type === 'PEER_LIST') {
+                            handlePeerListUpdate(data.peers || []);
                             const container = document.getElementById('peerListContainer');
                             if (container) {
                                 container.innerHTML = '';
