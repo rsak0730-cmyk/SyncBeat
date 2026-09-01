@@ -897,13 +897,12 @@
         }
 
         function initGyroscope() {
-            // Request permission for iOS 13+ devices if needed, standard event for Android/others
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission().catch(() => {});
             }
             window.addEventListener('deviceorientation', (e) => {
-                gyroX = (e.gamma || 0) * 0.12; // Left/Right phone tilt redirects snow drift
-                gyroY = (e.beta || 0) * 0.08;  // Forward/Backward tilt alters fall speed
+                gyroX = (e.gamma || 0) * 0.12; // Left/Right tilt
+                gyroY = (e.beta || 0) * 0.08;  // Forward/Backward tilt
             });
         }
 
@@ -913,10 +912,14 @@
             function loop() {
                 tCtx.clearRect(0, 0, topCanvas.width, topCanvas.height);
                 
+                // Only animate and drop snow particles when music is actively playing
+                if (!isSessionPlaying) {
+                    particleAnimationId = null;
+                    return;
+                }
+
                 const hearable = isAudioActuallyHearable();
                 const bassPunch = hearable ? Math.pow(Math.abs(Math.sin(Date.now() * 0.015 * 3.5)), 4) : 0;
-                
-                // Snow drop velocity accelerated by bass drops and gyro tilt
                 const fallMultiplier = 1.0 + (bassPunch * 1.8) + Math.max(0, gyroY);
 
                 topParticles.forEach(p => {
@@ -957,7 +960,6 @@
             initPermanentDeviceAccount();
             checkBackgroundRoomState();
             renderEmojiGrid();
-            startParticleAnimation(); // Always running background snow drop particle effect
         });
 
         function toggleEmojiKeyboard() {
@@ -1047,11 +1049,13 @@
             if (vfx) vfx.classList.toggle('hidden', !isPlaying);
 
             if (isPlaying) {
+                startParticleAnimation();
                 startGlobeBeatEffect();
                 if (activeYtId) {
                     updatePlayerBoxThumbnail(activeYtId);
                 }
             } else {
+                stopParticleAnimation();
                 stopGlobeBeatEffect();
                 updatePlayerBoxThumbnail(null);
             }
