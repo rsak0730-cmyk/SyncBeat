@@ -1,9 +1,10 @@
-const CACHE_NAME = 'syncbeat-v2';
+const CACHE_NAME = 'syncbeat-v3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.min.js'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
