@@ -1,10 +1,10 @@
-const CACHE_NAME = 'syncbeat-v3';
+const CACHE_NAME = 'syncbeat-v4';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  'https://raw.githubusercontent.com/pwa-builder/pwa-starter/main/public/assets/icons/icon-192x192.png',
+  'https://raw.githubusercontent.com/pwa-builder/pwa-starter/main/public/assets/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', (e) => {
