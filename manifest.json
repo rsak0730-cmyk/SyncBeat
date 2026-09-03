@@ -8,15 +8,15 @@
   "theme_color": "#7c3aed",
   "icons": [
     {
-      "src": "https://github.githubassets.com/favicons/favicon.png",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Cdefs%3E%linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%237c3aed'/%3E%3Cstop offset='100%25' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='192' height='192' rx='44' fill='url(%23bg)'/%3E%3Cpath d='M76 56h12v80H76zM44 76h12v40H44zM108 66h12v60h-12zM140 82h12v28h-12z' fill='%2300ff66' rx='6'/%3E%3Ccircle cx='96' cy='96' r='72' fill='none' stroke='%23ffffff' stroke-width='6' stroke-opacity='0.25'/%3E%3C/svg%3E",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "https://github.githubassets.com/favicons/favicon.png",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%237c3aed'/%3E%3Cstop offset='100%25' stop-color='%234c1d95'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='116' fill='url(%23bg)'/%3E%3Cpath d='M204 150h32v212h-32zM118 202h32v108h-32zM290 176h32v160h-32zM376 218h32v76h-32z' fill='%2300ff66' rx='12'/%3E%3Ccircle cx='256' cy='256' r='192' fill='none' stroke='%23ffffff' stroke-width='16' stroke-opacity='0.25'/%3E%3C/svg%3E",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
