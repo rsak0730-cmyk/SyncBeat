@@ -4,7 +4,7 @@
   "description": "Multi-Device Real-Time Room Synchronization and Music Controller app",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f5f3ff",
+  "background_color": "#f8fafc",
   "theme_color": "#7c3aed",
   "icons": [
     {
