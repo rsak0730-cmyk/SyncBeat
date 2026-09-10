@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncBeat - Real-Time Multi-Device Synchronization</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="./icon-192.png">
+    <meta name="theme-color" content="#7c3aed">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19',
+                        cardBg: '#131c2e',
+                        accent: '#7c3aed',
+                        accentHover: '#6d28d9'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes floatUp {
+            0% { transform: translateY(0px) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.4); opacity: 0; }
+        }
+        .floating-reaction {
+            position: absolute;
+            animation: floatUp 2s ease-out forwards;
+            pointer-events: none;
+            font-size: 2rem;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col font-sans select-none overflow-x-hidden">
+
+    <!-- Top Navbar -->
+    <header class="bg-cardBg border-b border-gray-800 px-4 py-3 flex items-center justify-between shadow-lg sticky top-0 z-40">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <i class="fa-solid fa-music text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wider bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">SyncBeat</h1>
+                <p class="text-xs text-gray-400">Multi-Device Sync</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div id="connectionStatus" class="flex items-center space-x-2 bg-gray-900/80 px-3 py-1.5 rounded-full border border-gray-800 text-xs">
+                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse" id="statusDot"></span>
+                <span id="statusText" class="text-gray-300">Connecting...</span>
+            </div>
+            <button onclick="openSettingsModal()" class="w-9 h-9 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-300 transition">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 max-w-7xl mx-auto w-full">
+
+        <!-- LANDING / HOME VIEW -->
+        <div id="homeView" class="w-full max-w-md bg-cardBg border border-gray-800 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-bold text-white">Synchronized Media</h2>
+                <p class="text-sm text-gray-400">Watch YouTube & listen together in real-time across devices.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Your Name</label>
+                    <input type="text" id="userNameInput" placeholder="Enter your display name" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="createRoom()" class="w-full bg-accent hover:bg-accentHover font-semibold py-3 px-4 rounded-xl shadow-lg shadow-purple-600/30 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Host Room</span>
+                    </button>
+                    <button onclick="showJoinModal()" class="w-full bg-gray-800 hover:bg-gray-700 font-semibold py-3 px-4 rounded-xl border border-gray-700 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Join Room</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROOM VIEW -->
+        <div id="roomView" class="w-full hidden flex-col lg:flex-row gap-6">
+            <!-- Left / Main Content: Player & Controls -->
+            <div class="flex-1 flex flex-col space-y-4">
+                <!-- Room info bar -->
+                <div class="bg-cardBg border border-gray-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-purple-900/50 text-purple-300 border border-purple-700/50 text-xs font-mono px-3 py-1.5 rounded-lg flex items-center space-x-2">
+                            <i class="fa-solid fa-key text-xs"></i>
+                            <span id="displayRoomCode" class="font-bold tracking-widest text-sm">----</span>
+                        </span>
+                        <button onclick="copyRoomCode()" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg text-gray-300 transition flex items-center space-x-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="roleBadge" class="text-xs px-2.5 py-1 rounded-full font-semibold uppercase">Member</span>
+                        <button onclick="leaveRoom()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                            Leave Room
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Media Input Bar (Host Only or Shared) -->
+                <div id="mediaInputContainer" class="bg-cardBg border border-gray-800 rounded-xl p-4 flex items-center space-x-3">
+                    <input type="text" id="mediaUrlInput" placeholder="Paste YouTube URL or Video/Audio link..." class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-accent transition">
+                    <button onclick="loadMedia()" class="bg-accent hover:bg-accentHover text-sm font-semibold px-5 py-2.5 rounded-lg transition shadow-md">
+                        Load Media
+                    </button>
+                </div>
+
+                <!-- Player Screen Container -->
+                <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border border-gray-800 shadow-2xl flex items-center justify-center" id="playerWrapper">
+                    <div id="youtubePlayer" class="w-full h-full absolute inset-0"></div>
+                    <video id="html5Player" class="w-full h-full absolute inset-0 hidden object-contain" controls></video>
+                    <div id="playerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950/90 text-gray-500 space-y-3 p-6 text-center">
+                        <i class="fa-solid fa-film text-4xl text-gray-700 animate-bounce"></i>
+                        <p class="text-sm">No media loaded yet. Paste a YouTube link above to start synchronized playback.</p>
+                    </div>
+                </div>
+
+                <!-- Reaction Toolbar -->
+                <div class="bg-cardBg border border-gray-800 rounded-xl p-3 flex items-center justify-center space-x-4">
+                    <button onclick="sendReaction('❤️')" class="text-2xl hover:scale-125 transition transform">❤️</button>
+                    <button onclick="sendReaction('🔥')" class="text-2xl hover:scale-125 transition transform">🔥</button>
+                    <button onclick="sendReaction('👏')" class="text-2xl hover:scale-125 transition transform">👏</button>
+                    <button onclick="sendReaction('😂')" class="text-2xl hover:scale-125 transition transform">😂</button>
+                    <button onclick="sendReaction('🎉')" class="text-2xl hover:scale-125 transition transform">🎉</button>
+                    <button onclick="sendReaction('😮')" class="text-2xl hover:scale-125 transition transform">😮</button>
+                </div>
+            </div>
+
+            <!-- Right Sidebar: Participants & Chat -->
+            <div class="w-full lg:w-80 flex flex-col space-y-4">
+                <!-- Participants Box -->
+                <div class="bg-cardBg border border-gray-800 rounded-xl p-4 flex flex-col h-48">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3 flex items-center justify-between">
+                        <span>Participants</span>
+                        <span id="peerCount" class="bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full text-xs">0</span>
+                    </h3>
+                    <div id="peerList" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Chat Box -->
+                <div class="bg-cardBg border border-gray-800 rounded-xl p-4 flex flex-col h-96">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Room Chat</h3>
+                    <div id="chatMessages" class="flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm mb-3">
+                        <div class="text-gray-500 text-center text-xs italic py-2">Welcome to room chat!</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="chatInput" onkeydown="handleChatKeyDown(event)" placeholder="Type a message..." class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-accent transition">
+                        <button onclick="sendChatMessage()" class="bg-accent hover:bg-accentHover px-4 py-2 rounded-lg text-white text-sm transition">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Join Room Modal -->
+    <div id="joinModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-gray-800 rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white">Join Existing Room</h3>
+            <p class="text-xs text-gray-400">Enter the room code shared by the host.</p>
+            <input type="text" id="joinRoomCodeInput" placeholder="Enter Room Code" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-600 uppercase tracking-widest text-center font-mono focus:outline-none focus:border-accent transition">
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeJoinModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 py-2.5 rounded-xl text-sm font-semibold transition">Cancel</button>
+                <button onclick="joinRoom()" class="flex-1 bg-accent hover:bg-accentHover py-2.5 rounded-xl text-sm font-semibold transition">Join</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cardBg border border-gray-800 rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white">Settings</h3>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">WebSocket Server URL</label>
+                <input type="text" id="wsUrlInput" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-accent transition">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeSettingsModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 py-2.5 rounded-xl text-sm font-semibold transition">Cancel</button>
+                <button onclick="saveSettings()" class="flex-1 bg-accent hover:bg-accentHover py-2.5 rounded-xl text-sm font-semibold transition">Save & Reconnect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Reactions Overlay Container -->
+    <div id="reactionsOverlay" class="fixed inset-0 pointer-events-none overflow-hidden z-50"></div>
+
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        // --- App State & Configuration ---
+        let ws = null;
+        let accountId = localStorage.getItem('syncbeat_account_id');
+        if (!accountId) {
+            accountId = 'user_' + Math.random().toString(36.substring(2, 9));
+            localStorage.setItem('syncbeat_account_id', accountId);
+        }
+
+        const defaultWsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host;
+        let wsUrl = localStorage.getItem('syncbeat_ws_url') || defaultWsUrl;
+        document.getElementById('wsUrlInput').value = wsUrl;
+
+        let currentRoomCode = null;
+        let isHost = false;
+        let ytPlayer = null;
+        let ytApiReady = false;
+        let pendingYtId = null;
+        let isSyncingFromRemote = false;
+
+        // Initialize Name
+        const savedName = localStorage.getItem('syncbeat_name');
+        if (savedName) {
+            document.getElementById('userNameInput').value = savedName;
+        }
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        // --- WebSocket Connection ---
+        function connectWebSocket() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse";
+            statusText.textContent = "Connecting...";
+
+            try {
+                ws = new WebSocket(wsUrl);
+            } catch (e) {
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                statusText.textContent = "Connection Error";
+                return;
+            }
+
+            ws.onopen = () => {
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-green-500";
+                statusText.textContent = "Connected";
+                // Start Ping keepalive
+                startPingInterval();
+            };
+
+            ws.onclose = () => {
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                statusText.textContent = "Disconnected";
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = () => {
+                statusDot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                statusText.textContent = "Error";
+            };
+
+            ws.onmessage = (event) => {
+                let msg;
+                try {
+                    msg = JSON.parse(event.data);
+                } catch (e) { return; }
+
+                handleServerMessage(msg);
+            };
+        }
+
+        let pingInterval = null;
+        function startPingInterval() {
+            if (pingInterval) clearInterval(pingInterval);
+            pingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'PING' }));
+                }
+            }, 25000);
+        }
+
+        connectWebSocket();
+
+        // --- Server Message Handling ---
+        function handleServerMessage(msg) {
+            switch (msg.type) {
+                case 'PONG':
+                    break;
+                case 'ROOM_CREATED':
+                case 'ROOM_HOSTED_SUCCESS':
+                    currentRoomCode = msg.code;
+                    isHost = true;
+                    onRoomJoinedSuccess();
+                    break;
+                case 'ROOM_JOINED':
+                case 'ROOM_JOIN_SUCCESS':
+                    currentRoomCode = msg.code;
+                    isHost = false;
+                    onRoomJoinedSuccess();
+                    break;
+                case 'ROOM_NOT_FOUND':
+                    alert('Room not found or host has disconnected.');
+                    break;
+                case 'PEER_LIST':
+                    updatePeerList(msg.peers);
+                    break;
+                case 'PLAY_YOUTUBE':
+                case 'LOAD_VIDEO':
+                    loadAndPlayYouTube(msg.ytId || msg.videoId, msg.time || 0);
+                    break;
+                case 'MEDIA_SYNC':
+                case 'SYNC_TIME':
+                    if (!isHost && ytPlayer && typeof ytPlayer.seekTo === 'function') {
+                        const currentTime = ytPlayer.getCurrentTime();
+                        if (Math.abs(currentTime - (msg.time || 0)) > 1.5) {
+                            isSyncingFromRemote = true;
+                            ytPlayer.seekTo(msg.time || 0, true);
+                            setTimeout(() => { isSyncingFromRemote = false; }, 500);
+                        }
+                    }
+                    break;
+                case 'CONTROL':
+                    if (!isHost && ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                        isSyncingFromRemote = true;
+                        if (msg.action === 'play') ytPlayer.playVideo();
+                        if (msg.action === 'pause') ytPlayer.pauseVideo();
+                        setTimeout(() => { isSyncingFromRemote = false; }, 500);
+                    }
+                    break;
+                case 'CHAT_MESSAGE':
+                    appendChatMessage(msg.name, msg.message);
+                    break;
+                case 'REACTION':
+                    spawnReaction(msg.emoji);
+                    break;
+                case 'ROOM_CLOSED':
+                    alert('The host has closed the room.');
+                    leaveRoom();
+                    break;
+            }
+        }
+
+        // --- Room Actions ---
+        function getUserName() {
+            const nameInput = document.getElementById('userNameInput');
+            let name = nameInput.value.trim();
+            if (!name) name = 'User_' + Math.floor(Math.random() * 1000);
+            localStorage.setItem('syncbeat_name', name);
+            return name;
+        }
+
+        function createRoom() {
+            const name = getUserName();
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            ws.send(JSON.stringify({
+                type: 'CREATE_ROOM',
+                code: code,
+                name: name,
+                accountId: accountId
+            }));
+        }
+
+        function showJoinModal() {
+            document.getElementById('joinModal').classList.remove('hidden');
+        }
+
+        function closeJoinModal() {
+            document.getElementById('joinModal').classList.add('hidden');
+        }
+
+        function joinRoom() {
+            const codeInput = document.getElementById('joinRoomCodeInput');
+            const code = codeInput.value.trim().toUpperCase();
+            if (!code) return;
+            const name = getUserName();
+            ws.send(JSON.stringify({
+                type: 'JOIN_ROOM',
+                code: code,
+                name: name,
+                accountId: accountId
+            }));
+            closeJoinModal();
+        }
+
+        function onRoomJoinedSuccess() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('roomView').classList.remove('hidden');
+            document.getElementById('roomView').classList.add('flex');
+            document.getElementById('displayRoomCode').textContent = currentRoomCode;
+
+            const roleBadge = document.getElementById('roleBadge');
+            const mediaInputContainer = document.getElementById('mediaInputContainer');
+
+            if (isHost) {
+                roleBadge.textContent = 'Host';
+                roleBadge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30';
+                mediaInputContainer.classList.remove('hidden');
+            } else {
+                roleBadge.textContent = 'Member';
+                roleBadge.className = 'text-xs px-2.5 py-1 rounded-full font-semibold uppercase bg-blue-500/20 text-blue-300 border border-blue-500/30';
+                mediaInputContainer.classList.add('hidden');
+            }
+        }
+
+        function leaveRoom() {
+            if (isHost && ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'CLOSE_ROOM' }));
+            }
+            currentRoomCode = null;
+            isHost = false;
+            document.getElementById('roomView').classList.add('hidden');
+            document.getElementById('roomView').classList.remove('flex');
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('chatMessages').innerHTML = '<div class="text-gray-500 text-center text-xs italic py-2">Welcome to room chat!</div>';
+            if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+                ytPlayer.stopVideo();
+            }
+            document.getElementById('playerPlaceholder').classList.remove('hidden');
+        }
+
+        function copyRoomCode() {
+            navigator.clipboard.writeText(currentRoomCode);
+            alert('Room code copied to clipboard: ' + currentRoomCode);
+        }
+
+        // --- YouTube & Media Handling ---
+        function extractYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : (url.length === 11 ? url : null);
+        }
+
+        function loadMedia() {
+            if (!isHost) return;
+            const input = document.getElementById('mediaUrlInput');
+            const url = input.value.trim();
+            const ytId = extractYouTubeId(url);
+
+            if (!ytId) {
+                alert('Please enter a valid YouTube URL or 11-character Video ID.');
+                return;
+            }
+
+            const mediaMsg = {
+                type: 'PLAY_YOUTUBE',
+                ytId: ytId,
+                time: 0
+            };
+
+            ws.send(JSON.stringify(mediaMsg));
+            loadAndPlayYouTube(ytId, 0);
+        }
+
+        function onYouTubeIframeAPIReady() {
+            ytApiReady = true;
+            if (pendingYtId) {
+                loadAndPlayYouTube(pendingYtId, 0);
+                pendingYtId = null;
+            }
+        }
+
+        function loadAndPlayYouTube(ytId, startTime = 0) {
+            document.getElementById('playerPlaceholder').classList.add('hidden');
+            
+            if (!ytApiReady) {
+                pendingYtId = ytId;
+                return;
+            }
+
+            if (!ytPlayer) {
+                ytPlayer = new YT.Player('youtubePlayer', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: ytId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'controls': isHost ? 1 : 0,
+                        'modestbranding': 1,
+                        'rel': 0
+                    },
+                    events: {
+                        'onReady': (event) => {
+                            event.target.seekTo(startTime);
+                            event.target.playVideo();
+                            startPlayerSyncMonitoring();
+                        },
+                        'onStateChange': (event) => {
+                            if (isHost && !isSyncingFromRemote) {
+                                if (event.data === YT.PlayerState.PLAYING) {
+                                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'play' }));
+                                    ws.send(JSON.stringify({ type: 'SYNC_TIME', time: ytPlayer.getCurrentTime() }));
+                                } else if (event.data === YT.PlayerState.PAUSED) {
+                                    ws.send(JSON.stringify({ type: 'CONTROL', action: 'pause' }));
+                                    ws.send(JSON.stringify({ type: 'SYNC_TIME', time: ytPlayer.getCurrentTime() }));
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                ytPlayer.loadVideoById({videoId: ytId, startSeconds: startTime});
+            }
+        }
+
+        let lastSentTime = 0;
+        function startPlayerSyncMonitoring() {
+            setInterval(() => {
+                if (isHost && ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                    if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+                        const t = ytPlayer.getCurrentTime();
+                        if (Math.abs(t - lastSentTime) > 3) {
+                            lastSentTime = t;
+                            ws.send(JSON.stringify({ type: 'SYNC_TIME', time: t }));
+                        }
+                    }
+                }
+            }, 3000);
+        }
+
+        // --- Chat & Reactions ---
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message || !currentRoomCode) return;
+
+            ws.send(JSON.stringify({
+                type: 'CHAT',
+                message: message
+            }));
+
+            appendChatMessage('You', message);
+            input.value = '';
+        }
+
+        function handleChatKeyDown(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        function appendChatMessage(sender, message) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = "flex flex-col space-y-0.5";
+            div.innerHTML = `<span class="text-xs font-semibold text-purple-400">${escapeHtml(sender)}</span><span class="bg-gray-900/80 p-2 rounded-lg text-gray-200 border border-gray-800/60">${escapeHtml(message)}</span>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendReaction(emoji) {
+            if (!currentRoomCode) return;
+            ws.send(JSON.stringify({
+                type: 'REACTION',
+                emoji: emoji
+            }));
+            spawnReaction(emoji);
+        }
+
+        function spawnReaction(emoji) {
+            const overlay = document.getElementById('reactionsOverlay');
+            const el = document.createElement('div');
+            el.className = 'floating-reaction';
+            el.textContent = emoji;
+            el.style.left = Math.random() * 80 + 10 + '%';
+            el.bottom = '10px';
+            el.style.bottom = '20px';
+            overlay.appendChild(el);
+            setTimeout(() => el.remove(), 2000);
+        }
+
+        function updatePeerList(peers) {
+            document.getElementById('peerCount').textContent = peers.length;
+            const listContainer = document.getElementById('peerList');
+            listContainer.innerHTML = '';
+            peers.forEach(peer => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-gray-900/60 border border-gray-800/80 px-3 py-2 rounded-lg text-xs";
+                item.innerHTML = `<span class="font-medium text-gray-200 flex items-center space-x-2"><i class="fa-solid fa-user text-gray-400 text-xs"></i><span>${escapeHtml(peer.name)}</span></span><span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold ${peer.role === 'HOST' ? 'bg-purple-900/40 text-purple-300 border border-purple-700/40' : 'bg-gray-800 text-gray-400'}">${peer.role}</span>`;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // --- Settings Modal ---
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const input = document.getElementById('wsUrlInput');
+            const val = input.value.trim();
+            if (val) {
+                wsUrl = val;
+                localStorage.setItem('syncbeat_ws_url', wsUrl);
+                connectWebSocket();
+            }
+            closeSettingsModal();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
+
