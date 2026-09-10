@@ -1,4 +1,4 @@
-const CACHE_NAME = 'syncbeat-cache-v3';
+const CACHE_NAME = 'syncbeat-cache-v10';
 const URLS_TO_CACHE = [
   './',
   './index.html',
